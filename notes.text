@@ -1,0 +1,25 @@
+do we want propensity scores / ipws to be calculated in package or outside of the package….
+- Nate “goal is to do it within R package because other packages cannot do that”
+
+Recipe function….
+are we confident? to the extremes?
+PSs / IPWs - we need a vector weights….
+- if no PSs/IPWs - just a vector of 1s
+- list 
+
+Plots
+- histograms of Propensity scores…
+- covariates that you are trying to balance. love plot, how well is certain covariate balanced
+PS object per dataset?
+- PS applied to all individuals in control, what is probability being in the internal. dataset doing probability is joint current study using the data from both.
+probably PS object across both current and external data…
+
+biggest question is around inputs….
+
+not 1 primary function….
+- functions for each 
+
+
+
+
+
