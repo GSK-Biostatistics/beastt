@@ -1,3 +1,4 @@
+11_2_2023
 do we want propensity scores / ipws to be calculated in package or outside of the package….
 - Nate “goal is to do it within R package because other packages cannot do that”
 
@@ -14,10 +15,51 @@ PS object per dataset?
 - PS applied to all individuals in control, what is probability being in the internal. dataset doing probability is joint current study using the data from both.
 probably PS object across both current and external data…
 
-biggest question is around inputs….
+biggest question is around inputs...
 
 not 1 primary function….
 - functions for each 
+
+11_09_2023
+
+agreement on focus and breaking up functions by cases / data types
+propensity score 0, 1 and particular covariantes 
+- datasets have to exist (datasets you want and scores of those datasets)
+- datascore object required
+
+covariate adjustment could just mean regression. "adjust" might be changed....
+active treated group is not the control arm
+
+how long does inverse probability weights? instantaneous
+would you want one object that is prospensity scores and inverse prob - and create power prior or Separate them?
+ - having object with propospective and ivnerse prob weights and external data to create object that is the power prior
+    - allows flexibility to try different power priors
+
+covariates could be same used in propensity score. FUTURE extension might be different with regression.
+
+expression like system - allowed to put in expression of model want, allows people to do covariate adjustments they want to do later
+ - base R binomial etc. parameterization (tau v normal)
+
+power prior object and then robust mixture power prior object
+
+MAP - list of specific components...some sort of distribution.
+
+big question mark on how well can integrate other packages (i.e. MAP from RBesT)
+
+Would you have a mixture prior made up of more than power prior. if you merge two external datasets does it double count data? NO - internal response data gets multipled by weights.
+
+propensity score takes in one internal and one external.
+
+3 object type - propensity score (internal and external data) inverse probability weights, power prior (single object type) takes in covariate adjustment takes in expression of model, robust mixture prior with weights and various distributions associated with each weight  
+ - 1 external per propensity score
+
+do you need different object types for prior and posterior OR can they look the same?
+if you do treatment difference, might be different....fundamentally is it just a distribution so if its a distribution it looks similar.
+
+ 
+
+
+
 
 
 
