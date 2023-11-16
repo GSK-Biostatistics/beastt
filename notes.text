@@ -56,6 +56,17 @@ propensity score takes in one internal and one external.
 do you need different object types for prior and posterior OR can they look the same?
 if you do treatment difference, might be different....fundamentally is it just a distribution so if its a distribution it looks similar.
 
+
+11_16_2023
+
+how do we deal with with multiple external datasets 
+ - use the map prior...
+
+want multiple options
+ - two informative pieces, one adult and one adolescense 
+
+start first with robust mixtures priors and then do maps in the future
+
  
 
 
