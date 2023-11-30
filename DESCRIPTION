@@ -1,11 +1,16 @@
 Package: beastt
-Title: What the Package Does (One Line, Title Case)
+Title: Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: MIT + file LICENSE
+    c(
+    person(given = "Christina",
+                    family = "Fillmore",
+                    role = c("aut"),
+                    email = "christina.e.fillmore@gsk.com",
+                    comment = c(ORCID = "0000-0003-0595-2302"))
+                    )
+Description: Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (BEASTT).
+License: Apache License (>= 2)
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
