@@ -97,17 +97,30 @@ create_prop_scr <- function(internal_df, external_df,
   )
 }
 
-print.prop_scr_obj <- function(x){
+#' @export
+#' @importFrom cli cli_h1 cli_text
+print.prop_scr_obj <- function(x, n = 10){
   # cat the model
-  # x$external_df |>
-  #   select(id, ps, ipw)
+  cli_h1("Model")
+  cli_bullets(c("*" = f_rhs(x$model)))
+  cli_h1("Propensoity Scores and Weights")
+  x$external_df |>
+    select(!!x$id_col, `Propensity Score` = `___ps___`,
+           `Inverse Probablity Weight` = `___ipw___`) |>
+    print(n = n)
 }
 
+#' @export
+tidy.prop_scr_obj <- function(x){
+  x$external_df |>
+    select(!!x$id_col, `___ps___`, `___ipw___`)
+}
 
-# TODO add tidy function that returns
+#' @export
+glance.prop_scr_obj <- function(x){
+  x$external_df |>
+    bind_rows(x$internal_df)
+}
+
 # TODO add plots
 
-
-empty_vec_test <- function(vec, message){
-
-}
