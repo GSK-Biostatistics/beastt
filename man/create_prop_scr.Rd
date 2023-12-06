@@ -18,7 +18,7 @@ subject. It must be the same across datasets}
 
 \item{model}{Model used to calculate propensity scores}
 
-\item{...}{}
+\item{...}{Optional arguments}
 }
 \value{
 \code{prop_scr_obj} object, with the internal and the external data and
