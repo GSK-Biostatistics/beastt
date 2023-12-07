@@ -14,12 +14,13 @@
 #'   subject.
 #' @export
 #' @importFrom rlang f_rhs f_lhs `f_lhs<-` is_formula enquo as_name
-#' @importFrom stringr str_split_1
+#' @importFrom stringr str_split_1 str_detect
 #' @importFrom cli cli_abort
-#' @importFrom purrr reduce
+#' @importFrom purrr reduce discard
 #' @importFrom rlang sym
-#' @importFrom dplyr mutate filter
+#' @importFrom dplyr mutate filter tibble
 #' @importFrom stats glm
+#' @importFrom cobalt bal.tab
 create_prop_scr <- function(internal_df, external_df,
                             id_col, model, ...){
   if(!is_formula(model)){
@@ -36,7 +37,8 @@ create_prop_scr <- function(internal_df, external_df,
 
     covriates <- f_rhs(model) |>
       format() |>
-      str_split_1("\\s?\\+\\s?")
+      str_split_1("\\s?\\+\\s?") |>
+      discard(str_detect, "1")
 
     inter <- reduce(list(colnames(internal_df),
                        colnames(external_df),
@@ -87,14 +89,38 @@ create_prop_scr <- function(internal_df, external_df,
 
   all_df_ps <- all_df |>
     mutate(`___ps___` = glm(model, data = all_df, family = binomial)$fitted,
-           `___ipw___` = .data$`___internal___` + (1 - .data$`___internal___`) * .data$`___ps___` / (1 - .data$`___ps___`)
+           `___weight___` = .data$`___internal___` + (1 - .data$`___internal___`) * .data$`___ps___` / (1 - .data$`___ps___`)
     )
+
+  # Calculating the absolute standardized mean difference
+  asmd_adj <- bal.tab(select(all_df_ps, !!covriates), # df of covariates (internal and external)
+                  treat = all_df_ps$`___internal___`,   # internal indicator
+                  binary = "std",         # use standardized version of mean differences for binary covariates
+                  continuous = "std",     # use standardized version of mean differences for continuous covariates
+                  s.d.denom = "pooled",   # calculation of the denominator of SMD
+                  weights = all_df_ps$`___weight___`,
+                  abs = TRUE)$Balance
+
+  asmd_unadj <- bal.tab(select(all_df_ps, !!covriates), # df of covariates (internal and external)
+                      treat = all_df_ps$`___internal___`,   # internal indicator
+                      binary = "std",         # use standardized version of mean differences for binary covariates
+                      continuous = "std",     # use standardized version of mean differences for continuous covariates
+                      s.d.denom = "pooled",   # calculation of the denominator of SMD
+                      abs = TRUE)$Balance
+
+  asmd_clean <- tibble(
+    covariate = rownames(asmd_adj),
+    diff_unadj = asmd_unadj[,2],
+    diff_adj = asmd_adj[,3],
+  )
+
 
   structure(
     list(
          internal_df = filter(all_df_ps, .data$`___internal___` == TRUE),
          external_df = filter(all_df_ps, .data$`___internal___` == FALSE),
-         id_col=id_col_en, model = model
+         id_col=id_col_en, model = model,
+         abs_std_mean_diff = asmd_clean
          ),
     class = c("prop_scr")
   )
@@ -109,15 +135,19 @@ print.prop_scr <- function(x, ..., n = 10){
   cli_bullets(c("*" = f_rhs(x$model)))
   cli_h1("Propensoity Scores and Weights")
   x$external_df |>
-    select(!!x$id_col, `Propensity Score` = .data$`___ps___`,
-           `Inverse Probablity Weight` = .data$`___ipw___`) |>
+    select(!!x$id_col,
+           Internal = .data$`___internal___`,
+           `Propensity Score` = .data$`___ps___`,
+           `Inverse Probablity Weight` = .data$`___weight___`) |>
     print(n = n)
+  cli_h1("Absolute Standardized Mean Difference")
+  print(x$abs_std_mean_diff)
 }
 
 #' @export
 tidy.prop_scr <- function(x, ...){
   x$external_df |>
-    select(!!x$id_col, .data$`___ps___`, .data$`___ipw___`)
+    select(!!x$id_col,.data$`___internal___`, .data$`___ps___`, .data$`___weight___`)
 }
 
 #' @export
@@ -166,7 +196,7 @@ test_prop_scr <- function(x){
 #' @return ggplot object
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_histogram labs scale_fill_manual ggtitle
-#'   scale_x_continuous theme_bw
+#'    theme_bw
 #' @importFrom dplyr bind_rows
 #' @importFrom stringr str_glue
 prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse probablity weight", "ipw"),
@@ -176,7 +206,7 @@ prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse pro
   plot_var <- match.arg(variable)
   x_var <- ifelse(plot_var %in% c("propensity score", "ps"),
                           sym('___ps___'),
-                          sym('___ipw___'))
+                          sym('___weight___'))
   x_label <- ifelse(plot_var %in% c("propensity score", "ps"),
                      "Propensity Score",
                      "Inverse Probablity Weight")
@@ -217,7 +247,7 @@ prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse pro
 #'
 #' @return ggplot object
 #' @export
-#' @importFrom ggplot2 ggplot aes geom_density labs scale_fill_manual ggtitle scale_x_continuous
+#' @importFrom ggplot2 ggplot aes geom_density labs scale_fill_manual ggtitle
 #'   theme_bw
 #' @importFrom dplyr bind_rows
 #' @importFrom stringr str_glue
@@ -228,7 +258,7 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
   plot_var <- match.arg(variable)
   x_var <- ifelse(plot_var %in% c("propensity score", "ps"),
                   sym('___ps___'),
-                  sym('___ipw___'))
+                  sym('___weight___'))
   x_label <- ifelse(plot_var %in% c("propensity score", "ps"),
                     "Propensity Score",
                     "Inverse Probablity Weight")
@@ -258,4 +288,36 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
   plot
 
 }
+
+
+#' Density of the Propensity Score Object
+#'
+#' @param x Propensity score object
+#' @param ... Optional options for `geom_point`
+#'
+#' @return ggplot object
+#' @export
+#' @importFrom ggplot2 ggplot aes geom_point labs scale_color_manual ggtitle
+#'   theme_bw
+#' @importFrom tidyr pivot_longer
+prop_scr_love <- function(x, ...){
+  test_prop_scr(x)
+
+  .data <- x$abs_std_mean_diff |>
+    pivot_longer(-"covariate")
+
+  plot <- .data |>
+    ggplot(aes(x = .data$value, color = .data$name,
+               y = .data$covariate)) +
+    labs(y = "Covariates", x = "Absolute Standardized Mean Difference", color = "Sample") +
+    scale_color_manual(values = c("#FFA21F", "#5398BE"),
+                      labels = c("diff_unadj" =  "Unadjusted", "diff_adj" = "Adjusted")) +
+    ggtitle("Covariance Balance") +
+    geom_point() +
+    theme_bw()
+
+
+}
+
+
 
