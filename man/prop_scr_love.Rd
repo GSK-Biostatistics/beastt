@@ -2,7 +2,7 @@
 % Please edit documentation in R/ps.R
 \name{prop_scr_love}
 \alias{prop_scr_love}
-\title{Density of the Propensity Score Object}
+\title{Love Plot of the Absolute Standardized Mean Difference}
 \usage{
 prop_scr_love(x, ...)
 }
@@ -15,5 +15,5 @@ prop_scr_love(x, ...)
 ggplot object
 }
 \description{
-Density of the Propensity Score Object
+Love Plot of the Absolute Standardized Mean Difference
 }

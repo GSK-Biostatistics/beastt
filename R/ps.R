@@ -290,7 +290,7 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
 }
 
 
-#' Density of the Propensity Score Object
+#' Love Plot of the Absolute Standardized Mean Difference
 #'
 #' @param x Propensity score object
 #' @param ... Optional options for `geom_point`
