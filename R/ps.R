@@ -18,7 +18,7 @@
 #' @importFrom cli cli_abort
 #' @importFrom purrr reduce discard
 #' @importFrom rlang sym
-#' @importFrom dplyr mutate filter tibble
+#' @importFrom dplyr mutate filter tibble as_tibble
 #' @importFrom stats glm
 #' @importFrom cobalt bal.tab
 create_prop_scr <- function(internal_df, external_df,
@@ -26,19 +26,22 @@ create_prop_scr <- function(internal_df, external_df,
   if(!is_formula(model)){
     cli_abort(c("{.arg model} parameter must be a fomula",
             "*" = "Make sure all covariates are left unquoted",
-            "i" = "Formula should look like '~cov1 + cov2 + cov3...`"))
+            "i" = "Formula should look like `~cov1 + cov2 + cov3...`"))
   } else {
     # Given model is a fomula, check variable names match names in datasets
 
     if(!is.null(f_lhs(model))){
       cli_abort(c("The left hand side of the formula must be left blank",
-           "i" = "Formula should look like '~cov1 + cov2 + cov3...`"))
+           "i" = "Formula should look like `~cov1 + cov2 + cov3...`"))
     }
 
-    covriates <- f_rhs(model) |>
-      format() |>
-      str_split_1("\\s?\\+\\s?") |>
-      discard(str_detect, "1")
+    covriates <- all.vars(model)
+
+    int_dat <-inherits(internal_df, c("matrix", "data.frame"))
+    ex_dat <-inherits(external_df, c("matrix", "data.frame"))
+    if(!(int_dat & ex_dat)){
+      cli_abort("{.agr int_dat} and {.arg ex_dat} both must either be tibbles, data.frames, or matrices")
+    }
 
     inter <- reduce(list(colnames(internal_df),
                        colnames(external_df),
@@ -82,8 +85,10 @@ create_prop_scr <- function(internal_df, external_df,
   # Adding internal as the response variable in the model
   f_lhs(model) <- sym('___internal___')
 
-  i_df <- internal_df |> mutate(`___internal___` = TRUE)
-  e_df <- external_df |> mutate(`___internal___` = FALSE)
+  i_df <- as_tibble(internal_df) |>
+    mutate(`___internal___` = TRUE)
+  e_df <- as_tibble(external_df) |>
+    mutate(`___internal___` = FALSE)
   all_df <- bind_rows(i_df, e_df)
 
 
@@ -133,6 +138,7 @@ print.prop_scr <- function(x, ..., n = 10){
   # cat the model
   cli_h1("Model")
   cli_bullets(c("*" = f_rhs(x$model)))
+
   cli_h1("Propensoity Scores and Weights")
   x$external_df |>
     select(!!x$id_col,
@@ -140,6 +146,7 @@ print.prop_scr <- function(x, ..., n = 10){
            `Propensity Score` = .data$`___ps___`,
            `Inverse Probablity Weight` = .data$`___weight___`) |>
     print(n = n)
+
   cli_h1("Absolute Standardized Mean Difference")
   print(x$abs_std_mean_diff)
 }
