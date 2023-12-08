@@ -1,4 +1,5 @@
 # Define test data
+set.seed(1234)
 internal_df <- data.frame(id_col = 1:20, cov1 = rnorm(10, 2), cov2 = rnorm(100, 20))
 external_df <- data.frame(id_col = 21:40, cov1 = rnorm(10, 2), cov2 = rnorm(100, 18))
 model <- as.formula("~cov1 + cov2")
