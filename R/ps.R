@@ -142,7 +142,7 @@ print.prop_scr <- function(x, ..., n = 10){
   cli_h1("Propensity Scores and Weights")
   x$external_df |>
     select(!!x$id_col,
-           `Internal` = .data$`___internal___`,
+           Internal = .data$`___internal___`,
            `Propensity Score` = .data$`___ps___`,
            `Inverse Probablity Weight` = .data$`___weight___`) |>
     print(n = n)
