@@ -21,7 +21,7 @@
 #' @importFrom dplyr mutate filter tibble as_tibble
 #' @importFrom stats glm
 #' @importFrom cobalt bal.tab
-create_prop_scr <- function(internal_df, external_df,
+calc_prop_scr <- function(internal_df, external_df,
                             id_col, model, ...){
   if(!is_formula(model)){
     cli_abort(c("{.arg model} parameter must be a fomula",
