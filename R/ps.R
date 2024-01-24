@@ -187,8 +187,8 @@ is_prop_scr <- function(x){
 #' @importFrom cli cli_abort
 test_prop_scr <- function(x){
   if(!is_prop_scr(x)){
-    cli_abort(c("{.arg x} is not a `prop_scr` object",
-                "i" = "Please use {.fun create_prop_scr} to make a `prop_scr` object"))
+    cli_abort(c("{.var {substitute(x)}} is not a `prop_scr` object",
+                "i" = "Please use {.fun calc_prop_scr} to make a `prop_scr` object"))
   }
 }
 

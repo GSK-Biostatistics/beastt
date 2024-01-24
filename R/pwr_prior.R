@@ -9,7 +9,7 @@
 #' @param hyperparameter Named vector of the hyperparameters for a given
 #'   distribution. If you are using an improper prior then value can be left as
 #'   `NULL`
-#' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
+#' @param weighted_obj A `prop_scr_obj` created by calling `calc_prop_scr()`
 #' @param response_var Name of response variable
 #'
 #' @return `power_prior` object
@@ -42,6 +42,9 @@ calc_power_prior <- function(dist = c("binom", "norm"), hyperparameter = NULL, w
 #' @return beta power prior object
 #' @noRd
 calc_power_prior_beta <- function(hyperparameter, weighted_obj, response){
+  test_prop_scr(weighted_obj)
+
+  response <- ensym(response)
   diff <- setdiff(names(hyperparameter), c("shape1", "shape2"))
   if(length(diff) >  0){
     # TODO add a check to see what it is missing to make a more explicit error
@@ -79,18 +82,32 @@ calc_power_prior_beta <- function(hyperparameter, weighted_obj, response){
 #' @param hyperparameter Either Null or a vector with the names mean, sd
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response_var Name of response variable
+#' @param external_control_sd Standard deviation of external control arm if
+#'   assumed known. If left
 #'
 #' @return beta power prior object
 #' @noRd
-calc_power_prior_norm <- function(hyperparameter, weighted_obj, response){
-  if(is.null(hyperparameter)){
-    # mean of IP-weighted power prior
-    mean_hat <- weighted_obj$external_df |>
-      summarise(mean_hat = sum(`___ipw___`*!!response)/sum(`___ipw___`)) |>
-      pull(mean_hat)
+calc_power_prior_norm <- function(hyperparameter, weighted_obj, response, external_control_sd = NULL){
+  test_prop_scr(weighted_obj)
+  response <- ensym(response)
 
-    # variance of IPW power prior
-    # tau2_hat_EC <- sd_EC^2 / sum(weighted_obj$external_df$`___ipw___`)
+  # mean of IP-weighted power prior
+  vars <- weighted_obj$external_df |>
+    summarise(
+      tot_ipw = sum(`___weight___`),
+      weight_resp = sum(`___weight___`*{{response}}))
+  weight_resp <- vars |> pull(weight_resp)
+  tot_ipw <- vars |> pull(tot_ipw)
+
+  if(is.null(external_control_sd) && !is.numeric(external_control_sd)){
+    cli_abort("{.agr external_control_sd} must be a number")
+  }
+
+  if(is.null(hyperparameter)){
+    # IF AN IMPROPER INITIAL PRIOR IS USED - PROPORTIONAL TO 1
+    # Hyperparameters of power prior (normal distribution)
+    sd_hat <- external_control_sd^2 / tot_ipw  # variance of IPW power prior
+    mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
 
   } else {
     diff <- setdiff(names(hyperparameter), c("mean", "sd"))
@@ -99,18 +116,24 @@ calc_power_prior_norm <- function(hyperparameter, weighted_obj, response){
       cli_abort(c("Incorrect hyperpatermeters for a normal distibution",
                   "i" = "Normal distributions either needs `mean` and `sd`, or to be left `NULL`"))
     }
+
+    sd_hat <- ( tot_ipw/external_control_sd^2 +
+                  hyperparameter$sd^-2 )^-1           # variance of IP-weighted power prior
+    mean_hat <- (weight_resp/external_control_sd^2 +
+                   hyperparameter$mean/hyperparameter$sd^2 ) * sd_hat          # mean of IP-weighted power prior
+
   }
 
   out <-  structure(
     list(
       model = "norm",
       parameters = c(mean = mean_hat,
-                     sd = params$shape2),
+                     sd = sd_hat),
       density = function(x){
-        dnorm(x, mean_hat, params$shape2)
+        dnorm(x, mean_hat, sd_hat)
       },
       random = function(x){
-        rnorm(x, mean_hat, params$shape2)
+        rnorm(x, mean_hat, sd_hat)
       }
     ),
     class = c("normal", "power_prior")
@@ -118,5 +141,17 @@ calc_power_prior_norm <- function(hyperparameter, weighted_obj, response){
 
   out
 }
+
+#' @export
+print.power_prior <- function(x){
+  param_txt <- paste0(names(x$parameters), ": ", round(x$parameters, 3))
+  cli_h1("Power Prior")
+  cli_bullets(c("i" = "Distribution : {.field {x$model}}",
+                "*" = "{param_txt}"))
+
+}
+
+
+
 
 
