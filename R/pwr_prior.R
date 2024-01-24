@@ -41,6 +41,8 @@ calc_power_prior <- function(dist = c("binom", "norm"), hyperparameter = NULL, w
 #'
 #' @return beta power prior object
 #' @noRd
+#' @importFrom rlang ensym
+#' @importFrom stats dbeta rbeta
 calc_power_prior_beta <- function(hyperparameter, weighted_obj, response){
   test_prop_scr(weighted_obj)
 
@@ -53,10 +55,10 @@ calc_power_prior_beta <- function(hyperparameter, weighted_obj, response){
   }
 
   params <- weighted_obj$external_df |>
-    mutate(shape1_response = `___weight___`*!!response,
-           shape2_response = `___weight___`*(1-!!response)) |>
-    summarise(shape1 = sum(shape1_response) + hyperparameter['shape1'],
-              shape2 = sum(shape2_response) + hyperparameter['shape2']
+    mutate(shape1_response = .data$`___weight___`*!!response,
+           shape2_response = .data$`___weight___`*(1-!!response)) |>
+    summarise(shape1 = sum(.data$shape1_response) + hyperparameter['shape1'],
+              shape2 = sum(.data$shape2_response) + hyperparameter['shape2']
     )
 
   out <-  structure(
@@ -87,6 +89,9 @@ calc_power_prior_beta <- function(hyperparameter, weighted_obj, response){
 #'
 #' @return beta power prior object
 #' @noRd
+#' @importFrom rlang ensym
+#' @importFrom stats dnorm rnorm
+#' @importFrom dplyr pull
 calc_power_prior_norm <- function(hyperparameter, weighted_obj, response, external_control_sd = NULL){
   test_prop_scr(weighted_obj)
   response <- ensym(response)
@@ -94,10 +99,10 @@ calc_power_prior_norm <- function(hyperparameter, weighted_obj, response, extern
   # mean of IP-weighted power prior
   vars <- weighted_obj$external_df |>
     summarise(
-      tot_ipw = sum(`___weight___`),
-      weight_resp = sum(`___weight___`*{{response}}))
-  weight_resp <- vars |> pull(weight_resp)
-  tot_ipw <- vars |> pull(tot_ipw)
+      tot_ipw = sum(.data$`___weight___`),
+      weight_resp = sum(.data$`___weight___`*{{response}}))
+  weight_resp <- vars |> pull(.data$weight_resp)
+  tot_ipw <- vars |> pull(.data$tot_ipw)
 
   if(is.null(external_control_sd) && !is.numeric(external_control_sd)){
     cli_abort("{.agr external_control_sd} must be a number")
@@ -143,7 +148,7 @@ calc_power_prior_norm <- function(hyperparameter, weighted_obj, response, extern
 }
 
 #' @export
-print.power_prior <- function(x){
+print.power_prior <- function(x, ...){
   param_txt <- paste0(names(x$parameters), ": ", round(x$parameters, 3))
   cli_h1("Power Prior")
   cli_bullets(c("i" = "Distribution : {.field {x$model}}",
