@@ -64,15 +64,8 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
               sum(.data$shape2_response) + hyperparameter['shape2']
     )
 
-  out <-  structure(
-    list(
-      pwr_prior = dist_beta(shape1 = params$shape1,
-                            shape2 = params$shape2)
-    ),
-    class = c("beta", "power_prior")
-  )
-
-  out
+  dist_beta(shape1 = params$shape1,
+            shape2 = params$shape2)
 }
 
 #' Calculate Power Prior Normal
@@ -121,25 +114,9 @@ calc_power_prior_norm <- function(prior, weighted_obj, response, external_contro
 
   }
 
-  out <-  structure(
-    list(
-      pwr_prior = dist_normal(mu = mean_hat, sigma = sd_hat)
-    ),
-    class = c("normal", "power_prior")
-  )
-
-  out
+  dist_normal(mu = mean_hat, sigma = sd_hat)
 }
 
-#' @export
-#' @importFrom distributional parameters
-print.power_prior <- function(x, ...){
-  params <- parameters(x$pwr_prior)
-  param_txt <- paste0(names(params), ": ", signif(params, 3))
-  cli_h1("{family(x$pwr_prior)}")
-  cli_bullets(c("*" = "{param_txt}"))
-
-}
 
 
 
