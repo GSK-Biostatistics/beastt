@@ -4,23 +4,18 @@
 \alias{calc_power_prior}
 \title{Calculate Power Prior}
 \usage{
-calc_power_prior(
-  dist = c("binom", "norm"),
-  hyperparameter = NULL,
-  weighted_obj,
-  response_var
-)
+calc_power_prior(prior, weighted_obj, response, ...)
 }
 \arguments{
-\item{dist}{Name of the distribution of the external data response}
-
-\item{hyperparameter}{Named vector of the hyperparameters for a given
-distribution. If you are using an improper prior then value can be left as
-\code{NULL}}
+\item{prior}{a {distributional} object that is the prior of the external data}
 
 \item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{calc_prop_scr()}}
 
-\item{response_var}{Name of response variable}
+\item{response}{Name of response variable}
+
+\item{...}{additional parameters needed depending on the type of power prior
+you are trying to calculate TODO: Make this a bulleted list with the
+additional parameters for each distirbution}
 }
 \value{
 \code{power_prior} object
