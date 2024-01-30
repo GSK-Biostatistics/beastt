@@ -80,8 +80,8 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 #' @return beta power prior object
 #' @noRd
 #' @importFrom rlang enquo is_quosure
-#' @importFrom stats dnorm rnorm
 #' @importFrom dplyr pull
+#' @importFrom distributional parameters dist_normal
 calc_power_prior_norm <- function(prior, weighted_obj, response, external_control_sd = NULL){
   test_prop_scr(weighted_obj)
 
@@ -139,5 +139,4 @@ prior_checks <- function(prior, family){
     cli_abort("Prior need to be a {family} distribution")
   }
 }
-
 

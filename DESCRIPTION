@@ -26,4 +26,5 @@ Imports:
     purrr,
     rlang,
     stringr,
+    distributional,
     tidyr
