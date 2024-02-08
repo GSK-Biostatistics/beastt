@@ -12,7 +12,11 @@ Authors@R:
 Description: Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (BEASTT).
 License: Apache License (>= 2)
 Suggests: 
-    testthat (>= 3.0.0)
+    ggdist,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    tibble
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -26,4 +30,6 @@ Imports:
     purrr,
     rlang,
     stringr,
+    distributional,
     tidyr
+VignetteBuilder: knitr

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ps.R
 \name{calc_prop_scr}
 \alias{calc_prop_scr}
-\title{Create a Proprensity Score Object}
+\title{Create a Propensity Score Object}
 \usage{
 calc_prop_scr(internal_df, external_df, id_col, model, ...)
 }
@@ -26,5 +26,5 @@ the propensity score and inverse probability weight calculated for each
 subject.
 }
 \description{
-Create a Proprensity Score Object
+Create a Propensity Score Object
 }
