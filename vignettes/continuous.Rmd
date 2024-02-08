@@ -68,6 +68,7 @@ pwr_prior <- calc_power_prior(prior = dist_normal(92, 100),
                  external_control_sd = 15)
 
 ggplot(tibble(), aes(xdist = pwr_prior, y =1)) +
-  stat_slabinterval()
+  stat_slabinterval() + 
+  theme_bw()
 ```
 
