@@ -12,7 +12,6 @@ Authors@R:
 Description: Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (BEASTT).
 License: Apache License (>= 2)
 Suggests: 
-    ggdist,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
@@ -31,5 +30,6 @@ Imports:
     rlang,
     stringr,
     distributional,
-    tidyr
+    tidyr,
+    ggdist
 VignetteBuilder: knitr

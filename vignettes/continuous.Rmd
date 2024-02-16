@@ -9,7 +9,6 @@ vignette: >
 
 For this example we are going to walk through how to use Bayesian dynamic borrowing with propensity score matching. The first thing we need is some data. I am going to start with external control data that has come covariates
 
-
 ```{r setup}
 library(beastt)
 library(tibble)
@@ -47,28 +46,46 @@ internal_df <- tibble(subjid = 1:n_internal,                  # participant ID
                   y = rnorm(n_internal, mean = 50, sd = 3))    # treatment (0: control, 1: active treatment)
 ```
 
+Now we have some data we can calculate the propensity scores for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating power priors in the next step.
 
-Now we have some data we can calculate the propensity scores for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating power priors in the next step. 
 ```{r}
 ps_model <- ~ cov1 + cov2 + cov3 + cov4
 ps_obj <- calc_prop_scr(internal_df = internal_df, 
                         external_df = external_df, 
                         id_col = subjid,
                           model = ps_model)
-prop_scr_hist(ps_obj)
-prop_scr_dens(ps_obj, "ipw")
 
+ps_obj
 ```
 
+In order to check the suitability of the external data we can create a variety of diagnostic plots. The first plot we might want is a histogram. To get that we are going to use the `prop_scr_hist` function. This function takes in the propensity score object made in the previous step. Then we can optionally supply the variable we want to look at, either the propensity score or the inverse probability weight. By default it will plot the propensity scores. Additionally, we can look at the densities rather than histograms by using the `prop_scr_dens` function. When looking at the inverse probability weights with either the histogram or the density functions, it is important to note only the external data will be shown because value of the internal data will just be 1.
 
-We the propensity score object we are able to use that to calculate a power prior. To calculate the power prior, 
+```{r}
+prop_scr_hist(ps_obj)
+prop_scr_dens(ps_obj, variable = "ipw")
+```
+
+The final plot we might want to look at is a love plot to visualize the standard mean differences of the covariates between the internal and external data. To do this we are just going to use the 'prop_scr_love' function. Like the previous function the only required parameter for this function is the propensity score object, but we can also provide a location for a reference line.
+
+```{r}
+prop_scr_love(ps_obj, reference_line = 0.4)
+```
+
+Now that we are happy with our propensity score we can use it to calculate a power prior. To calculate the power prior we need to supply:
+
+-   prior, in the form of a distirbutional object
+
+-   propensity score object, what we created above
+
+-   response variable
+
+-   external control sd, this we need because the data here is continuous. If left out then an improper prior will be use assuming proportionality to one
+
+Finally, once we have a power prior we might want to plot it. To do that we can just the `plot_dist` function.
+
 ```{r}
 pwr_prior <- calc_power_prior(prior = dist_normal(92, 100), 
                  ps_obj, response = y, 
                  external_control_sd = 15)
-
-ggplot(tibble(), aes(xdist = pwr_prior, y =1)) +
-  stat_slabinterval() + 
-  theme_bw()
+plot_dist(pwr_prior)
 ```
-
