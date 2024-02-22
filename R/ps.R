@@ -300,14 +300,17 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
 #' Love Plot of the Absolute Standardized Mean Difference
 #'
 #' @param x Propensity score object
+#' @param reference_line Numeric value of where the standard line on the
+#'   x-intercept
 #' @param ... Optional options for `geom_point`
+#'
 #'
 #' @return ggplot object
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_point labs scale_color_manual ggtitle
-#'   theme_bw
+#'   theme_bw geom_vline
 #' @importFrom tidyr pivot_longer
-prop_scr_love <- function(x, ...){
+prop_scr_love <- function(x, reference_line = NULL, ...){
   test_prop_scr(x)
 
   .data <- x$abs_std_mean_diff |>
@@ -319,10 +322,14 @@ prop_scr_love <- function(x, ...){
     labs(y = "Covariates", x = "Absolute Standardized Mean Difference", color = "Sample") +
     scale_color_manual(values = c("#FFA21F", "#5398BE"),
                       labels = c("diff_unadj" =  "Unadjusted", "diff_adj" = "Adjusted")) +
-    ggtitle("Covariance Balance") +
+    ggtitle("Covariates Balance") +
     geom_point() +
     theme_bw()
 
+  if(!is.null(reference_line)){
+    plot <- plot + geom_vline(xintercept = reference_line)
+  }
+  plot
 
 }
 

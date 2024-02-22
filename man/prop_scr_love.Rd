@@ -4,10 +4,13 @@
 \alias{prop_scr_love}
 \title{Love Plot of the Absolute Standardized Mean Difference}
 \usage{
-prop_scr_love(x, ...)
+prop_scr_love(x, reference_line = NULL, ...)
 }
 \arguments{
 \item{x}{Propensity score object}
+
+\item{reference_line}{Numeric value of where the standard line on the
+x-intercept}
 
 \item{...}{Optional options for \code{geom_point}}
 }
