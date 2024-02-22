@@ -72,7 +72,11 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of beastt is to …</p>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>Welcome to the “beastt” package! This R package is designed to assist users in performing Bayesian Dynamic Borrowing with covariate adjustment for simulations and data analyses in clinical trials.</p>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -82,26 +86,85 @@
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"GSK-Biostatistics/beastt"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
 </h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
+<div class="section level3">
+<h3 id="calc_prop_scr">
+<code>calc_prop_scr()</code><a class="anchor" aria-label="anchor" href="#calc_prop_scr"></a>
+</h3>
+<p>Calculate propensity scores using this function and obtain the inverse probability weight calculated for each subject. Propensity scores are essential in order to balance covariates between internal and external trial participants.</p>
+<p><strong>Usage:</strong></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">beastt</span><span class="op">)</span></span>
-<span><span class="co">## basic example code</span></span></code></pre></div>
-<p>What is special about using <code>README.Rmd</code> instead of just <code>README.md</code>? You can include R chunks like so:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/calc_prop_scr.html">calc_prop_scr</a></span><span class="op">(</span><span class="va">internal_df</span>, <span class="va">external_df</span>, <span class="va">id_col</span>, <span class="va">model</span><span class="op">)</span></span></code></pre></div>
+<ul>
+<li>
+<code>internal_df</code>: Internal dataset.</li>
+<li>
+<code>external_df</code>: External dataset.</li>
+<li>
+<code>id_col</code>: Name of the column in both datasets used to identify each subject.</li>
+<li>
+<code>model</code>: Model used to calculate propensity scores.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="calc_power_prior">
+<code>calc_power_prior()</code><a class="anchor" aria-label="anchor" href="#calc_power_prior"></a>
+</h3>
+<p>Calculate power priors based on a distribution, hyperparameters, a weighted object and a response variable. Power priors provide a Bayesian framework for incorporating external information into the analysis.</p>
+<p><strong>Usage:</strong></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cars</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      speed           dist       </span></span>
-<span><span class="co">#&gt;  Min.   : 4.0   Min.   :  2.00  </span></span>
-<span><span class="co">#&gt;  1st Qu.:12.0   1st Qu.: 26.00  </span></span>
-<span><span class="co">#&gt;  Median :15.0   Median : 36.00  </span></span>
-<span><span class="co">#&gt;  Mean   :15.4   Mean   : 42.98  </span></span>
-<span><span class="co">#&gt;  3rd Qu.:19.0   3rd Qu.: 56.00  </span></span>
-<span><span class="co">#&gt;  Max.   :25.0   Max.   :120.00</span></span></code></pre></div>
-<p>You’ll still need to render <code>README.Rmd</code> regularly, to keep <code>README.md</code> up-to-date. <code>devtools::build_readme()</code> is handy for this.</p>
-<p>You can also embed plots, for example:</p>
-<p><img src="reference/figures/README-pressure-1.png" width="100%"></p>
-<p>In that case, don’t forget to commit and push the resulting figure files, so they display on GitHub and CRAN.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/calc_power_prior.html">calc_power_prior</a></span><span class="op">(</span><span class="va">prior</span>, <span class="va">weighted_obj</span>, <span class="va">response</span><span class="op">)</span></span></code></pre></div>
+<ul>
+<li>
+<code>prior</code>: a {distributional} object that is the prior of the external data.</li>
+<li>
+<code>weighted_obj</code>: A weighted object created by calling <code><a href="reference/calc_prop_scr.html">calc_prop_scr()</a></code>.</li>
+<li>
+<code>response</code>: Name of the response variable.</li>
+<li>
+<code>...</code>: Additional parameters needed depending on the type of power prior used.</li>
+</ul>
+</div>
+</div>
+<div class="section level2">
+<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h2>
+<p>Here are some examples demonstrating the usage of the package:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(beastt)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdist)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create internal and external datasets</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>internal_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id_col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">cov1 =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">2</span>), <span class="at">cov2 =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="dv">20</span>), </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">5</span>, <span class="at">sd =</span> <span class="dv">3</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>external_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id_col =</span> <span class="dv">21</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">cov1 =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">2</span>), <span class="at">cov2 =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="dv">18</span>), </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">8</span>, <span class="at">sd =</span> <span class="dv">4</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for propensity score calculation</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="st">"~cov1 + cov2"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>psscores <span class="ot">&lt;-</span> <span class="fu">calc_prop_scr</span>(<span class="at">internal_df =</span> internal_df, <span class="at">external_df =</span> external_df, </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                           <span class="at">id_col =</span> id_col, <span class="at">model =</span> model)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for power prior calculation using a Normal prior for external data</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>powerprior <span class="ot">&lt;-</span> <span class="fu">calc_power_prior</span>(<span class="at">prior =</span> <span class="fu">dist_normal</span>(<span class="dv">15</span>, <span class="dv">100</span>), <span class="at">weighted_obj =</span> psscores, </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                               <span class="at">response =</span> y)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot power prior and interval</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">tibble</span>(), <span class="fu">aes</span>(<span class="at">xdist =</span> powerprior, <span class="at">y =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_slabinterval</span>()</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h2>
+<p>Feel free to contribute to the “beastt” package by reporting issues or submitting pull requests on the GitHub repository.</p>
+</div>
+<div class="section level2">
+<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+</h2>
+<p>This package is released under the <a href="%3E=%202">Apache License</a>.</p>
 </div>
 </div>
   </div>
