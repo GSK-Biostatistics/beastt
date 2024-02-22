@@ -127,22 +127,82 @@ calculating power priors in the next step.</p>
 <span>                        external_df <span class="op">=</span> <span class="va">external_df</span>, </span>
 <span>                        id_col <span class="op">=</span> <span class="va">subjid</span>,</span>
 <span>                          model <span class="op">=</span> <span class="va">ps_model</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/prop_scr_hist.html">prop_scr_hist</a></span><span class="op">(</span><span class="va">ps_obj</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_dens.html">prop_scr_dens</a></span><span class="op">(</span><span class="va">ps_obj</span>, <span class="st">"ipw"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-1-2.png" width="700"></p>
-<p>We the propensity score object we are able to use that to calculate a
-power prior. To calculate the power prior,</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<span></span>
+<span><span class="va">ps_obj</span></span></code></pre></div>
+<pre><code><span><span class="co">## </span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Model</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────────────────</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">•</span> cov1 + cov2 + cov3 + cov4</span></span></code></pre>
+<pre><code><span><span class="co">## </span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Propensity Scores and Weights</span> <span style="color: #00BBBB;">───────────────────────────────────────────────</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 150 × 4</span></span></span>
+<span><span class="co">##    subjid Internal `Propensity Score` `Inverse Probablity Weight`</span></span>
+<span><span class="co">##     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>      1 FALSE                 0.314                       0.458</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>      2 FALSE                 0.365                       0.576</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>      3 FALSE                 0.618                       1.62 </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>      4 FALSE                 0.406                       0.684</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>      5 FALSE                 0.406                       0.684</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>      6 FALSE                 0.644                       1.81 </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>      7 FALSE                 0.515                       1.06 </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>      8 FALSE                 0.245                       0.324</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>      9 FALSE                 0.302                       0.432</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>     10 FALSE                 0.339                       0.514</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 140 more rows</span></span></span></code></pre>
+<pre><code><span><span class="co">## </span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Absolute Standardized Mean Difference</span> <span style="color: #00BBBB;">───────────────────────────────────────</span></span></span></code></pre>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
+<span><span class="co">##   covariate diff_unadj diff_adj</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> cov1          0.526    0.123 </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> cov2          0.134    0.052<span style="text-decoration: underline;">2</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> cov3          0.135    0.090<span style="text-decoration: underline;">9</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> cov4          0.099<span style="text-decoration: underline;">9</span>   0.072<span style="text-decoration: underline;">9</span></span></span></code></pre>
+<p>In order to check the suitability of the external data we can create
+a variety of diagnostic plots. The first plot we might want is a
+histogram. To get that we are going to use the
+<code>prop_scr_hist</code> function. This function takes in the
+propensity score object made in the previous step. Then we can
+optionally supply the variable we want to look at, either the propensity
+score or the inverse probability weight. By default it will plot the
+propensity scores. Additionally, we can look at the densities rather
+than histograms by using the <code>prop_scr_dens</code> function. When
+looking at the inverse probability weights with either the histogram or
+the density functions, it is important to note only the external data
+will be shown because value of the internal data will just be 1.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_hist.html">prop_scr_hist</a></span><span class="op">(</span><span class="va">ps_obj</span><span class="op">)</span></span></code></pre></div>
+<p><img src="continuous_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_dens.html">prop_scr_dens</a></span><span class="op">(</span><span class="va">ps_obj</span>, variable <span class="op">=</span> <span class="st">"ipw"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="continuous_files/figure-html/unnamed-chunk-2-2.png" width="700"></p>
+<p>The final plot we might want to look at is a love plot to visualize
+the standard mean differences of the covariates between the internal and
+external data. To do this we are just going to use the ‘prop_scr_love’
+function. Like the previous function the only required parameter for
+this function is the propensity score object, but we can also provide a
+location for a reference line.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_love.html">prop_scr_love</a></span><span class="op">(</span><span class="va">ps_obj</span>, reference_line <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></code></pre></div>
+<p><img src="continuous_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p>Now that we are happy with our propensity score we can use it to
+calculate a power prior. To calculate the power prior we need to
+supply:</p>
+<ul>
+<li><p>prior, in the form of a distirbutional object</p></li>
+<li><p>propensity score object, what we created above</p></li>
+<li><p>response variable</p></li>
+<li><p>external control sd, this we need because the data here is
+continuous. If left out then an improper prior will be use assuming
+proportionality to one</p></li>
+</ul>
+<p>Finally, once we have a power prior we might want to plot it. To do
+that we can just the <code>plot_dist</code> function.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pwr_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_power_prior.html">calc_power_prior</a></span><span class="op">(</span>prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">92</span>, <span class="fl">100</span><span class="op">)</span>, </span>
 <span>                 <span class="va">ps_obj</span>, response <span class="op">=</span> <span class="va">y</span>, </span>
 <span>                 external_control_sd <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xdist <span class="op">=</span> <span class="va">pwr_prior</span>, y <span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="http://mjskay.github.io/ggdist/reference/stat_slabinterval.html" class="external-link">stat_slabinterval</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">pwr_prior</span><span class="op">)</span></span></code></pre></div>
+<p><img src="continuous_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
