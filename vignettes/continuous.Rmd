@@ -1,27 +1,35 @@
 ---
 title: "Continuous Case"
-output: rmarkdown::html_vignette
+package: beastt
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    code_folding: show
 vignette: >
   %\VignetteIndexEntry{Continuous Case}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
 ---
 
-```{r, include = FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 library(beastt)
 ```
+
 For this example we are going to walk through how to use Bayesian dynamic borrowing with propensity score matching. The first thing we need is some data. I am going to start with external control data that has come covariates
 
-```{r setup}
+```{r class.source = 'fold-hide'}
 library(beastt)
 library(tibble)
 library(distributional)
 library(ggdist)
 library(ggplot2)
+
 
 set.seed(123)
 
