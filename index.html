@@ -52,6 +52,9 @@
 <li>
       <a href="articles/continuous.html">Continuous Case</a>
     </li>
+    <li>
+      <a href="articles/introduction.html">Package Introduction</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -131,30 +134,30 @@
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <p>Here are some examples demonstrating the usage of the package:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(beastt)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdist)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create internal and external datasets</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>internal_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id_col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">cov1 =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">2</span>), <span class="at">cov2 =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="dv">20</span>), </span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">5</span>, <span class="at">sd =</span> <span class="dv">3</span>)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>external_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id_col =</span> <span class="dv">21</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">cov1 =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">2</span>), <span class="at">cov2 =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="dv">18</span>), </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">8</span>, <span class="at">sd =</span> <span class="dv">4</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for propensity score calculation</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="st">"~cov1 + cov2"</span>)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>psscores <span class="ot">&lt;-</span> <span class="fu">calc_prop_scr</span>(<span class="at">internal_df =</span> internal_df, <span class="at">external_df =</span> external_df, </span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                           <span class="at">id_col =</span> id_col, <span class="at">model =</span> model)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Example for power prior calculation using a Normal prior for external data</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>powerprior <span class="ot">&lt;-</span> <span class="fu">calc_power_prior</span>(<span class="at">prior =</span> <span class="fu">dist_normal</span>(<span class="dv">15</span>, <span class="dv">100</span>), <span class="at">weighted_obj =</span> psscores, </span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                               <span class="at">response =</span> y)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot power prior and interval</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">tibble</span>(), <span class="fu">aes</span>(<span class="at">xdist =</span> powerprior, <span class="at">y =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_slabinterval</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(beastt)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">library</span>(ggdist)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co"># Create internal and external datasets</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>internal_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id_col =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">cov1 =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">2</span>), <span class="at">cov2 =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="dv">20</span>), </span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>                          <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">5</span>, <span class="at">sd =</span> <span class="dv">3</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>external_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id_col =</span> <span class="dv">21</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">cov1 =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">2</span>), <span class="at">cov2 =</span> <span class="fu">rnorm</span>(<span class="dv">100</span>, <span class="dv">18</span>), </span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>                          <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">20</span>, <span class="at">mean =</span> <span class="dv">8</span>, <span class="at">sd =</span> <span class="dv">4</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co"># Example for propensity score calculation</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="st">"~cov1 + cov2"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>psscores <span class="ot">&lt;-</span> <span class="fu">calc_prop_scr</span>(<span class="at">internal_df =</span> internal_df, <span class="at">external_df =</span> external_df, </span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>                           <span class="at">id_col =</span> id_col, <span class="at">model =</span> model)</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co"># Example for power prior calculation using a Normal prior for external data</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>powerprior <span class="ot">&lt;-</span> <span class="fu">calc_power_prior</span>(<span class="at">prior =</span> <span class="fu">dist_normal</span>(<span class="dv">15</span>, <span class="dv">100</span>), <span class="at">weighted_obj =</span> psscores, </span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>                               <span class="at">response =</span> y)</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co"># Plot power prior and interval</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">tibble</span>(), <span class="fu">aes</span>(<span class="at">xdist =</span> powerprior, <span class="at">y =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>  <span class="fu">stat_slabinterval</span>()</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
