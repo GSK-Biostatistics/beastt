@@ -1,0 +1,58 @@
+---
+title: "Package Introduction"
+package: beastt
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Package Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(beastt)
+```
+
+In this vignette, you will learn about the scope of `beastt()` and where to find additional information on how to implement your analysis in `beastt()`.
+
+## Introduction
+
+Bayesian Dynamic Borrowing (BDB) is a way to incorporate external control data to mitigate bias. BEASTT focused on implementing BDB, specifically focused on Robust Mixtures Priors.
+
+`beastt` has the following goals:
+
+- goal 1
+- goal 2
+- goal 3
+
+
+## Common Usage
+
+### Create Data Sets
+
+```{r eval=FALSE}
+library(beastt)
+library(ggdist)
+library(ggplot2)
+
+set.seed(1234)
+
+# Create internal and external datasets
+internal_df <- data.frame(id_col = 1:20, cov1 = rnorm(10, 2), cov2 = rnorm(100, 20), 
+                          y = rnorm(20, mean = 5, sd = 3)
+external_df <- data.frame(id_col = 21:40, cov1 = rnorm(10, 2), cov2 = rnorm(100, 18), 
+                          y = rnorm(20, mean = 8, sd = 4)
+
+```
+
+
+### Propensity Score
+
+
+### Power Prior
