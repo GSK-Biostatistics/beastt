@@ -26,7 +26,6 @@
 #' @importFrom stats glm
 #' @importFrom cobalt bal.tab
 #' @examples
-#' require(extraDistr)
 #' df <- data.frame(
 #'   id_col = 1:40,
 #'   cov1 = rep(c("a", "b", "c", "d"), 10),
@@ -35,10 +34,10 @@
 #'   trt = rep(c("Active", "Control"), each = 20)
 #' )
 #' model <- as.formula("~cov1 + cov2")
-#' internal_df <- df %>%
-#' filter(internal == 1)
-#' external_df <- df %>%
-#' filter(internal == 0)
+#' internal_df <- df |>
+#'   dplyr::filter(internal == 1)
+#' external_df <- df |>
+#'   dplyr::filter(internal == 0)
 #' pre_post_summary(df, vars = c("cov1", "cov2"), df$internal, trt = df$trt,
 #' internal_df, external_df, model = model, id_col = id_col)
 pre_post_summary <- function(df, vars, internal, trt, internal_df,

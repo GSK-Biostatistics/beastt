@@ -48,20 +48,17 @@ Create a Pre-and-Post-Weighting Summary Table
 }
 \examples{
 df <- data.frame(
-id_col = 1:40,
-cov1 = rep(c("a", "b", "c", "d"), 10),
-cov2 = rep(c("e", "f", "g", "h"), each = 10),
-internal = rdunif(40, 0, 1),
-trt = rep(c("Active", "Control"), each = 20)
+  id_col = 1:40,
+  cov1 = rep(c("a", "b", "c", "d"), 10),
+  cov2 = rep(c("e", "f", "g", "h"), each = 10),
+  internal = sample(c(0,1), 40, replace = TRUE),
+  trt = rep(c("Active", "Control"), each = 20)
 )
-
 model <- as.formula("~cov1 + cov2")
-
-internal_df <- df \%>\%
-filter(internal == 1)
-external_df <- df \%>\%
-filter(internal == 0)
-
+internal_df <- df |>
+  dplyr::filter(internal == 1)
+external_df <- df |>
+  dplyr::filter(internal == 0)
 pre_post_summary(df, vars = c("cov1", "cov2"), df$internal, trt = df$trt,
 internal_df, external_df, model = model, id_col = id_col)
 }
