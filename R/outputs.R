@@ -31,7 +31,7 @@
 #'   id_col = 1:40,
 #'   cov1 = rep(c("a", "b", "c", "d"), 10),
 #'   cov2 = rep(c("e", "f", "g", "h"), each = 10),
-#'   internal = rdunif(40, 0, 1),
+#'   internal = sample(c(0,1), 40, replace = TRUE),
 #'   trt = rep(c("Active", "Control"), each = 20)
 #' )
 #' model <- as.formula("~cov1 + cov2")
