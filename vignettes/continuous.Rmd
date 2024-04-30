@@ -24,7 +24,6 @@ library(beastt)
 For this example we are going to walk through how to use Bayesian dynamic borrowing with propensity score matching. The first thing we need is some data. I am going to start with external control data that has come covariates
 
 ```{r class.source = 'fold-hide'}
-library(beastt)
 library(tibble)
 library(distributional)
 library(ggdist)
@@ -99,7 +98,7 @@ Now that we are happy with our propensity score we can use it to calculate a pow
 Finally, once we have a power prior we might want to plot it. To do that we can just the `plot_dist` function.
 
 ```{r}
-pwr_prior <- calc_power_prior(prior = dist_normal(92, 100), 
+pwr_prior <- calc_power_prior_norm(prior = dist_normal(92, 100), 
                  ps_obj, response = y, 
                  external_control_sd = 15)
 plot_dist(pwr_prior)

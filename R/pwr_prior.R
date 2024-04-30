@@ -1,57 +1,21 @@
 
-#' Calculate Power Prior
-#'
-#' Function to calculate a power prior given a distribution, hyperparameters, a
-#' weighted object and a response variable. The weighted object will typically
-#' be a `prop_scr_obj` created by calling `create_prop_scr()`
-#'
-#' @param prior a {distributional} object that is the prior of the external data
-#' @param weighted_obj A `prop_scr_obj` created by calling `calc_prop_scr()`
-#' @param response Name of response variable
-#' @param ... additional parameters needed depending on the type of power prior
-#'   you are trying to calculate TODO: Make this a bulleted list with the
-#'   additional parameters for each distirbution
-#'
-#' @return `power_prior` object
-#' @export
-#' @importFrom dplyr summarise mutate
-#' @importFrom rlang enquo quo_is_missing
-#' @importFrom distributional is_distribution
-calc_power_prior <- function(prior, weighted_obj, response, ...){
-  test_prop_scr(weighted_obj)
-  response <- enquo(response)
-
-  if(quo_is_missing(response)){
-    cli_abort("{.arg response} must be a valid variable name")
-  }
-  # TODO add a check to see if the response variable is in the dataset
-
-  if(is.null(prior) ||family(prior) == "normal"){
-    calc_power_prior_norm(prior, weighted_obj, response, ...)
-  } else if(family(prior) == 'beta'){
-    calc_power_prior_beta(prior, weighted_obj, response, ...)
-  }
-
-}
-
 #' Calculate Power Prior Beta
 #'
 #' @param prior a beta {distributional} object that is the prior of the external data
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
-#' @param response_var Name of response variable
+#' @param response Name of response variable
 #'
 #' @return beta power prior object
+#' @export
 #'
-#' @noRd
 #' @importFrom rlang enquo
 #' @importFrom stats dbeta rbeta
 #' @importFrom distributional dist_beta
+#' @importFrom dplyr summarise
+#' @family power prior
 calc_power_prior_beta <- function(prior, weighted_obj, response){
   test_prop_scr(weighted_obj)
-
-  if(!is_quosure(response)){
-    response <- enquo(response)
-  }
+  response <- enquo(response)
 
   prior_checks(prior, "beta")
 
@@ -73,17 +37,19 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 #' @param prior either `NULL` or a normal {distributional} object that is the
 #'   prior of the external data
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
-#' @param response_var Name of response variable
+#' @param response Name of response variable
 #' @param external_control_sd Standard deviation of external control arm if
 #'   assumed known.
 #'
 #' @return beta power prior object
-#' @noRd
+#' @export
 #' @importFrom rlang enquo is_quosure
 #' @importFrom dplyr pull
 #' @importFrom distributional parameters dist_normal
+#' @family power prior
 calc_power_prior_norm <- function(prior, weighted_obj, response, external_control_sd = NULL){
   test_prop_scr(weighted_obj)
+  response <- enquo(response)
 
   # mean of IP-weighted power prior
   vars <- weighted_obj$external_df |>
