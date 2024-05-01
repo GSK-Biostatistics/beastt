@@ -7,6 +7,8 @@
 pre_post_summary(x, df, vars, internal, trt)
 }
 \arguments{
+\item{x}{Propensity score object}
+
 \item{df}{Combined dataset with one row per subject and all the
 variables (subgroups) to be displayed in the summary table}
 
@@ -16,19 +18,6 @@ variables (subgroups) to be displayed in the summary table}
 
 \item{trt}{Treatment variable, should be set to "Control" if borrowing from
 external controls}
-
-\item{internal_df}{Internal dataset with one row per subject and all the
-variables needed to run the model}
-
-\item{external_df}{External dataset with one row per subject and all the
-variables needed to run the model}
-
-\item{id_col}{Name of the column in both datasets used to identify each
-subject. It must be the same across datasets}
-
-\item{model}{Model used to calculate propensity scores}
-
-\item{...}{Optional arguments}
 }
 \value{
 \code{tibble} object, with the adjusted and unadjusted

@@ -1,20 +1,12 @@
 #' Create a Pre-and-Post-Weighting Summary Table
 #'
+#' @param x Propensity score object
 #' @param df Combined dataset with one row per subject and all the
 #'   variables (subgroups) to be displayed in the summary table
 #' @param vars Variables (subgroups) to be displayed in the summary table
 #' @param internal Indicator variable identifying internal vs external subjects
 #' @param trt Treatment variable, should be set to "Control" if borrowing from
 #'   external controls
-#' @param internal_df Internal dataset with one row per subject and all the
-#'   variables needed to run the model
-#' @param external_df External dataset with one row per subject and all the
-#'   variables needed to run the model
-#' @param id_col Name of the column in both datasets used to identify each
-#'   subject. It must be the same across datasets
-#' @param model Model used to calculate propensity scores
-#' @param ... Optional arguments
-#'
 #' @return `tibble` object, with the adjusted and unadjusted
 #' @export
 #' @importFrom rlang f_rhs f_lhs `f_lhs<-` is_formula enquo as_name
