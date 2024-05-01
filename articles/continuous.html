@@ -86,8 +86,7 @@ dynamic borrowing with propensity score matching. The first thing we
 need is some data. I am going to start with external control data that
 has come covariates</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">beastt</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/" class="external-link">tibble</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/" class="external-link">tibble</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pkg.mitchelloharawild.com/distributional/" class="external-link">distributional</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mjskay.github.io/ggdist/" class="external-link">ggdist</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
@@ -202,7 +201,7 @@ proportionality to one</p></li>
 <p>Finally, once we have a power prior we might want to plot it. To do
 that we can just the <code>plot_dist</code> function.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pwr_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_power_prior.html">calc_power_prior</a></span><span class="op">(</span>prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">92</span>, <span class="fl">100</span><span class="op">)</span>, </span>
+<code class="sourceCode R"><span><span class="va">pwr_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_power_prior_norm.html">calc_power_prior_norm</a></span><span class="op">(</span>prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">92</span>, <span class="fl">100</span><span class="op">)</span>, </span>
 <span>                 <span class="va">ps_obj</span>, response <span class="op">=</span> <span class="va">y</span>, </span>
 <span>                 external_control_sd <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">pwr_prior</span><span class="op">)</span></span></code></pre></div>
