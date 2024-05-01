@@ -38,10 +38,11 @@
 #'   dplyr::filter(internal == 1)
 #' external_df <- df |>
 #'   dplyr::filter(internal == 0)
-#' pre_post_summary(df, vars = c("cov1", "cov2"), df$internal, trt = df$trt,
-#' internal_df, external_df, model = model, id_col = id_col)
-pre_post_summary <- function(df, vars, internal, trt, internal_df,
-                                external_df, id_col, model, ...){
+#'   x <- calc_prop_scr(internal_df, external_df, id_col = id_col, model)
+#' pre_post_summary(x, df, vars = c("cov1", "cov2"), df$internal, trt = df$trt)
+pre_post_summary <- function(x, df, vars, internal, trt){
+
+  test_prop_scr(x)
 
   freqs <- list()
 
@@ -73,8 +74,7 @@ pre_post_summary <- function(df, vars, internal, trt, internal_df,
   rownames(freqs_out) <- 1:nrow(freqs_out)
 
   # Calculate propensity scores
-  pscore <- calc_prop_scr(internal_df, external_df,
-                          id_col, model)$abs_std_mean_diff
+  pscore <- x$abs_std_mean_diff
   pscore$variable <- str_split_i(pscore$covariate, "_", 1)
   pscore$value <- str_split_i(pscore$covariate, "_", -1)
 
@@ -87,3 +87,15 @@ pre_post_summary <- function(df, vars, internal, trt, internal_df,
 
   return(out)
 }
+
+
+
+
+
+
+
+
+
+
+
+

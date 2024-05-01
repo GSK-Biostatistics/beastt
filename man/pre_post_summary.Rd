@@ -4,17 +4,7 @@
 \alias{pre_post_summary}
 \title{Create a Pre-and-Post-Weighting Summary Table}
 \usage{
-pre_post_summary(
-  df,
-  vars,
-  internal,
-  trt,
-  internal_df,
-  external_df,
-  id_col,
-  model,
-  ...
-)
+pre_post_summary(x, df, vars, internal, trt)
 }
 \arguments{
 \item{df}{Combined dataset with one row per subject and all the
@@ -59,6 +49,6 @@ internal_df <- df |>
   dplyr::filter(internal == 1)
 external_df <- df |>
   dplyr::filter(internal == 0)
-pre_post_summary(df, vars = c("cov1", "cov2"), df$internal, trt = df$trt,
-internal_df, external_df, model = model, id_col = id_col)
+  x <- calc_prop_scr(internal_df, external_df, id_col = id_col, model)
+pre_post_summary(x, df, vars = c("cov1", "cov2"), df$internal, trt = df$trt)
 }
