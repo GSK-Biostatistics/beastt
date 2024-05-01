@@ -28,7 +28,7 @@ calc_prop_scr <- function(internal_df, external_df,
             "*" = "Make sure all covariates are left unquoted",
             "i" = "Formula should look like `~cov1 + cov2 + cov3...`"))
   } else {
-    # Given model is a fomula, check variable names match names in datasets
+    # Given model is a formula, check variable names match names in datasets
 
     if(!is.null(f_lhs(model))){
       cli_abort(c("The left hand side of the formula must be left blank",
