@@ -4,40 +4,36 @@
 \alias{pre_post_summary}
 \title{Create a Pre-and-Post-Weighting Summary Table}
 \usage{
-pre_post_summary(x, df, vars, internal, trt)
+pre_post_summary(x, vars, trt)
 }
 \arguments{
 \item{x}{Propensity score object}
 
-\item{df}{Combined dataset with one row per subject and all the
-variables (subgroups) to be displayed in the summary table}
-
 \item{vars}{Variables (subgroups) to be displayed in the summary table}
-
-\item{internal}{Indicator variable identifying internal vs external subjects}
 
 \item{trt}{Treatment variable, should be set to "Control" if borrowing from
 external controls}
 }
 \value{
-\code{tibble} object, with the adjusted and unadjusted
+\code{tibble} object, with the adjusted and unadjusted differences
 }
 \description{
 Create a Pre-and-Post-Weighting Summary Table
 }
 \examples{
 df <- data.frame(
-  id_col = 1:40,
-  cov1 = rep(c("a", "b", "c", "d"), 10),
-  cov2 = rep(c("e", "f", "g", "h"), each = 10),
-  internal = sample(c(0,1), 40, replace = TRUE),
-  trt = rep(c("Active", "Control"), each = 20)
+ id_col = 1:40,
+ cov1 = rep(c("a", "b", "c", "d"), 10),
+ cov2 = rep(c("e", "f", "g", "h"), each = 10),
+ internal = sample(c(0,1), 40, replace = TRUE),
+ trt = rep(c("Control"), each = 40)
 )
-model <- as.formula("~cov1 + cov2")
 internal_df <- df |>
   dplyr::filter(internal == 1)
 external_df <- df |>
   dplyr::filter(internal == 0)
-  x <- calc_prop_scr(internal_df, external_df, id_col = id_col, model)
-pre_post_summary(x, df, vars = c("cov1", "cov2"), df$internal, trt = df$trt)
+model <- model <- as.formula("~cov1")
+x <- calc_prop_scr(internal_df, external_df,
+                    id_col = id_col, model)
+pre_post_summary(x, vars = c("cov1", "cov2"), trt = df$trt)
 }

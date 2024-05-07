@@ -1,13 +1,10 @@
 #' Create a Pre-and-Post-Weighting Summary Table
 #'
 #' @param x Propensity score object
-#' @param df Combined dataset with one row per subject and all the
-#'   variables (subgroups) to be displayed in the summary table
 #' @param vars Variables (subgroups) to be displayed in the summary table
-#' @param internal Indicator variable identifying internal vs external subjects
 #' @param trt Treatment variable, should be set to "Control" if borrowing from
 #'   external controls
-#' @return `tibble` object, with the adjusted and unadjusted
+#' @return `tibble` object, with the adjusted and unadjusted differences
 #' @export
 #' @importFrom rlang f_rhs f_lhs `f_lhs<-` is_formula enquo as_name
 #' @importFrom stringr str_split_1 str_detect str_split_i
@@ -19,22 +16,26 @@
 #' @importFrom cobalt bal.tab
 #' @examples
 #' df <- data.frame(
-#'   id_col = 1:40,
-#'   cov1 = rep(c("a", "b", "c", "d"), 10),
-#'   cov2 = rep(c("e", "f", "g", "h"), each = 10),
-#'   internal = sample(c(0,1), 40, replace = TRUE),
-#'   trt = rep(c("Active", "Control"), each = 20)
+#'  id_col = 1:40,
+#'  cov1 = rep(c("a", "b", "c", "d"), 10),
+#'  cov2 = rep(c("e", "f", "g", "h"), each = 10),
+#'  internal = sample(c(0,1), 40, replace = TRUE),
+#'  trt = rep(c("Control"), each = 40)
 #' )
-#' model <- as.formula("~cov1 + cov2")
 #' internal_df <- df |>
 #'   dplyr::filter(internal == 1)
 #' external_df <- df |>
 #'   dplyr::filter(internal == 0)
-#'   x <- calc_prop_scr(internal_df, external_df, id_col = id_col, model)
-#' pre_post_summary(x, df, vars = c("cov1", "cov2"), df$internal, trt = df$trt)
-pre_post_summary <- function(x, df, vars, internal, trt){
+#' model <- model <- as.formula("~cov1")
+#' x <- calc_prop_scr(internal_df, external_df,
+#'                     id_col = id_col, model)
+#' pre_post_summary(x, vars = c("cov1", "cov2"), trt = df$trt)
+pre_post_summary <- function(x, vars, trt){
 
   test_prop_scr(x)
+
+  df_ <- rbind(x$internal_df, x$external_df)
+  internal <- df_$`___internal___`
 
   freqs <- list()
 
@@ -43,7 +44,7 @@ pre_post_summary <- function(x, df, vars, internal, trt){
     var_name <- vars[i]
 
     # Calculate frequencies
-    ftable <- table(df[[var_name]], internal, trt)
+    ftable <- table(df_[[var_name]], internal, trt)
     freqdf <- as.data.frame(ftable)
 
     # Calculate percentages
@@ -65,8 +66,28 @@ pre_post_summary <- function(x, df, vars, internal, trt){
     select(variable, value, internal, trt, Freq, Perc)
   rownames(freqs_out) <- 1:nrow(freqs_out)
 
-  # Calculate propensity scores
-  pscore <- x$abs_std_mean_diff
+  # Get differences
+  asmd_adj <- bal.tab(select(df_, !!vars), # df of covariates (internal and external)
+                      treat = df_$`___internal___`,   # internal indicator
+                      binary = "std",         # use standardized version of mean differences for binary covariates
+                      continuous = "std",     # use standardized version of mean differences for continuous covariates
+                      s.d.denom = "pooled",   # calculation of the denominator of SMD
+                      weights = df_$`___weight___`,
+                      abs = TRUE)$Balance
+
+  asmd_unadj <- bal.tab(select(df_, !!vars), # df of covariates (internal and external)
+                        treat = df_$`___internal___`,   # internal indicator
+                        binary = "std",         # use standardized version of mean differences for binary covariates
+                        continuous = "std",     # use standardized version of mean differences for continuous covariates
+                        s.d.denom = "pooled",   # calculation of the denominator of SMD
+                        abs = TRUE)$Balance
+
+  pscore <- tibble(
+    covariate = rownames(asmd_adj),
+    diff_unadj = asmd_unadj[,2],
+    diff_adj = asmd_adj[,3],
+  )
+
   pscore$variable <- str_split_i(pscore$covariate, "_", 1)
   pscore$value <- str_split_i(pscore$covariate, "_", -1)
 
