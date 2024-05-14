@@ -3,6 +3,7 @@
 S3method(glance,prop_scr)
 S3method(print,prop_scr)
 S3method(tidy,prop_scr)
+export(calc_post_norm)
 export(calc_power_prior_beta)
 export(calc_power_prior_norm)
 export(calc_prop_scr)
