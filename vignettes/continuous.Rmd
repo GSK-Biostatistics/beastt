@@ -1,5 +1,5 @@
 ---
-title: "Continuous Case"
+title: "Continuous Case With Assumed Known SD"
 package: beastt
 output: 
   rmarkdown::html_vignette:
@@ -50,14 +50,15 @@ external_df <- tibble(subjid = 1:n_external,   # participant ID
 n_inter_control <- 60
 n_inter_treat <- 60
 n_internal <- n_inter_control + n_inter_treat     # total internal sample size
+sd_internal_control = 3
 
 internal_df <- tibble(subjid = 1:n_internal,                  # participant ID
                   cov1 = round(rnorm(n_internal, 55, 8)),          # covariate 1: mean=55, SD=8 (not mean=50, SD=10)
                   cov2 = rbinom(n_internal, 1, .3),                # covariate 2: ~30% level 1 (not 20%)
                   cov3 = rbinom(n_internal, 1, .5),                # covariate 3: ~50% level 1 (not 60%)
                   cov4 = rbinom(n_internal, 1, .3),                # covariate 4: ~30% level 1 (same)
-                  trt = rep(0:1, c(n_inter_control, n_inter_treat)),
-                  y = rnorm(n_internal, mean = 50, sd = 3))    # treatment (0: control, 1: active treatment)
+                  trt = rep(0:1, c(n_inter_control, n_inter_treat)), # treatment (0: control, 1: active treatment)
+                  y = rnorm(n_internal, mean = 50, sd = sd_internal_control))    # response  
 ```
 
 Now we have some data we can calculate the propensity scores for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating power priors in the next step.
@@ -87,7 +88,7 @@ prop_scr_love(ps_obj, reference_line = 0.4)
 
 Now that we are happy with our propensity score we can use it to calculate a power prior. To calculate the power prior we need to supply:
 
--   prior, in the form of a distirbutional object
+-   prior, in the form of a distributional object
 
 -   propensity score object, what we created above
 
@@ -100,6 +101,35 @@ Finally, once we have a power prior we might want to plot it. To do that we can 
 ```{r}
 pwr_prior <- calc_power_prior_norm(prior = dist_normal(92, 100), 
                  ps_obj, response = y, 
-                 external_control_sd = 15)
+                 external_control_sd = sd_external_control)
 plot_dist(pwr_prior)
 ```
+
+
+Now that we have a power prior we can calculate the posterior using the `calc_post_norm` function 
+```{r}
+post <- calc_post_norm(ps_obj,
+               response = y,
+               internal_control_sd = sd_internal_control, 
+               prior= pwr_prior)
+plot_dist(post)
+```
+
+If you want to add a vague component to the distirbution you just make a mixture distribution and pass it to `calc_post_norm`
+
+```{r}
+prior_param <- parameters(pwr_prior)
+mixed_prior <- dist_mixture(
+  pwr_prior, 
+  dist_normal(prior_param$mu, sqrt(prior_param$sigma^2*n_external)),
+             weights =  c(.5, .5)
+)
+
+post <- calc_post_norm(ps_obj,
+               response = y,
+               internal_control_sd = sd_internal_control, 
+               prior= mixed_prior)
+plot_dist(post)
+```
+
+

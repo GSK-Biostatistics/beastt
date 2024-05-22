@@ -67,11 +67,11 @@ calc_post_norm<- function(
   # Sum of responses and standard error of response in internal control arm
   sum_resp <- pull(data, !!response) |>
     sum()
-  se_IC <- internal_control_sd / sqrt(nIC)
+  # se_IC <- internal_control_sd / sqrt(nIC)
 
   # K x 1 vectors of means and SDs of each component of posterior distribution for mu_C
-  post_sds <- (nIC/sd_IC^2 + 1/prior_sds^2)^-.5        # vector of SDs
-  post_means <- post_sds^2 * (sum_resp/sd_IC^2 + prior_means/prior_sds^2)   # vector of means
+  post_sds <- (nIC/internal_control_sd^2 + 1/prior_sds^2)^-.5        # vector of SDs
+  post_means <- post_sds^2 * (sum_resp/internal_control_sd^2 + prior_means/prior_sds^2)   # vector of means
   if(prior_fam == "normal"){
     final_dist <- dist_normal(post_means, post_sds)
   } else if(prior_fam %in% c("student_t", "mixture")) {
@@ -84,8 +84,8 @@ calc_post_norm<- function(
 
     # K x 1 vector of posterior weights (unnormalized) corresponding to each component of the
     # posterior distribution for mu_C
-    log_post_w_propto <- log(prior_ws) - .5*log(2*pi * sd_IC^2 * prior_sds^2 * post_sds^-2) -
-      .5 * sum_resp^2/sd_IC^2 - .5 * prior_means^2/prior_sds^2 +
+    log_post_w_propto <- log(prior_ws) - .5*log(2*pi * internal_control_sd^2 * prior_sds^2 * post_sds^-2) -
+      .5 * sum_resp^2/internal_control_sd^2 - .5 * prior_means^2/prior_sds^2 +
       .5 * post_means^2 * post_sds^-2
 
     # K x 1 vector of posterior weights (normalized) corresponding to each component of the
