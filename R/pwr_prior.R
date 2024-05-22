@@ -66,21 +66,21 @@ calc_power_prior_norm <- function(prior, weighted_obj, response, external_contro
   if(is.null(prior)){
     # IF AN IMPROPER INITIAL PRIOR IS USED - PROPORTIONAL TO 1
     # Hyperparameters of power prior (normal distribution)
-    sd_hat <- external_control_sd^2 / tot_ipw  # variance of IPW power prior
+    sd2_hat <- external_control_sd^2 / tot_ipw  # variance of IPW power prior
     mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
 
   } else {
     prior_checks(prior, "normal")
     hyperparameter <- parameters(prior)
 
-    sd_hat <- ( tot_ipw/external_control_sd^2 +
+    sd2_hat <- ( tot_ipw/external_control_sd^2 +
                   hyperparameter$sigma^-2 )^-1           # variance of IP-weighted power prior
     mean_hat <- (weight_resp/external_control_sd^2 +
-                   hyperparameter$mu/hyperparameter$sigma^2 ) * sd_hat          # mean of IP-weighted power prior
+                   hyperparameter$mu/hyperparameter$sigma^2 ) * sd2_hat          # mean of IP-weighted power prior
 
   }
 
-  dist_normal(mu = mean_hat, sigma = sd_hat)
+  dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
 }
 
 
