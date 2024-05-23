@@ -5,22 +5,22 @@
 \title{Calculate Power Prior Normal}
 \usage{
 calc_power_prior_norm(
-  prior,
   weighted_obj,
   response,
+  prior = NULL,
   external_control_sd = NULL
 )
 }
 \arguments{
-\item{prior}{either \code{NULL} or a normal {distributional} object that is the
-prior of the external data}
-
 \item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{create_prop_scr()}}
 
 \item{response}{Name of response variable}
 
+\item{prior}{either \code{NULL} or a normal {distributional} object that is the
+prior of the external data}
+
 \item{external_control_sd}{Standard deviation of external control arm if
-assumed known.}
+assumed known. It can be left as \code{NULL} if there is no prior}
 }
 \value{
 beta power prior object
