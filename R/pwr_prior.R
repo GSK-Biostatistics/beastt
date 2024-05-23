@@ -34,12 +34,12 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 
 #' Calculate Power Prior Normal
 #'
-#' @param prior either `NULL` or a normal {distributional} object that is the
-#'   prior of the external data
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
+#'@param prior either `NULL` or a normal {distributional} object that is the
+#'   prior of the external data
 #' @param external_control_sd Standard deviation of external control arm if
-#'   assumed known.
+#'   assumed known. It can be left as `NULL` if there is no prior
 #'
 #' @return beta power prior object
 #' @export
@@ -47,7 +47,7 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 #' @importFrom dplyr pull
 #' @importFrom distributional parameters dist_normal
 #' @family power prior
-calc_power_prior_norm <- function(prior, weighted_obj, response, external_control_sd = NULL){
+calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external_control_sd = NULL){
   test_prop_scr(weighted_obj)
   response <- enquo(response)
 
@@ -59,17 +59,19 @@ calc_power_prior_norm <- function(prior, weighted_obj, response, external_contro
   weight_resp <- vars |> pull(.data$weight_resp)
   tot_ipw <- vars |> pull(.data$tot_ipw)
 
-  if(is.null(external_control_sd) && !is.numeric(external_control_sd)){
-    cli_abort("{.agr external_control_sd} must be a number")
-  }
+  ec_sd_test <- !is.null(external_control_sd) && is.numeric(external_control_sd)
 
   if(is.null(prior)){
-    # IF AN IMPROPER INITIAL PRIOR IS USED - PROPORTIONAL TO 1
-    # Hyperparameters of power prior (normal distribution)
-    sd2_hat <- external_control_sd^2 / tot_ipw  # variance of IPW power prior
-    mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
-
-  } else {
+    if(ec_sd_test){
+      # IF AN IMPROPER INITIAL PRIOR IS USED - PROPORTIONAL TO 1
+      # Hyperparameters of power prior (normal distribution)
+      sd2_hat <- external_control_sd^2 / tot_ipw  # variance of IPW power prior
+      mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
+      out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
+    } else {
+      out_dist <- calc_t(weighted_obj)
+    }
+  } else if(ec_sd_test) {
     prior_checks(prior, "normal")
     hyperparameter <- parameters(prior)
 
@@ -77,13 +79,47 @@ calc_power_prior_norm <- function(prior, weighted_obj, response, external_contro
                   hyperparameter$sigma^-2 )^-1           # variance of IP-weighted power prior
     mean_hat <- (weight_resp/external_control_sd^2 +
                    hyperparameter$mu/hyperparameter$sigma^2 ) * sd2_hat          # mean of IP-weighted power prior
-
+    out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
+  } else {
+    cli_abort("{.agr external_control_sd} must be a number if a prior is being supplied")
   }
+  out_dist
 
-  dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
 }
 
+#' Calculate a T distribution power prior
+#'
+#' @param ps_obj propensity score object
+#'
+#' @return t distributional object
+#' @noRd
+calc_t <- function(ps_obj){
+  # Degrees of freedom
+  df_pp <- nrow(ps_obj$external_df) - 1
 
+  # Location hyperparameter (easier to write in matrix form than scalar form)
+  Y_EC_vec <- as.matrix(ps_obj$external_df$y)          # external response vector
+  A_pp <- diag(ps_obj$external_df$`___weight___`)      # diagonal matrix with EC IPWs along diagonals
+  Z_pp <- matrix(1, nrow = nrow(EC_dat), ncol = 1)     # nEC x 1 vector of 1s
+  theta_pp <- as.numeric(                              # location hyperparameter
+    solve(t(Z_pp) %*% A_pp %*% Z_pp) %*%
+      t(Z_pp) %*% A_pp %*% Y_EC_vec
+  )
+
+  # Dispersion hyperparameter (easier to write in matrix form than scalar form)
+  V_pp <- Z_pp %*% solve(t(Z_pp) %*% A_pp %*% Z_pp) %*%     # nEC x nEC matrix
+    t(Z_pp) %*% A_pp
+  tau2_pp <- as.numeric(                                    # dispersion hyperparameter
+    df_pp^-1 * solve(t(Z_pp) %*% A_pp %*% Z_pp) %*%
+      (t(Y_EC_vec) %*% (A_pp - t(V_pp) %*% A_pp %*% V_pp) %*% Y_EC_vec)
+  )
+
+  # Power prior object
+  dist_student_t(df = df_pp,              # degrees of freedom
+                           mu = theta_pp,           # location hyperparameter
+                           sigma = sqrt(tau2_pp))   # scale hyperparameter (sqrt of dispersion)
+
+}
 
 
 #' Prior checks
