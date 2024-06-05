@@ -32,6 +32,7 @@ summary(int_norm_df)
 summary(ex_norm_df)
 sd_external_control <- 5
 sd_internal_control <- 3
+n_external <- nrow(ex_norm_df)
 ```
 
 With the data we can calculate the propensity scores for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating power priors in the next step.
