@@ -30,6 +30,8 @@ library(ggplot2)
 
 summary(int_norm_df)
 summary(ex_norm_df)
+sd_external_control <- 5
+sd_internal_control <- 3
 ```
 
 With the data we can calculate the propensity scores for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating power priors in the next step.
@@ -67,7 +69,7 @@ Now that we are happy with our propensity score we can use it to calculate a pow
 
 -   external control sd
 
-The prior and the external control SD are optional. If no prior is provided, a improper initial prior will be used. this we need because the data here is continuous. If left out then an improper prior will be use assuming proportionality to one
+The prior and the external control SD are optional. If no prior is provided, a improper initial prior will be used. If there is no external control sd or prior then a t distirbution power prior will be created. 
 
 Finally, once we have a power prior we might want to plot it. To do that we can just the `plot_dist` function.
 
