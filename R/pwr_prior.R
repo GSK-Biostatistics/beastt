@@ -1,7 +1,7 @@
 
 #' Calculate Power Prior Beta
 #'
-#' @param prior a beta {distributional} object that is the prior of the external data
+#' @param prior a beta distributional object that is the prior of the external data
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
 #'
@@ -36,7 +36,7 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 #'
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
-#'@param prior either `NULL` or a normal {distributional} object that is the
+#'@param prior either `NULL` or a normal distributional object that is the
 #'   prior of the external data
 #' @param external_control_sd Standard deviation of external control arm if
 #'   assumed known. It can be left as `NULL` if there is no prior
@@ -69,7 +69,9 @@ calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external
       mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
       out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
     } else {
-      out_dist <- calc_t(weighted_obj)
+      out_dist <- calc_t(weighted_obj$external_df$y,
+                         n= nrow(weighted_obj$external_df),
+                         weighted_obj$external_df$`___weight___`)
     }
   } else if(ec_sd_test) {
     prior_checks(prior, "normal")
@@ -89,35 +91,43 @@ calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external
 
 #' Calculate a T distribution power prior
 #'
-#' @param ps_obj propensity score object
+#' @param Y response
+#' @param n number of subjects
+#' @param W Optional vector of weights
 #'
 #' @return t distributional object
+#' @importFrom distributional dist_student_t
+#' @importFrom mixtools normalmixEM
 #' @noRd
-calc_t <- function(ps_obj){
+calc_t <- function(Y, n, W =NULL){
   # Degrees of freedom
-  df_pp <- nrow(ps_obj$external_df) - 1
-
+  df <- n - 1
   # Location hyperparameter (easier to write in matrix form than scalar form)
-  Y_EC_vec <- as.matrix(ps_obj$external_df$y)          # external response vector
-  A_pp <- diag(ps_obj$external_df$`___weight___`)      # diagonal matrix with EC IPWs along diagonals
-  Z_pp <- matrix(1, nrow = nrow(EC_dat), ncol = 1)     # nEC x 1 vector of 1s
-  theta_pp <- as.numeric(                              # location hyperparameter
-    solve(t(Z_pp) %*% A_pp %*% Z_pp) %*%
-      t(Z_pp) %*% A_pp %*% Y_EC_vec
+  Y_vec <- as.matrix(Y)          # external response vector
+  Z <- matrix(1, nrow = n, ncol = 1)     # nEC x 1 vector of 1s
+  if(is.null(W)){
+    A <- diag(length(Y))
+  } else {
+    A <- diag(W)      # diagonal matrix with EC IPWs along diagonals
+  }
+
+  theta <- as.numeric(                              # location hyperparameter
+    solve(t(Z) %*% A %*% Z) %*%
+      t(Z) %*% A %*% Y_vec
   )
 
   # Dispersion hyperparameter (easier to write in matrix form than scalar form)
-  V_pp <- Z_pp %*% solve(t(Z_pp) %*% A_pp %*% Z_pp) %*%     # nEC x nEC matrix
-    t(Z_pp) %*% A_pp
-  tau2_pp <- as.numeric(                                    # dispersion hyperparameter
-    df_pp^-1 * solve(t(Z_pp) %*% A_pp %*% Z_pp) %*%
-      (t(Y_EC_vec) %*% (A_pp - t(V_pp) %*% A_pp %*% V_pp) %*% Y_EC_vec)
+  V <- Z %*% solve(t(Z) %*% A %*% Z) %*%     # nEC x nEC matrix
+    t(Z) %*% A
+  tau2 <- as.numeric(                                    # dispersion hyperparameter
+    df^-1 * solve(t(Z) %*% A %*% Z) %*%
+    (t(Y_vec) %*% (A - t(V) %*% A %*% V) %*% Y_vec)
   )
 
   # Power prior object
-  dist_student_t(df = df_pp,              # degrees of freedom
-                           mu = theta_pp,           # location hyperparameter
-                           sigma = sqrt(tau2_pp))   # scale hyperparameter (sqrt of dispersion)
+  dist_student_t(df = df,              # degrees of freedom
+                           mu = theta,           # location hyperparameter
+                           sigma = sqrt(tau2))   # scale hyperparameter (sqrt of dispersion)
 
 }
 
