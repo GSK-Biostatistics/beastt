@@ -32,5 +32,6 @@ Imports:
     stringr,
     distributional,
     tidyr,
-    ggdist
+    ggdist,
+    mixtools
 VignetteBuilder: knitr

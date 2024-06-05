@@ -4,7 +4,7 @@
 \alias{calc_post_norm}
 \title{Calculate Posterior Normal}
 \usage{
-calc_post_norm(internal_data, response, internal_control_sd, prior)
+calc_post_norm(internal_data, response, prior, internal_control_sd = NULL)
 }
 \arguments{
 \item{internal_data}{This can either be a propensity score object or a tibble
@@ -12,9 +12,9 @@ of the internal data.}
 
 \item{response}{Name of response variable}
 
-\item{internal_control_sd}{Assumed known SD of the internal control}
-
 \item{prior}{distributional object, if you would like a mixture distribution}
+
+\item{internal_control_sd}{Assumed known SD of the internal control}
 }
 \value{
 distributional object

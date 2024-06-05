@@ -7,7 +7,7 @@
 calc_power_prior_beta(prior, weighted_obj, response)
 }
 \arguments{
-\item{prior}{a beta {distributional} object that is the prior of the external data}
+\item{prior}{a beta distributional object that is the prior of the external data}
 
 \item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{create_prop_scr()}}
 

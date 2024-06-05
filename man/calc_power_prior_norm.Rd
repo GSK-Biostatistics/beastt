@@ -16,7 +16,7 @@ calc_power_prior_norm(
 
 \item{response}{Name of response variable}
 
-\item{prior}{either \code{NULL} or a normal {distributional} object that is the
+\item{prior}{either \code{NULL} or a normal distributional object that is the
 prior of the external data}
 
 \item{external_control_sd}{Standard deviation of external control arm if
