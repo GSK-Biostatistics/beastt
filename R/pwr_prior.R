@@ -103,7 +103,7 @@ calc_t <- function(Y, n, W =NULL){
   # Degrees of freedom
   df <- n - 1
   # Location hyperparameter (easier to write in matrix form than scalar form)
-  Y_vec <- as.matrix(Y)          # external response vector
+  Y_vec <- as.matrix(Y)          # response vector
   Z <- matrix(1, nrow = n, ncol = 1)     # nEC x 1 vector of 1s
   if(is.null(W)){
     A <- diag(length(Y))

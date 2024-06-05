@@ -208,7 +208,7 @@ get_base_families <- function(x) {
 }
 
 calc_t_post <- function(prior, nIC, response){
-  # Get the integratedlikelihood and convert it to a mixture of normals
+  # Get the integrated likelihood and convert it to a mixture of normals
   pi_tilde_IC <- calc_t(response, n= nIC)
   int_like <- t_to_mixnorm(pi_tilde_IC)
   like_mean <- mix_means(int_like)
