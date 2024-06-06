@@ -3,7 +3,7 @@
 #' @param internal_data This can either be a propensity score object or a tibble
 #'   of the internal data.
 #' @param response Name of response variable
-#' @param prior distributional object, if you would like a mixture distribution
+#' @param prior distributional object, possibly a mixture distribution
 #' @param internal_control_sd Assumed known SD of the internal control
 #'
 #' @return distributional object
