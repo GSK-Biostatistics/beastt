@@ -60,7 +60,7 @@ calc_post_norm<- function(
       out_dist <- mix_t_to_mix(prior) |>
         calc_mixnorm_post(internal_control_sd, nIC, sum_resp)
     } else {
-      cli_abort("{.agr prior} must be either normal, t, or a mixture of normals")
+      cli_abort("{.agr prior} must be either normal, t, or a mixture of normals and t")
     }
   } else {
     if(prior_fam == "student_t") {
