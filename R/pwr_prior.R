@@ -38,7 +38,7 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
 #'@param prior either `NULL` or a normal distributional object that is the
-#'   prior of the external data
+#'   initial prior for the control mean before the external control data are observed
 #' @param external_control_sd Standard deviation of external control arm if
 #'   assumed known. It can be left as `NULL` if there is no prior
 #'
