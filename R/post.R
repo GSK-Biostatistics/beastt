@@ -4,7 +4,8 @@
 #'   of the internal data.
 #' @param response Name of response variable
 #' @param prior distributional object, possibly a mixture distribution
-#' @param internal_control_sd Assumed known SD of the internal control
+#' @param internal_control_sd Standard deviation of internal control response data if
+#'   assumed known. It can be left as `NULL` if assumed unknown
 #'
 #' @return distributional object
 #' @export
