@@ -147,7 +147,7 @@ mix_t_to_mix <- function(x){
 #' @param n_ic number of internal response
 #' @param sum_resp sum of the internal response
 #'
-#' @return mixture distrbutional
+#' @return mixture distributional
 #' @noRd
 calc_mixnorm_post <- function(prior,internal_control_sd,  n_ic, sum_resp){
 
