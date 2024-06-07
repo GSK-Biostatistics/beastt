@@ -39,7 +39,7 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 #' @param response Name of response variable
 #'@param prior either `NULL` or a normal distributional object that is the
 #'   initial prior for the control mean before the external control data are observed
-#' @param external_control_sd Standard deviation of external control arm if
+#' @param external_control_sd Standard deviation of external control response data if
 #'   assumed known. It can be left as `NULL` if there is no prior
 #'
 #' @return beta power prior object
