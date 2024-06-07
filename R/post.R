@@ -181,7 +181,7 @@ calc_mixnorm_post <- function(prior,internal_control_sd,  n_ic, sum_resp){
 #' @param n_ic number of internal response
 #' @param sum_resp sum of the internal response
 #'
-#' @return normal distrbutional
+#' @return normal distributional
 #' @noRd
 calc_norm_post <- function(prior,internal_control_sd, n_ic, sum_resp){
   x <- parameters(prior)
