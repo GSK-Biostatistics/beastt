@@ -1,7 +1,8 @@
 
 #' Calculate Power Prior Beta
 #'
-#' @param prior a beta distributional object that is the prior of the external data
+#' @param prior a beta distributional object that is the initial prior for the control
+#'   response rate before the external control data are observed
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
 #'
