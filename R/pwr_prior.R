@@ -109,7 +109,7 @@ calc_t <- function(Y, n, W =NULL){
   if(is.null(W)){
     A <- diag(length(Y))
   } else {
-    A <- diag(W)      # diagonal matrix with EC IPWs along diagonals
+    A <- diag(W)      # diagonal matrix with weights along diagonals
   }
 
   theta <- as.numeric(                              # location hyperparameter
