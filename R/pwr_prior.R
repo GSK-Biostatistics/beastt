@@ -93,7 +93,7 @@ calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external
 #' Calculate a T distribution power prior
 #'
 #' @param Y response
-#' @param n number of subjects
+#' @param n number of participants
 #' @param W Optional vector of weights
 #'
 #' @return t distributional object
