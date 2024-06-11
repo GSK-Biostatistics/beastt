@@ -105,7 +105,7 @@ calc_t <- function(Y, n, W =NULL){
   df <- n - 1
   # Location hyperparameter (easier to write in matrix form than scalar form)
   Y_vec <- as.matrix(Y)          # response vector
-  Z <- matrix(1, nrow = n, ncol = 1)     # nEC x 1 vector of 1s
+  Z <- matrix(1, nrow = n, ncol = 1)     # n x 1 vector of 1s
   if(is.null(W)){
     A <- diag(length(Y))
   } else {
