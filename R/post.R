@@ -33,7 +33,7 @@ calc_post_norm<- function(
     cli_abort("{.agr internal_data} either a dataset or `prop_scr` object type")
   }
 
-  # Check resonse exsists in the data and calculate the sum
+  # Check response exists in the data and calculate the sum
   response <- enquo(response)
   check <- safely(select)(data, !!response)
   if(!is.null(check$error)){
