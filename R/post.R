@@ -40,7 +40,7 @@ calc_post_norm<- function(
     cli_abort("{.agr response} was not found in {.agr internal_data}")
   }
 
-  # Checking the dirstibution and getting the family
+  # Checking the distribution and getting the family
   if(!is_distribution(prior)){
     cli_abort("{.agr prior} must be a distributional object")
   }
