@@ -145,7 +145,7 @@ calc_t <- function(Y, n, W =NULL){
 #' @noRd
 prior_checks <- function(prior, family){
   if(!is_distribution(prior)){
-    cli_abort("Needs to be a normal or beta prior")
+    cli_abort("Needs to be a distributional prior")
   } else if(length(prior) > 1){
     cli_abort("Needs to be a single prior, not a vector of priors")
   } else if(family(prior) != family){
