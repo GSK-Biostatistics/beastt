@@ -42,7 +42,7 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 #' @param external_control_sd Standard deviation of external control response data if
 #'   assumed known. It can be left as `NULL` if assumed unknown
 #'
-#' @return beta power prior object
+#' @return normal power prior object
 #' @export
 #' @importFrom rlang enquo is_quosure
 #' @importFrom dplyr pull
