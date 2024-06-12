@@ -118,7 +118,7 @@ calc_t <- function(Y, n, W =NULL){
   )
 
   # Dispersion hyperparameter (easier to write in matrix form than scalar form)
-  V <- Z %*% solve(t(Z) %*% A %*% Z) %*%     # nEC x nEC matrix
+  V <- Z %*% solve(t(Z) %*% A %*% Z) %*%     # n x n matrix
     t(Z) %*% A
   tau2 <- as.numeric(                                    # dispersion hyperparameter
     df^-1 * solve(t(Z) %*% A %*% Z) %*%
