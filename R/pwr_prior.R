@@ -1,7 +1,8 @@
 
 #' Calculate Power Prior Beta
 #'
-#' @param prior a beta distributional object that is the prior of the external data
+#' @param prior a beta distributional object that is the initial prior for the control
+#'   response rate before the external control data are observed
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
 #'
@@ -36,12 +37,12 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 #'
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
-#' @param prior either `NULL` or a normal distributional object that is the
-#'   prior of the external data
-#' @param external_control_sd Standard deviation of external control arm if
-#'   assumed known. It can be left as `NULL` if there is no prior
+#'@param prior either `NULL` or a normal distributional object that is the
+#'   initial prior for the control mean before the external control data are observed
+#' @param external_control_sd Standard deviation of external control response data if
+#'   assumed known. It can be left as `NULL` if assumed unknown
 #'
-#' @return beta power prior object
+#' @return normal power prior object
 #' @export
 #' @importFrom rlang enquo is_quosure
 #' @importFrom dplyr pull
@@ -92,7 +93,7 @@ calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external
 #' Calculate a T distribution power prior
 #'
 #' @param Y response
-#' @param n number of subjects
+#' @param n number of participants
 #' @param W Optional vector of weights
 #'
 #' @return t distributional object
@@ -103,12 +104,12 @@ calc_t <- function(Y, n, W =NULL){
   # Degrees of freedom
   df <- n - 1
   # Location hyperparameter (easier to write in matrix form than scalar form)
-  Y_vec <- as.matrix(Y)          # external response vector
-  Z <- matrix(1, nrow = n, ncol = 1)     # nEC x 1 vector of 1s
+  Y_vec <- as.matrix(Y)          # response vector
+  Z <- matrix(1, nrow = n, ncol = 1)     # n x 1 vector of 1s
   if(is.null(W)){
     A <- diag(length(Y))
   } else {
-    A <- diag(W)      # diagonal matrix with EC IPWs along diagonals
+    A <- diag(W)      # diagonal matrix with weights along diagonals
   }
 
   theta <- as.numeric(                              # location hyperparameter
@@ -117,7 +118,7 @@ calc_t <- function(Y, n, W =NULL){
   )
 
   # Dispersion hyperparameter (easier to write in matrix form than scalar form)
-  V <- Z %*% solve(t(Z) %*% A %*% Z) %*%     # nEC x nEC matrix
+  V <- Z %*% solve(t(Z) %*% A %*% Z) %*%     # n x n matrix
     t(Z) %*% A
   tau2 <- as.numeric(                                    # dispersion hyperparameter
     df^-1 * solve(t(Z) %*% A %*% Z) %*%
@@ -144,7 +145,7 @@ calc_t <- function(Y, n, W =NULL){
 #' @noRd
 prior_checks <- function(prior, family){
   if(!is_distribution(prior)){
-    cli_abort("Needs to be a normal or beta prior")
+    cli_abort("Needs to be a distributional prior")
   } else if(length(prior) > 1){
     cli_abort("Needs to be a single prior, not a vector of priors")
   } else if(family(prior) != family){
