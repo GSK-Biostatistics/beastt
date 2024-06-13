@@ -3,8 +3,9 @@
 #' @param internal_data This can either be a propensity score object or a tibble
 #'   of the internal data.
 #' @param response Name of response variable
-#' @param prior distributional object, if you would like a mixture distribution
-#' @param internal_control_sd Assumed known SD of the internal control
+#' @param prior distributional object, possibly a mixture distribution
+#' @param internal_control_sd Standard deviation of internal control response data if
+#'   assumed known. It can be left as `NULL` if assumed unknown
 #'
 #' @return distributional object
 #' @export
@@ -32,14 +33,14 @@ calc_post_norm<- function(
     cli_abort("{.agr internal_data} either a dataset or `prop_scr` object type")
   }
 
-  # Check resonse exsists in the data and calculate the sum
+  # Check response exists in the data and calculate the sum
   response <- enquo(response)
   check <- safely(select)(data, !!response)
   if(!is.null(check$error)){
     cli_abort("{.agr response} was not found in {.agr internal_data}")
   }
 
-  # Checking the dirstibution and getting the family
+  # Checking the distribution and getting the family
   if(!is_distribution(prior)){
     cli_abort("{.agr prior} must be a distributional object")
   }
@@ -59,7 +60,7 @@ calc_post_norm<- function(
       out_dist <- mix_t_to_mix(prior) |>
         calc_mixnorm_post(internal_control_sd, nIC, sum_resp)
     } else {
-      cli_abort("{.agr prior} must be either normal, t, or a mixture of normals")
+      cli_abort("{.agr prior} must be either normal, t, or a mixture of normals and t")
     }
   } else {
     if(prior_fam == "student_t") {
@@ -228,7 +229,7 @@ mix_t_to_mix <- function(x){
 #' @param n_ic number of internal response
 #' @param sum_resp sum of the internal response
 #'
-#' @return mixture distrbutional
+#' @return mixture distributional
 #' @noRd
 calc_mixnorm_post <- function(prior,internal_control_sd,  n_ic, sum_resp){
 
@@ -262,7 +263,7 @@ calc_mixnorm_post <- function(prior,internal_control_sd,  n_ic, sum_resp){
 #' @param n_ic number of internal response
 #' @param sum_resp sum of the internal response
 #'
-#' @return normal distrbutional
+#' @return normal distributional
 #' @noRd
 calc_norm_post <- function(prior,internal_control_sd, n_ic, sum_resp){
   x <- parameters(prior)
@@ -290,7 +291,7 @@ get_base_families <- function(x) {
 }
 
 calc_t_post <- function(prior, nIC, response){
-  # Get the integratedlikelihood and convert it to a mixture of normals
+  # Get the integrated likelihood and convert it to a mixture of normals
   pi_tilde_IC <- calc_t(response, n= nIC)
   int_like <- t_to_mixnorm(pi_tilde_IC)
   like_mean <- mix_means(int_like)
