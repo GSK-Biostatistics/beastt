@@ -32,7 +32,7 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/continuous.html">Continuous Case</a>
+      <a href="../articles/continuous.html">Continuous Case With Assumed Known SD</a>
     </li>
     <li>
       <a href="../articles/introduction.html">Package Introduction</a>
@@ -58,21 +58,16 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calc_power_prior_norm</span><span class="op">(</span></span>
-<span>  <span class="va">prior</span>,</span>
 <span>  <span class="va">weighted_obj</span>,</span>
 <span>  <span class="va">response</span>,</span>
+<span>  prior <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  external_control_sd <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>prior</dt>
-<dd><p>either <code>NULL</code> or a normal distributional object that is the
-prior of the external data</p></dd>
-
-
-<dt>weighted_obj</dt>
+    <dl><dt>weighted_obj</dt>
 <dd><p>A <code>prop_scr_obj</code> created by calling <code>create_prop_scr()</code></p></dd>
 
 
@@ -80,9 +75,14 @@ prior of the external data</p></dd>
 <dd><p>Name of response variable</p></dd>
 
 
+<dt>prior</dt>
+<dd><p>either <code>NULL</code> or a normal distributional object that is the
+prior of the external data</p></dd>
+
+
 <dt>external_control_sd</dt>
 <dd><p>Standard deviation of external control arm if
-assumed known.</p></dd>
+assumed known. It can be left as <code>NULL</code> if there is no prior</p></dd>
 
 </dl></div>
     <div id="value">
