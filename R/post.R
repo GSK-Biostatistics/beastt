@@ -89,7 +89,7 @@ calc_post_norm<- function(
 #' @export
 #' @importFrom dplyr pull
 #' @importFrom purrr safely map map2
-#' @importFrom distributional dist_normal dist_mixture is_distribution parameters
+#' @importFrom distributional dist_beta dist_mixture is_distribution parameters
 #'
 calc_post_beta<- function(
     internal_data,
