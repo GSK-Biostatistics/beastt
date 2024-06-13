@@ -93,9 +93,13 @@ t_to_mixnorm <- function(x){
     unlist()
 
   normEM_obj <- quietly(normalmixEM)(t_qntl,
-                                     k = 2,                            # number of normal components
-                                     mean.const = c(mean(x), mean(x)), # constraints on the means
-                                     maxit = 1000)$result                     # maximum number of iterations
+                                     k = 2,                                # number of normal components
+                                     mean.const = c(mean(x), mean(x)),     # constraints on the means
+                                     lambda = c(.5, .5),                   # starting values for weights (can be equal)
+                                     mu = c(mean(x), mean(x)),             # starting values for mean (must be equal)
+                                     sigma = c(sqrt(variance(x)) + .001,   # starting values for SD (should NOT be equal)
+                                               sqrt(variance(x)) + .002),
+                                     maxit = 1000)$result                  # maximum number of iterations
 
   norm_mix_w <- normEM_obj$lambda       # 2 x 1 vector of weights associated with each normal component
   norm_mix_mu <- normEM_obj$mu          # 2 x 1 vector of means associated with each normal component
