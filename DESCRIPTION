@@ -8,6 +8,11 @@ Authors@R:
                     email = "christina.e.fillmore@gsk.com",
                     comment = c(ORCID = "0000-0003-0595-2302")),
                     person("Ben", "Arancibia", email = "benjamin.c.arancibia@gsk.com", role = "aut"),
+                    person(given = "Nate",
+                    family = "Bean",
+                    role = "aut",
+                    email = "nate.w.bean@gsk.com",
+                    comment = c(ORCID = "0000-0001-9946-0119")),
                     person("GlaxoSmithKline Research & Development Limited", role = c("cph", "fnd"))
                     )
 Description: Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (BEASTT).
