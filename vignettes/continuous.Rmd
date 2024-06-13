@@ -21,52 +21,26 @@ knitr::opts_chunk$set(
 library(beastt)
 ```
 
-For this example we are going to walk through how to use Bayesian dynamic borrowing with propensity score matching. The first thing we need is some data. I am going to start with external control data that has come covariates
+For this example we are going to walk through how to use Bayesian dynamic borrowing with propensity score matching. For this example we are just going to use the data from the package. The data we have has a response variable and then four covariates to match on. Covariate 1, is a normally distributed with a mean around 55 and 50 for the internal and external data respectively. All other covariates are binary responses with varying response rate. 
 
 ```{r class.source = 'fold-hide'}
 library(tibble)
 library(distributional)
-library(ggdist)
 library(ggplot2)
 
-
-set.seed(123)
-
-## Make the external dataset
-n_external <- 150
-sd_external_control = 5
-
-external_df <- tibble(subjid = 1:n_external,   # participant ID
-                      cov1 = round(rnorm(n_external, 50, 10)),   # covariate 1
-                      cov2 = rbinom(n_external, 1, .2),          # covariate 2  (binary): ~20% level 1
-                      cov3 = rbinom(n_external, 1, .6),          # covariate 3  (binary): ~60% level 1
-                      cov4 = rbinom(n_external, 1, .3),          # covariate 4  (binary): ~30% level 1
-                      y = rnorm(n_external, mean = 45, sd = sd_external_control))
-
-
-## Make the internal dataset
-
-# Sample sizes
-n_inter_control <- 60
-n_inter_treat <- 60
-n_internal <- n_inter_control + n_inter_treat     # total internal sample size
-sd_internal_control = 3
-
-internal_df <- tibble(subjid = 1:n_internal,                  # participant ID
-                      cov1 = round(rnorm(n_internal, 55, 8)),          # covariate 1: mean=55, SD=8 (not mean=50, SD=10)
-                      cov2 = rbinom(n_internal, 1, .3),                # covariate 2: ~30% level 1 (not 20%)
-                      cov3 = rbinom(n_internal, 1, .5),                # covariate 3: ~50% level 1 (not 60%)
-                      cov4 = rbinom(n_internal, 1, .3),                # covariate 4: ~30% level 1 (same)
-                      trt = rep(0:1, c(n_inter_control, n_inter_treat)), # treatment (0: control, 1: active treatment)
-                      y = rnorm(n_internal, mean = 50, sd = sd_internal_control))    # response  
+summary(int_norm_df)
+summary(ex_norm_df)
+sd_external_control <- 5
+sd_internal_control <- 3
+n_external <- nrow(ex_norm_df)
 ```
 
-Now we have some data we can calculate the propensity scores for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating power priors in the next step.
+With the data we can calculate the propensity scores for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating power priors in the next step.
 
 ```{r}
 ps_model <- ~ cov1 + cov2 + cov3 + cov4
-ps_obj <- calc_prop_scr(internal_df = internal_df, 
-                        external_df = external_df, 
+ps_obj <- calc_prop_scr(internal_df = int_norm_df, 
+                        external_df = ex_norm_df, 
                         id_col = subjid,
                         model = ps_model)
 
@@ -88,13 +62,15 @@ prop_scr_love(ps_obj, reference_line = 0.4)
 
 Now that we are happy with our propensity score we can use it to calculate a power prior. To calculate the power prior we need to supply:
 
+-   weighted object, the propensity score we created above
+
+-   response variable, in this case y
+
 -   prior, in the form of a distributional object
 
--   propensity score object, what we created above
+-   external control sd
 
--   response variable
-
--   external control sd, this we need because the data here is continuous. If left out then an improper prior will be use assuming proportionality to one
+The prior and the external control SD are optional. If no prior is provided, a improper initial prior will be used. If there is no external control sd or prior then a t distirbution power prior will be created. 
 
 Finally, once we have a power prior we might want to plot it. To do that we can just the `plot_dist` function.
 
