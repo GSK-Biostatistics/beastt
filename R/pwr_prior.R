@@ -1,7 +1,8 @@
 
 #' Calculate Power Prior Beta
 #'
-#' @param prior a beta {distributional} object that is the prior of the external data
+#' @param prior a beta distributional object that is the initial prior for the control
+#'   response rate before the external control data are observed
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
 #'
@@ -34,20 +35,20 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 
 #' Calculate Power Prior Normal
 #'
-#' @param prior either `NULL` or a normal {distributional} object that is the
-#'   prior of the external data
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
-#' @param external_control_sd Standard deviation of external control arm if
-#'   assumed known.
+#'@param prior either `NULL` or a normal distributional object that is the
+#'   initial prior for the control mean before the external control data are observed
+#' @param external_control_sd Standard deviation of external control response data if
+#'   assumed known. It can be left as `NULL` if assumed unknown
 #'
-#' @return beta power prior object
+#' @return normal power prior object
 #' @export
 #' @importFrom rlang enquo is_quosure
 #' @importFrom dplyr pull
 #' @importFrom distributional parameters dist_normal
 #' @family power prior
-calc_power_prior_norm <- function(prior, weighted_obj, response, external_control_sd = NULL){
+calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external_control_sd = NULL){
   test_prop_scr(weighted_obj)
   response <- enquo(response)
 
@@ -59,31 +60,77 @@ calc_power_prior_norm <- function(prior, weighted_obj, response, external_contro
   weight_resp <- vars |> pull(.data$weight_resp)
   tot_ipw <- vars |> pull(.data$tot_ipw)
 
-  if(is.null(external_control_sd) && !is.numeric(external_control_sd)){
-    cli_abort("{.agr external_control_sd} must be a number")
-  }
+  ec_sd_test <- !is.null(external_control_sd) && is.numeric(external_control_sd)
 
   if(is.null(prior)){
-    # IF AN IMPROPER INITIAL PRIOR IS USED - PROPORTIONAL TO 1
-    # Hyperparameters of power prior (normal distribution)
-    sd_hat <- external_control_sd^2 / tot_ipw  # variance of IPW power prior
-    mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
-
-  } else {
+    if(ec_sd_test){
+      # IF AN IMPROPER INITIAL PRIOR IS USED - PROPORTIONAL TO 1
+      # Hyperparameters of power prior (normal distribution)
+      sd2_hat <- external_control_sd^2 / tot_ipw  # variance of IPW power prior
+      mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
+      out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
+    } else {
+      out_dist <- calc_t(weighted_obj$external_df$y,
+                         n= nrow(weighted_obj$external_df),
+                         weighted_obj$external_df$`___weight___`)
+    }
+  } else if(ec_sd_test) {
     prior_checks(prior, "normal")
     hyperparameter <- parameters(prior)
 
-    sd_hat <- ( tot_ipw/external_control_sd^2 +
+    sd2_hat <- ( tot_ipw/external_control_sd^2 +
                   hyperparameter$sigma^-2 )^-1           # variance of IP-weighted power prior
     mean_hat <- (weight_resp/external_control_sd^2 +
-                   hyperparameter$mu/hyperparameter$sigma^2 ) * sd_hat          # mean of IP-weighted power prior
-
+                   hyperparameter$mu/hyperparameter$sigma^2 ) * sd2_hat          # mean of IP-weighted power prior
+    out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
+  } else {
+    cli_abort("{.agr external_control_sd} must be a number if a prior is being supplied")
   }
+  out_dist
 
-  dist_normal(mu = mean_hat, sigma = sd_hat)
 }
 
+#' Calculate a T distribution power prior
+#'
+#' @param Y response
+#' @param n number of participants
+#' @param W Optional vector of weights
+#'
+#' @return t distributional object
+#' @importFrom distributional dist_student_t
+#' @importFrom mixtools normalmixEM
+#' @noRd
+calc_t <- function(Y, n, W =NULL){
+  # Degrees of freedom
+  df <- n - 1
+  # Location hyperparameter (easier to write in matrix form than scalar form)
+  Y_vec <- as.matrix(Y)          # response vector
+  Z <- matrix(1, nrow = n, ncol = 1)     # n x 1 vector of 1s
+  if(is.null(W)){
+    A <- diag(length(Y))
+  } else {
+    A <- diag(W)      # diagonal matrix with weights along diagonals
+  }
 
+  theta <- as.numeric(                              # location hyperparameter
+    solve(t(Z) %*% A %*% Z) %*%
+      t(Z) %*% A %*% Y_vec
+  )
+
+  # Dispersion hyperparameter (easier to write in matrix form than scalar form)
+  V <- Z %*% solve(t(Z) %*% A %*% Z) %*%     # n x n matrix
+    t(Z) %*% A
+  tau2 <- as.numeric(                                    # dispersion hyperparameter
+    df^-1 * solve(t(Z) %*% A %*% Z) %*%
+    (t(Y_vec) %*% (A - t(V) %*% A %*% V) %*% Y_vec)
+  )
+
+  # Power prior object
+  dist_student_t(df = df,              # degrees of freedom
+                           mu = theta,           # location hyperparameter
+                           sigma = sqrt(tau2))   # scale hyperparameter (sqrt of dispersion)
+
+}
 
 
 #' Prior checks
@@ -98,7 +145,7 @@ calc_power_prior_norm <- function(prior, weighted_obj, response, external_contro
 #' @noRd
 prior_checks <- function(prior, family){
   if(!is_distribution(prior)){
-    cli_abort("Needs to be a normal or beta prior")
+    cli_abort("Needs to be a distributional prior")
   } else if(length(prior) > 1){
     cli_abort("Needs to be a single prior, not a vector of priors")
   } else if(family(prior) != family){
