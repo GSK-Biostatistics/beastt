@@ -34,7 +34,19 @@
     <loc>/reference/calc_prop_scr.html</loc>
   </url>
   <url>
+    <loc>/reference/ex_binary_df.html</loc>
+  </url>
+  <url>
+    <loc>/reference/ex_norm_df.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/int_binary_df.html</loc>
+  </url>
+  <url>
+    <loc>/reference/int_norm_df.html</loc>
   </url>
   <url>
     <loc>/reference/is_prop_scr.html</loc>
