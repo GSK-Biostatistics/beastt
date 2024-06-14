@@ -1,6 +1,6 @@
 #' External Normal Data for Propensity Score Matching
 #'
-#' This is a simulated dataset used to illustrate bayesian dynamic borrowing in
+#' This is a simulated dataset used to illustrate Bayesian dynamic borrowing in
 #' the normal case.
 #'
 #' @format ## `ex_norm_df`
