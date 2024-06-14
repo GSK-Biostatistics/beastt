@@ -77,6 +77,88 @@ calc_post_norm<- function(
   out_dist
 }
 
+
+
+#' Calculate Posterior Beta
+#'
+#' @param internal_data This can either be a propensity score object or a tibble
+#'   of the internal data.
+#' @param response Name of response variable
+#' @param prior distributional object, possibly a mixture distribution
+#'
+#' @return distributional object
+#' @export
+#' @importFrom dplyr pull
+#' @importFrom purrr safely map map2
+#' @importFrom distributional dist_beta dist_mixture is_distribution parameters
+#'
+calc_post_beta<- function(
+    internal_data,
+    response,
+    prior
+){
+  # Checking internal data and response variable
+  if(is_prop_scr(internal_data)){
+    data <- internal_data$internal_df
+    nIC <- internal_data$internal_df |>
+      pull(!!internal_data$id_col) |>
+      unique() |>
+      length()
+  } else if(is.data.frame(internal_data)) {
+    data <- internal_data
+    nIC <- nrow(internal_data)
+  } else{
+    cli_abort("{.agr internal_data} either a dataset or `prop_scr` object type")
+  }
+
+  # Check response exists in the data and calculate the sum
+  response <- enquo(response)
+  check <- safely(select)(data, !!response)
+  if(!is.null(check$error)){
+    cli_abort("{.agr response} was not found in {.agr internal_data}")
+  }
+
+  # Checking the distribution and getting the family
+  if(!is_distribution(prior)){
+    cli_abort("{.agr prior} must be a distributional object")
+  }
+  prior_fam <- family(prior)
+  all_fam <- get_base_families(prior) |> unlist()
+  if(all(all_fam == "beta")){
+    # Sum of responses in internal control arm
+    sum_resp <- pull(data, !!response) |>
+      sum()
+    if(prior_fam == "beta"){
+      shape1_new <- parameters(prior)$shape1 + sum_resp
+      shape2_new <- parameters(prior)$shape2 + nIC - sum_resp
+      out_dist <- dist_beta(shape1_new, shape2_new)
+    } else if(prior_fam == "mixture"){
+      shape1_vec <- parameters(prior)$dist[[1]]|>
+        map(\(dist) dist$shape1) |>
+        unlist()
+      shape1_new <- shape1_vec + sum_resp
+      shape2_vec <- parameters(prior)$dist[[1]]|>
+        map(\(dist) dist$shape2) |>
+        unlist()
+      shape2_new <- shape2_vec + nIC - sum_resp
+
+      weights <- parameters(prior)$w[[1]]
+      log_post_w_propto <- lbeta(shape1_new, shape2_new) -lbeta(shape1_vec, shape2_vec) + log(weights)
+      adj_log_post_w_propto <- exp(log_post_w_propto - max(log_post_w_propto))  # subtract max of log weights before exponentiating
+      post_w_norm <- adj_log_post_w_propto / sum(adj_log_post_w_propto)      # normalized posterior weights
+
+      dist_ls <- map2(shape1_new, shape2_new, dist_beta)
+      out_dist <- dist_mixture(!!!dist_ls, weights = post_w_norm)
+    }
+  } else {
+    cli_abort("{.agr prior} must be either beta or a mixture of betas")
+  }
+
+  out_dist
+}
+
+
+
 #' Internal function to approximate T distributions to a mixture of normals
 #'
 #' @param x distributional object
@@ -227,7 +309,7 @@ calc_t_post <- function(prior, nIC, response){
   # 2*K x 1 vectors of means and SDs of each normal component of posterior distribution for mu_C
   K <- length(prior_means)
   post_sds <- c((1/like_sds[1]^2 + 1/prior_sds^2)^-.5,    # vector of SDs
-                    (1/like_sds[2]^2 + 1/prior_sds^2)^-.5)
+                (1/like_sds[2]^2 + 1/prior_sds^2)^-.5)
   post_means <- post_sds^2 *     # vector of means
     c((like_mean[1]/like_sds[1]^2 + prior_means/prior_sds^2),
       (like_mean[2]/like_sds[2]^2 + prior_means/prior_sds^2))
