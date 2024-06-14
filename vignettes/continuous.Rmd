@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 library(beastt)
 ```
 
-For this example we are going to walk through how to use Bayesian dynamic borrowing with propensity score matching. For this example we are just going to use the data from the package. The data we have has a response variable and then four covariate to match on. Covariate 1, is a normally distributed with a mean around 55 and 50 for the internal and external data respectively. All other covariates are binary responses with varying response rate. 
+For this example we are going to walk through how to use Bayesian dynamic borrowing with propensity score matching. For this example we are just going to use the data from the package. The data we have has a response variable and then four covariates to match on. Covariate 1, is a normally distributed with a mean around 55 and 50 for the internal and external data respectively. All other covariates are binary responses with varying response rate. 
 
 ```{r class.source = 'fold-hide'}
 library(tibble)
