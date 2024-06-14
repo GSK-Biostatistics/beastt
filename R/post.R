@@ -84,7 +84,7 @@ calc_post_norm<- function(
 #' @param internal_data This can either be a propensity score object or a tibble
 #'   of the internal data.
 #' @param response Name of response variable
-#' @param prior distributional object, if you would like a mixture distribution
+#' @param prior distributional object, possibly a mixture distribution
 #'
 #' @return distributional object
 #' @export
@@ -111,14 +111,14 @@ calc_post_beta<- function(
     cli_abort("{.agr internal_data} either a dataset or `prop_scr` object type")
   }
 
-  # Check resonse exsists in the data and calculate the sum
+  # Check response exists in the data and calculate the sum
   response <- enquo(response)
   check <- safely(select)(data, !!response)
   if(!is.null(check$error)){
     cli_abort("{.agr response} was not found in {.agr internal_data}")
   }
 
-  # Checking the dirstibution and getting the family
+  # Checking the distribution and getting the family
   if(!is_distribution(prior)){
     cli_abort("{.agr prior} must be a distributional object")
   }
