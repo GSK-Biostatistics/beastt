@@ -17,7 +17,7 @@
 
 #' Internal Normal Data for Propensity Score Matching
 #'
-#' This is a simulated dataset used to illustrate bayesian dynamic borrowing in
+#' This is a simulated dataset used to illustrate Bayesian dynamic borrowing in
 #' the normal case.
 #'
 #' @format ## `int_norm_df`
