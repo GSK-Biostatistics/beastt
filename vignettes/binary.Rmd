@@ -1,0 +1,45 @@
+---
+title: "binary"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{binary}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Data review 
+```{r setup}
+library(beastt)
+library(distributional)
+summary(int_binary_df)
+summary(ex_binary_df)
+```
+Make a propensity score object 
+```{r}
+ps_obj <- calc_prop_scr(internal_df = int_binary_df, external_df = ex_binary_df, id_col = subjid,
+                        model = ~ cov1 + cov2 + cov3 + cov4)
+```
+Create power prior 
+```{r}
+pwr_prior <- calc_power_prior_beta(dist_beta(0.5, 0.5), ps_obj, y) 
+```
+Calculate Posterior 
+```{r}
+calc_post_beta(ps_obj, y, pwr_prior)
+```
+Calculate posterior using a rmp 
+```{r}
+mix_prior <- dist_mixture(
+  pwr_prior, dist_beta(0.5, 0.5), weights = c(0.5, 0.5)
+)
+calc_post_beta(ps_obj, y, mix_prior)
+```
+
+

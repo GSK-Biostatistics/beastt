@@ -86,7 +86,7 @@ cov3_int <- rbinom(n_int, 1, .4)         # covariate 3: ~40% level 1
 cov4_int <- rbinom(n_int, 1, .3)         # covariate 4: ~30% level 1
 
 # Combine baseline covariates into data frame -
-int_dat <- tibble(ID = 1:n_int,                   # participant ID
+int_dat <- tibble(subjid = 1:n_int,                   # participant ID
                   cov1 = cov1_int,                # covariate 1
                   cov2 = cov2_int,                # covariate 2
                   cov3 = cov3_int,                # covariate 3
