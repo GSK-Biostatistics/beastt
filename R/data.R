@@ -18,7 +18,7 @@
 #' Internal Normal Data for Propensity Score Matching
 #'
 #' This is a simulated dataset used to illustrate Bayesian dynamic borrowing in
-#' the normal case.
+#' the case when borrowing from an external control arm with a normal endpoint.
 #'
 #' @format ## `int_norm_df`
 #' A data frame with 120 rows and 7 columns:
