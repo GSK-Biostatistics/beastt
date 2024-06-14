@@ -1,5 +1,10 @@
 #' Create a Propensity Score Object
 #'
+#' @description Calculate the propensity scores and ATT inverse probability
+#'   weights for participants from internal and external datasets. Only the
+#'   relevant treatment arms from each dataset should be read in (e.g., only
+#'   the control arm from each dataset if creating a hybrid control arm).
+#'
 #' @param internal_df Internal dataset with one row per subject and all the
 #'   variables needed to run the model
 #' @param external_df External dataset with one row per subject and all the
@@ -8,6 +13,28 @@
 #'   subject. It must be the same across datasets
 #' @param model Model used to calculate propensity scores
 #' @param ... Optional arguments
+#'
+#' @details For the subset of participants in both the external and internal
+#'    studies for which we want to balance the covariate distributions (e.g.,
+#'    external control and internal control participants if constructing a
+#'    hybrid control arm), we define a study-inclusion propensity score for
+#'    each participant as
+#'
+#'    \deqn{e(x_i) = P(S_i = 1 \mid x_i),}
+#'
+#'    where \eqn{x_i} denotes a vector of baseline covariates for the \eqn{i}th
+#'    participant and \eqn{S_i} denotes the indicator that the participant is
+#'    enrolled in the internal trial (\eqn{S_i = 1} if internal, \eqn{S_i = 0}
+#'    if external). The estimated propensity score \eqn{\hat{e}(x_i)} is obtained
+#'    using logistic regression.
+#'
+#'    An ATT inverse probability weight is calculated for each individual as
+#'
+#'    \deqn{\hat{a}_{0i} = \frac{\hat{e}(x_i)}{\hat{P}(S_i = s_i | x_i)} = s_i + (1 - s_i ) \frac{\hat{e}(x_i)}{1 - \hat{e}(x_i)}.}
+#'
+#'    In a weighted estimator, data from participants in the external study
+#'    are given a weight of \eqn{\hat{e}(x_i)⁄(1 - \hat{e}(x_i))} whereas data
+#'    from participants in the internal trial are given a weight of 1.
 #'
 #' @return `prop_scr_obj` object, with the internal and the external data and
 #'   the propensity score and inverse probability weight calculated for each
@@ -24,7 +51,7 @@
 calc_prop_scr <- function(internal_df, external_df,
                             id_col, model, ...){
   if(!is_formula(model)){
-    cli_abort(c("{.arg model} parameter must be a fomula",
+    cli_abort(c("{.arg model} parameter must be a formula",
             "*" = "Make sure all covariates are left unquoted",
             "i" = "Formula should look like `~cov1 + cov2 + cov3...`"))
   } else {
@@ -195,10 +222,14 @@ test_prop_scr <- function(x){
 
 #' Histogram of the Propensity Score Object
 #'
+#' @description Plot overlapping histograms of the propensity scores for both
+#'   the internal and external participants, or plot external IPWs.
+#'
 #' @param x Propensity score object
-#' @param variable Variable to plot, it must be either a propensity score or
-#'   inverse probability weight TODO MAKE THIS CLEARER
-#' @param ... Optional options for `geom_histogram`
+#' @param variable Variable to plot. It must be either a propensity score
+#'   ("ps" or "propensity score") or inverse probability weight ("ipw" or
+#'   "inverse probability weight")
+#' @param ... Optional arguments for `geom_histogram`
 #'
 #' @return ggplot object
 #' @export
@@ -206,7 +237,7 @@ test_prop_scr <- function(x){
 #'    theme_bw
 #' @importFrom dplyr bind_rows
 #' @importFrom stringr str_glue
-prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse probablity weight", "ipw"),
+prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse probability weight", "ipw"),
                           ...){
   test_prop_scr(x)
 
@@ -216,7 +247,7 @@ prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse pro
                           sym('___weight___'))
   x_label <- ifelse(plot_var %in% c("propensity score", "ps"),
                      "Propensity Score",
-                     "Inverse Probablity Weight")
+                     "Inverse Probability Weight")
 
   if(plot_var %in% c("propensity score", "ps")) {
     .data <- bind_rows(x$internal_df, x$external_df)
@@ -247,10 +278,14 @@ prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse pro
 
 #' Density of the Propensity Score Object
 #'
+#' @description Plot overlapping density curves of the propensity scores for
+#'   both the internal and external participants, or plot external IPWs.
+#'
 #' @param x Propensity score object
-#' @param variable Variable to plot, it must be either a propensity score or
-#'   inverse probability weight TODO MAKE THIS CLEARER
-#' @param ... Optional options for `geom_density`
+#' @param variable Variable to plot. It must be either a propensity score
+#'   ("ps" or "propensity score") or inverse probability weight ("ipw" or
+#'   "inverse probability weight")
+#' @param ... Optional arguments for `geom_density`
 #'
 #' @return ggplot object
 #' @export
@@ -258,7 +293,7 @@ prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse pro
 #'   theme_bw
 #' @importFrom dplyr bind_rows
 #' @importFrom stringr str_glue
-prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse probablity weight", "ipw"),
+prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse probability weight", "ipw"),
                           ...){
   test_prop_scr(x)
 
@@ -268,7 +303,7 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
                   sym('___weight___'))
   x_label <- ifelse(plot_var %in% c("propensity score", "ps"),
                     "Propensity Score",
-                    "Inverse Probablity Weight")
+                    "Inverse Probability Weight")
 
   if(plot_var %in% c("propensity score", "ps")) {
     .data <- bind_rows(x$internal_df, x$external_df)
@@ -297,11 +332,14 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
 }
 
 
-#' Love Plot of the Absolute Standardized Mean Difference
+#' Love Plot of the Absolute Standardized Mean Differences
+#'
+#' @description Plot the unadjusted and IPW-adjusted absolute standardized mean
+#'   differences for each covariate.
 #'
 #' @param x Propensity score object
-#' @param reference_line Numeric value of where the standard line on the
-#'   x-intercept
+#' @param reference_line Numeric value of where along the x-axis the vertical
+#'   reference line should be placed
 #' @param ... Optional options for `geom_point`
 #'
 #'

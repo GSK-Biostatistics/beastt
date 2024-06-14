@@ -1,4 +1,4 @@
-#' Title
+#' Plot Distribution
 #'
 #' @param distribution Distributional object to plot
 #'

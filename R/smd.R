@@ -1,10 +1,15 @@
-#' Title
+#' Calculate Absolute Standardized Mean Differences
 #'
-#' @param prop_scr_obj propenstiy score object
-#' @param treatment_var treatment variable
-#' @param ... any additional variables
+#' @description Calculate the unadjusted and IPW-adjusted absolute standardized
+#'   mean differences for each covariate.
 #'
-#' @return tibble of the calculated standardised mean differences for the additional variables
+#'
+#' @param prop_scr_obj Propensity score object
+#' @param treatment_var Treatment variable
+#' @param ... Any additional variables
+#'
+#' @return Tibble of the calculated standardized mean differences for the
+#'   additional variables
 #' @export
 #' @importFrom rlang enquo enquos as_label
 calc_std_mean_diff <- function(prop_scr_obj, treatment_var, ...){
