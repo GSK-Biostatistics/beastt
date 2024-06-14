@@ -167,6 +167,7 @@ calc_post_beta<- function(
 #' @noRd
 #' @importFrom purrr quietly
 #' @importFrom stats quantile
+#' @importFrom distributional variance
 t_to_mixnorm <- function(x){
   # distribution is constrained to equal the mean of the t distribution
   # quantiles of t distribution
