@@ -1,5 +1,5 @@
 ---
-title: "Continuous Case With Assumed Known SD"
+title: "Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm"
 package: beastt
 output: 
   rmarkdown::html_vignette:
@@ -21,7 +21,21 @@ knitr::opts_chunk$set(
 library(beastt)
 ```
 
-For this example we are going to walk through how to use Bayesian dynamic borrowing with propensity score matching. For this example we are just going to use the data from the package. The data we have has a response variable and then four covariates to match on. Covariate 1, is a normally distributed with a mean around 55 and 50 for the internal and external data respectively. All other covariates are binary responses with varying response rate. 
+In this example, we are going to walk through how to use Bayesian dynamic borrowing (BDB) with the inclusion of inverse probability weighting to balance baseline covariate distributions between external and internal datasets. This particular example considers a hypothetical trial with a cross sectional normal endpoint and a known standard deviation (SD) in each treatment arm (external control arm and both internal arms), and our objective is to use BDB with IPWs to construct a posterior distribution for the control mean $\theta_C$. We will use simulated internal and external datasets from the package where each dataset has a normally distributed response variable and four baseline covariates which we will balance.
+
+The external control dataset has a sample size of 150 participants, and the distributions of the four covariates are as follows:
+- Covariate 1: normal with a mean and standard deviation of approximately 50 and 10, respectively
+- Covariate 2: binary (0 vs. 1) with approximately 20% of participants with level 1
+- Covariate 3: binary (0 vs. 1) with approximately 60% of participants with level 1
+- Covariate 4: binary (0 vs. 1) with approximately 30% of participants with level 1
+
+The internal dataset has 120 participants with 60 participants in each of the control arm and the active treatment arms. The covariate distributions of each arm are as follows:
+- Covariate 1: normal with a mean and standard deviation of approximately 55 and 8, respectively
+- Covariate 2: binary (0 vs. 1) with approximately 30% of participants with level 1
+- Covariate 3: binary (0 vs. 1) with approximately 50% of participants with level 1
+- Covariate 4: binary (0 vs. 1) with approximately 30% of participants with level 1
+
+We assume the standard deviations of both the external and internal response data are known and equal to 0.15.
 
 ```{r class.source = 'fold-hide'}
 library(tibble)
@@ -30,16 +44,18 @@ library(ggplot2)
 
 summary(int_norm_df)
 summary(ex_norm_df)
-sd_external_control <- 5
-sd_internal_control <- 3
+sd_external_control <- 0.15
+sd_internal_control <- 0.15
 n_external <- nrow(ex_norm_df)
 ```
 
-With the data we can calculate the propensity scores for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating power priors in the next step.
+With the covariate data from both the external and internal datasets, we can calculate the propensity scores and ATT inverse probability weights (IPWs) for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating an inverse probability weighted power prior in the next step.
+
+**Note: when reading external and internal datasets into `calc_prop_scr`, be sure to include only the treatment arms across which you want to balance the covariate distributions.** In this example, we want to balance the covariate distributions of the external control arm to be similar to those of the internal control arm, so we will exclude the internal active treatment arm data from this function.
 
 ```{r}
 ps_model <- ~ cov1 + cov2 + cov3 + cov4
-ps_obj <- calc_prop_scr(internal_df = int_norm_df, 
+ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0), 
                         external_df = ex_norm_df, 
                         id_col = subjid,
                         model = ps_model)
@@ -47,66 +63,81 @@ ps_obj <- calc_prop_scr(internal_df = int_norm_df,
 ps_obj
 ```
 
-In order to check the suitability of the external data we can create a variety of diagnostic plots. The first plot we might want is a histogram. To get that we are going to use the `prop_scr_hist` function. This function takes in the propensity score object made in the previous step. Then we can optionally supply the variable we want to look at, either the propensity score or the inverse probability weight. By default it will plot the propensity scores. Additionally, we can look at the densities rather than histograms by using the `prop_scr_dens` function. When looking at the inverse probability weights with either the histogram or the density functions, it is important to note only the external data will be shown because value of the internal data will just be 1.
+In order to check the suitability of the external data, we can create a variety of diagnostic plots. The first plot we might want is a histogram of the overlapping propensity score distributions from both datasets. To get this, we use the `prop_scr_hist` function. This function takes in the propensity score object made in the previous step, and we can optionally supply the variable we want to look at (either the propensity score or the IPW). By default, it will plot the propensity scores. Additionally, we can look at the densities rather than histograms by using the `prop_scr_dens` function. When looking at the IPWs with either the histogram or the density functions, it is important to note that only the IPWs for external control participants will be shown because the ATT IPWs of all internal control participants are equal to 1.
 
 ```{r}
 prop_scr_hist(ps_obj)
 prop_scr_dens(ps_obj, variable = "ipw")
 ```
 
-The final plot we might want to look at is a love plot to visualize the standard mean differences of the covariates between the internal and external data. To do this we are just going to use the 'prop_scr_love' function. Like the previous function the only required parameter for this function is the propensity score object, but we can also provide a location for a reference line.
+The final plot we might want to look at is a love plot to visualize the absolute standard mean differences (both unadjusted and adjusted by the IPWs) of the covariates between the internal and external data. To do this, we use the `prop_scr_love` function. Like the previous function, the only required parameter for this function is the propensity score object, but we can also provide a location along the x-axis for a vertical reference line.
 
 ```{r}
-prop_scr_love(ps_obj, reference_line = 0.4)
+prop_scr_love(ps_obj, reference_line = 0.1)
 ```
 
-Now that we are happy with our propensity score we can use it to calculate a power prior. To calculate the power prior we need to supply:
+Now that we are happy with our propensity score object, we can use it to calculate a normal inverse probability weighted power prior for $\theta_C$. To calculate the power prior, we need to supply:
 
 -   weighted object, the propensity score we created above
 
--   response variable, in this case y
+-   response variable, in this case $y$
 
--   prior, in the form of a distributional object
+-   initial prior, in the form of a normal distributional object
 
--   external control sd
+-   SD of the external control response data, assumed known
 
-The prior and the external control SD are optional. If no prior is provided, a improper initial prior will be used. If there is no external control sd or prior then a t distirbution power prior will be created. 
+The prior and the external control SD are optional. If no prior is provided, an improper uniform prior will be used for the initial prior; i.e., $\pi(\theta_C) \propto 1$. If no external control SD or initial prior are specified (i.e., both the `prior` and `external_sd` arguments set as `NULL`), then a non-standardized $t$ power prior will be created (not covered in this vignette). In this example, we define the initial prior to be a vague normal distribution with a mean 50 and SD 10. 
 
-Finally, once we have a power prior we might want to plot it. To do that we can just the `plot_dist` function.
+Once we have a power prior, we might want to plot it. To do that, we use the `plot_dist` function.
 
 ```{r}
-pwr_prior <- calc_power_prior_norm(
-  ps_obj, response = y, 
-  prior = dist_normal(92, 100), 
-  external_control_sd = sd_external_control)
+pwr_prior <- calc_power_prior_norm(ps_obj,
+                                   response = y,
+                                   prior = dist_normal(50, 10), 
+                                   external_control_sd = sd_external_control)
 plot_dist(pwr_prior)
 ```
 
 
-Now that we have a power prior we can calculate the posterior using the `calc_post_norm` function 
+Now that we have a normal power prior, we can calculate the posterior distribution for $\theta_C$ using the `calc_post_norm` function. By defining our prior to be a normal distribution and by assuming the SD of the internal response data to be known, the resulting posterior distribution will also be normal (the case when the SD is unknown is not covered in this vignette).
+
+**Note: if reading internal data directly into `calc_post_norm` instead of a propensity score object, be sure to include only the treatment arm of interest (e.g., the internal control arm if creating a posterior distribution for $\theta_C$).**
+
 ```{r}
 post <- calc_post_norm(ps_obj,
-                       response = y,
-                       internal_control_sd = sd_internal_control, 
-                       prior= pwr_prior)
+                       response = y, 
+                       prior = pwr_prior,
+                       internal_sd = sd_internal_control)
 plot_dist(post)
 ```
 
-If you want to add a vague component to the distirbution you just make a mixture distribution and pass it to `calc_post_norm`
+If we want to robustify our power prior for $\theta_C$, we can add a vague component to the power prior distribution we previously created to construct a robust mixture prior which we can then pass to `calc_post_norm`. In general, we can define our prior to be a mixture distribution with an arbitrary number of normal and/or $t$ components, in which case the resulting posterior distribution will also be a mixture of normal components. If any component of the prior is a $t$ distribution, the prior will be approximated with the mixture of two normal distributions.
 
 ```{r}
 prior_param <- parameters(pwr_prior)
-mixed_prior <- dist_mixture(
-  pwr_prior, 
-  dist_normal(prior_param$mu, sqrt(prior_param$sigma^2*n_external)),
-  weights =  c(.5, .5)
+mixed_prior <- dist_mixture(pwr_prior,
+                            dist_normal(prior_param$mu, sqrt(prior_param$sigma^2*n_external)),
+                            weights =  c(.5, .5)
 )
 
-post <- calc_post_norm(ps_obj,
-                       response = y,
-                       internal_control_sd = sd_internal_control, 
-                       prior= mixed_prior)
-plot_dist(post)
+post_mixed <- calc_post_norm(ps_obj,
+                             response = y, 
+                             prior= mixed_prior,
+                             internal_sd = sd_internal_control)
+plot_dist(post_mixed)
+```
+
+Lastly, we can also create a posterior distribution for the mean of the active treatment arm by reading the internal data directly into the `calc_post_norm` function and assuming the SD of the internal active treatment arm to be equal to 0.15. In this case, we assume a vague normal prior with mean 50 and SD 10.
+
+**As noted earlier, be sure to read in only the data for the internal active treatment arm while excluding the internal control data.**
+
+```{r}
+sd_internal_treated <- 0.15
+post_treated <- calc_post_norm(internal_data = filter(int_norm_df, trt == 1),
+                               response = y,
+                               prior = dist_normal(50, 10),
+                               internal_sd = sd_internal_treated)
+plot_dist(post_treated)
 ```
 
 
