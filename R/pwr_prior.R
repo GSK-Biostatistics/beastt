@@ -4,10 +4,10 @@
 #' @description Calculate a (potentially inverse probability weighted) beta
 #'   power prior for the control response rate using external control data.
 #'
-#' @param prior A beta distributional object that is the initial prior for the control
-#'   response rate before the external control data are observed
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
+#' @param prior A beta distributional object that is the initial prior for the control
+#'   response rate before the external control data are observed
 #'
 #' @details Weighted participant-level response data from an external study
 #'   are incorporated into an inverse probability weighted (IPW) power prior
@@ -36,7 +36,7 @@
 #' @importFrom distributional dist_beta
 #' @importFrom dplyr summarise
 #' @family power prior
-calc_power_prior_beta <- function(prior, weighted_obj, response){
+calc_power_prior_beta <- function(weighted_obj, response, prior){
   test_prop_scr(weighted_obj)
   response <- enquo(response)
 
