@@ -24,8 +24,8 @@ knitr::opts_chunk$set(
 ## Overview
 
 Welcome to the "beastt" package! This R package is designed to assist users in performing
-Bayesian Dynamic Borrowing with covariate adjustment for simulations and data analyses in 
-clinical trials.
+Bayesian dynamic borrowing with covariate adjustment via inverse probability weighting for
+simulations and data analyses in clinical trials.
 
 ## Installation
 
@@ -41,8 +41,8 @@ devtools::install_github("GSK-Biostatistics/beastt")
 ### `calc_prop_scr()`
 
 Calculate propensity scores using this function and obtain the inverse probability weight 
-calculated for each subject. Propensity scores are essential in order to balance covariates between 
-internal and external trial participants.
+calculated for each subject. Propensity scores are essential in order to balance baseline
+covariate distributions between internal and external trial participants.
 
 **Usage:**
 
@@ -66,7 +66,7 @@ Power priors provide a Bayesian framework for incorporating external information
 calc_power_prior(prior, weighted_obj, response)
 ```
 
-- `prior`: a {distributional} object that is the prior of the external data.
+- `prior`: A {distributional} object that is the prior of the external data.
 - `weighted_obj`: A weighted object created by calling `calc_prop_scr()`.
 - `response`: Name of the response variable.
 - `...`: Additional parameters needed depending on the type of power prior used.

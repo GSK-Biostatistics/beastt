@@ -23,7 +23,7 @@ In this vignette, you will learn about the scope of `beastt()` and where to find
 
 ## Introduction
 
-Bayesian Dynamic Borrowing (BDB) is a way to incorporate external control data to mitigate bias. BEASTT focused on implementing BDB, specifically focused on Robust Mixtures Priors.
+Bayesian dynamic borrowing (BDB) is a way to incorporate external data into the analysis of data from an internal trial to effectively increase the sample size and in turn increase power. BEASTT focuses on implementing BDB, specifically through the use of inverse probability weighted power priors that can be incorporated into a robust mixtures prior.
 
 `beastt` has the following goals:
 
