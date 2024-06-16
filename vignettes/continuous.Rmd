@@ -95,7 +95,7 @@ Once we have a power prior, we might want to plot it. To do that, we use the `pl
 pwr_prior <- calc_power_prior_norm(ps_obj,
                                    response = y,
                                    prior = dist_normal(50, 10), 
-                                   external_control_sd = sd_external_control)
+                                   external_sd = sd_external_control)
 plot_dist(pwr_prior)
 ```
 
