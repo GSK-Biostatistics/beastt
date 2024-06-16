@@ -6,7 +6,7 @@ output:
     toc: true
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{Continuous Case}
+  %\VignetteIndexEntry{Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
   editor_options:

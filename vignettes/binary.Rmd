@@ -2,7 +2,7 @@
 title: "Binary Endpoint Case - Borrowing from an External Control Arm"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{binary}
+  %\VignetteIndexEntry{Binary Endpoint Case - Borrowing from an External Control Arm}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
