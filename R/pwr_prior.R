@@ -92,7 +92,7 @@ calc_power_prior_beta <- function(weighted_obj, response, prior){
 #'   prior is defined for the unknown external standard deviation such that
 #'   \eqn{\pi(\sigma_E^2) \propto (\sigma_E^2)^{-1}}. The details of the IPW power
 #'   prior for each case are as follows:
-#'   \description{
+#'   \describe{
 #'   \item{`external_sd = positive value` (\eqn{\sigma_E^2} known):}{With
 #'   either a proper normal or an improper uniform initial prior, the IPW
 #'   weighted power prior for \eqn{\theta} is a normal distribution.}
