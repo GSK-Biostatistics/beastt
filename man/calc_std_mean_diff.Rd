@@ -2,20 +2,22 @@
 % Please edit documentation in R/smd.R
 \name{calc_std_mean_diff}
 \alias{calc_std_mean_diff}
-\title{Title}
+\title{Calculate Absolute Standardized Mean Differences}
 \usage{
 calc_std_mean_diff(prop_scr_obj, treatment_var, ...)
 }
 \arguments{
-\item{prop_scr_obj}{propenstiy score object}
+\item{prop_scr_obj}{Propensity score object}
 
-\item{treatment_var}{treatment variable}
+\item{treatment_var}{Treatment variable}
 
-\item{...}{any additional variables}
+\item{...}{Any additional variables}
 }
 \value{
-tibble of the calculated standardised mean differences for the additional variables
+Tibble of the calculated standardized mean differences for the
+additional variables
 }
 \description{
-Title
+Calculate the unadjusted and IPW-adjusted absolute standardized
+mean differences for each covariate.
 }

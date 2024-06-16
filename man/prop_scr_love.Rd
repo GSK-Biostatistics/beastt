@@ -2,15 +2,15 @@
 % Please edit documentation in R/ps.R
 \name{prop_scr_love}
 \alias{prop_scr_love}
-\title{Love Plot of the Absolute Standardized Mean Difference}
+\title{Love Plot of the Absolute Standardized Mean Differences}
 \usage{
 prop_scr_love(x, reference_line = NULL, ...)
 }
 \arguments{
 \item{x}{Propensity score object}
 
-\item{reference_line}{Numeric value of where the standard line on the
-x-intercept}
+\item{reference_line}{Numeric value of where along the x-axis the vertical
+reference line should be placed}
 
 \item{...}{Optional options for \code{geom_point}}
 }
@@ -18,5 +18,6 @@ x-intercept}
 ggplot object
 }
 \description{
-Love Plot of the Absolute Standardized Mean Difference
+Plot the unadjusted and IPW-adjusted absolute standardized mean
+differences for each covariate.
 }

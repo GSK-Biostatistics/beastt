@@ -6,21 +6,23 @@
 \usage{
 prop_scr_dens(
   x,
-  variable = c("propensity score", "ps", "inverse probablity weight", "ipw"),
+  variable = c("propensity score", "ps", "inverse probability weight", "ipw"),
   ...
 )
 }
 \arguments{
 \item{x}{Propensity score object}
 
-\item{variable}{Variable to plot, it must be either a propensity score or
-inverse probability weight TODO MAKE THIS CLEARER}
+\item{variable}{Variable to plot. It must be either a propensity score
+("ps" or "propensity score") or inverse probability weight ("ipw" or
+"inverse probability weight")}
 
-\item{...}{Optional options for \code{geom_density}}
+\item{...}{Optional arguments for \code{geom_density}}
 }
 \value{
 ggplot object
 }
 \description{
-Density of the Propensity Score Object
+Plot overlapping density curves of the propensity scores for
+both the internal and external participants, or plot external IPWs.
 }

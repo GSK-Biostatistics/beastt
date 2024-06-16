@@ -4,29 +4,32 @@
 \alias{calc_power_prior_norm}
 \title{Calculate Power Prior Normal}
 \usage{
-calc_power_prior_norm(
-  weighted_obj,
-  response,
-  prior = NULL,
-  external_control_sd = NULL
-)
+calc_power_prior_norm(weighted_obj, response, prior = NULL, external_sd = NULL)
 }
 \arguments{
-\item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{create_prop_scr()}}
+\item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{create_prop_scr()}.
+Only the external data for the arm(s) of interest should be included in this
+object (e.g., external control data if creating a power prior for the control
+mean)}
 
 \item{response}{Name of response variable}
 
-\item{prior}{either \code{NULL} or a normal distributional object that is the
-prior of the external data}
+\item{prior}{Either \code{NULL} or a normal distributional object that is the
+initial prior for the parameter of interest (e.g., control mean) before
+the external data are observed}
 
-\item{external_control_sd}{Standard deviation of external control arm if
-assumed known. It can be left as \code{NULL} if there is no prior}
+\item{external_sd}{Standard deviation of external response data if
+assumed known. It can be left as \code{NULL} if assumed unknown}
 }
 \value{
-beta power prior object
+Normal power prior object
 }
 \description{
-Calculate Power Prior Normal
+Calculate a (potentially inverse probability weighted) normal
+power prior using external data.
+}
+\details{
+
 }
 \seealso{
 Other power prior: 

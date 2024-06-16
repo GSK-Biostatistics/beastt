@@ -171,7 +171,7 @@ print.prop_scr <- function(x, ..., n = 10){
     select(!!x$id_col,
            Internal = .data$`___internal___`,
            `Propensity Score` = .data$`___ps___`,
-           `Inverse Probablity Weight` = .data$`___weight___`) |>
+           `Inverse Probability Weight` = .data$`___weight___`) |>
     print(n = n)
 
   cli_h1("Absolute Standardized Mean Difference")
