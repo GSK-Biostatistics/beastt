@@ -29,7 +29,40 @@ Calculate a (potentially inverse probability weighted) normal
 power prior using external data.
 }
 \details{
+Weighted participant-level response data from an external study
+are incorporated into an inverse probability weighted (IPW) power prior
+for the parameter of interest \eqn{\theta} (e.g., the control mean if borrowing
+from an external control arm). When borrowing information from an external
+dataset of size \eqn{N_{E}}, the IPW likelihood of the external response
+data \eqn{y_E} with weights \eqn{\hat{\boldsymbol{a}}_0} is defined as
 
+\deqn{\mathcal{L}_E(\theta \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0, \sigma_{E}^2) \propto \exp \left( -\frac{1}{2 \sigma_{E}^2} \sum_{i=1}^{N_{E}} \hat{a}_{0i} (y_i - \theta)^2 \right).}
+
+The \code{prior} argument should be either a distributional object with a
+family type of \code{normal} or \code{NULL}, corresponding to the use of a
+normal initial prior or an improper uniform initial prior (i.e.,
+\eqn{\pi(\theta) \propto 1}), respectively.
+
+The \code{external_sd} argument can be a positive value if the external
+standard deviation is assumed known or left as \code{NULL} otherwise. If
+\code{external_sd = NULL}, then \code{prior} must be \code{NULL} to indicate the
+use of an improper uniform initial prior for \eqn{\theta}, and an improper
+prior is defined for the unknown external standard deviation such that
+\eqn{\pi(\sigma_E^2) \propto (\sigma_E^2)^{-1}}. The details of the IPW power
+prior for each case are as follows:
+\description{
+\item{\verb{external_sd = positive value} (\eqn{\sigma_E^2} known):}{With
+either a proper normal or an improper uniform initial prior, the IPW
+weighted power prior for \eqn{\theta} is a normal distribution.}
+\item{\code{external_sd = NULL} (\eqn{\sigma_E^2} unknown):}{With improper
+priors for both \eqn{\theta} and \eqn{\sigma_E^2}, the marginal IPW weighted
+power prior for \eqn{\theta} after integrating over \eqn{\sigma_E^2} is
+a non-standardized \eqn{t} distribution.}
+}
+
+Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
+conventional normal (or \eqn{t}) power prior if the external standard deviation
+is known (unknown).
 }
 \seealso{
 Other power prior: 
