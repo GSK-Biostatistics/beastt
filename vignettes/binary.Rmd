@@ -31,6 +31,8 @@ The internal dataset has 160 participants with 80 participants in each of the co
 ```{r setup}
 library(beastt)
 library(distributional)
+library(dplyr)
+library(ggplot2)
 summary(int_binary_df)
 summary(ex_binary_df)
 ```

@@ -40,6 +40,7 @@ We assume the standard deviations of both the external and internal response dat
 ```{r class.source = 'fold-hide'}
 library(tibble)
 library(distributional)
+library(dplyr)
 library(ggplot2)
 
 summary(int_norm_df)
