@@ -330,7 +330,7 @@ calc_mixnorm_post <- function(prior, internal_sd, n_ic, sum_resp){
 #'
 #' @return Normal distributional
 #' @noRd
-calc_norm_post <- function(prior, n_ic, sum_resp){
+calc_norm_post <- function(prior, internal_sd, n_ic, sum_resp){
   x <- parameters(prior)
 
   # K x 1 vectors of means and SDs of each component of posterior distribution for theta
