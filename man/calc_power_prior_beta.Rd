@@ -4,15 +4,17 @@
 \alias{calc_power_prior_beta}
 \title{Calculate Power Prior Beta}
 \usage{
-calc_power_prior_beta(weighted_obj, response, prior)
+calc_power_prior_beta(external_data, response, prior)
 }
 \arguments{
-\item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{create_prop_scr()}}
+\item{external_data}{This can either be a \code{prop_scr_obj} created by calling
+\code{create_prop_scr()} or a tibble of the external data. If it is just a
+tibble the weights will be assumed to be 1.}
 
 \item{response}{Name of response variable}
 
-\item{prior}{A beta distributional object that is the initial prior for the control
-response rate before the external control data are observed}
+\item{prior}{A beta distributional object that is the initial prior for the
+control response rate before the external control data are observed}
 }
 \value{
 Beta power prior object
@@ -22,10 +24,10 @@ Calculate a (potentially inverse probability weighted) beta
 power prior for the control response rate using external control data.
 }
 \details{
-Weighted participant-level response data from an external study
-are incorporated into an inverse probability weighted (IPW) power prior
-for the control response rate \eqn{\theta_C}. When borrowing information from
-an external control arm of size \eqn{N_{EC}}, the components of the IPW power
+Weighted participant-level response data from an external study are
+incorporated into an inverse probability weighted (IPW) power prior for the
+control response rate \eqn{\theta_C}. When borrowing information from an
+external control arm of size \eqn{N_{EC}}, the components of the IPW power
 prior for \eqn{\theta_C} are defined as follows:
 \describe{
 \item{Initial prior:}{\eqn{\theta_C \sim \mbox{Beta}(\nu_0, \phi_0)}}
@@ -40,6 +42,24 @@ weights \eqn{\hat{\boldsymbol{a}}_0}:}{\eqn{\mathcal{L}_E(\theta_C \mid
 
 Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
 conventional beta power prior.
+}
+\examples{
+library(distributional)
+library(dplyr)
+# This function can be used directly on the data
+calc_power_prior_beta(external_data = ex_binary_df,
+  response = y,
+  prior = dist_beta(0.5, 0.5))
+
+# Or this function can be used with a propensity score object
+ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+  external_df = ex_binary_df,
+  id_col = subjid,
+  model = ~ cov1 + cov2 + cov3 + cov4)
+
+calc_power_prior_beta(ps_obj,
+  response = y,
+  prior = dist_beta(0.5, 0.5))
 }
 \seealso{
 Other power prior: 

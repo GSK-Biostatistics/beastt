@@ -4,22 +4,28 @@
 \alias{calc_power_prior_norm}
 \title{Calculate Power Prior Normal}
 \usage{
-calc_power_prior_norm(weighted_obj, response, prior = NULL, external_sd = NULL)
+calc_power_prior_norm(
+  external_data,
+  response,
+  prior = NULL,
+  external_sd = NULL
+)
 }
 \arguments{
-\item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{create_prop_scr()}.
-Only the external data for the arm(s) of interest should be included in this
-object (e.g., external control data if creating a power prior for the control
-mean)}
+\item{external_data}{This can either be a \code{prop_scr_obj} created by calling
+\code{create_prop_scr()} or a tibble of the external data. If it is just a
+tibble the weights will be assumed to be 1. Only the external data for the
+arm(s) of interest should be included in this object (e.g., external
+control data if creating a power prior for the control mean)}
 
 \item{response}{Name of response variable}
 
 \item{prior}{Either \code{NULL} or a normal distributional object that is the
-initial prior for the parameter of interest (e.g., control mean) before
-the external data are observed}
+initial prior for the parameter of interest (e.g., control mean) before the
+external data are observed}
 
-\item{external_sd}{Standard deviation of external response data if
-assumed known. It can be left as \code{NULL} if assumed unknown}
+\item{external_sd}{Standard deviation of external response data if assumed
+known. It can be left as \code{NULL} if assumed unknown}
 }
 \value{
 Normal power prior object
@@ -29,27 +35,28 @@ Calculate a (potentially inverse probability weighted) normal
 power prior using external data.
 }
 \details{
-Weighted participant-level response data from an external study
-are incorporated into an inverse probability weighted (IPW) power prior
-for the parameter of interest \eqn{\theta} (e.g., the control mean if borrowing
+Weighted participant-level response data from an external study are
+incorporated into an inverse probability weighted (IPW) power prior for the
+parameter of interest \eqn{\theta} (e.g., the control mean if borrowing
 from an external control arm). When borrowing information from an external
 dataset of size \eqn{N_{E}}, the IPW likelihood of the external response
 data \eqn{y_E} with weights \eqn{\hat{\boldsymbol{a}}_0} is defined as
 
-\deqn{\mathcal{L}_E(\theta \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0, \sigma_{E}^2) \propto \exp \left( -\frac{1}{2 \sigma_{E}^2} \sum_{i=1}^{N_{E}} \hat{a}_{0i} (y_i - \theta)^2 \right).}
+\deqn{\mathcal{L}_E(\theta \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0,
+  \sigma_{E}^2) \propto \exp \left( -\frac{1}{2 \sigma_{E}^2}
+  \sum_{i=1}^{N_{E}} \hat{a}_{0i} (y_i - \theta)^2 \right).}
 
-The \code{prior} argument should be either a distributional object with a
-family type of \code{normal} or \code{NULL}, corresponding to the use of a
-normal initial prior or an improper uniform initial prior (i.e.,
-\eqn{\pi(\theta) \propto 1}), respectively.
+The \code{prior} argument should be either a distributional object with a family
+type of \code{normal} or \code{NULL}, corresponding to the use of a normal initial
+prior or an improper uniform initial prior (i.e., \eqn{\pi(\theta) \propto
+  1}), respectively.
 
-The \code{external_sd} argument can be a positive value if the external
-standard deviation is assumed known or left as \code{NULL} otherwise. If
-\code{external_sd = NULL}, then \code{prior} must be \code{NULL} to indicate the
-use of an improper uniform initial prior for \eqn{\theta}, and an improper
-prior is defined for the unknown external standard deviation such that
-\eqn{\pi(\sigma_E^2) \propto (\sigma_E^2)^{-1}}. The details of the IPW power
-prior for each case are as follows:
+The \code{external_sd} argument can be a positive value if the external standard
+deviation is assumed known or left as \code{NULL} otherwise. If \code{external_sd = NULL}, then \code{prior} must be \code{NULL} to indicate the use of an improper
+uniform initial prior for \eqn{\theta}, and an improper prior is defined
+for the unknown external standard deviation such that \eqn{\pi(\sigma_E^2)
+  \propto (\sigma_E^2)^{-1}}. The details of the IPW power prior for each
+case are as follows:
 \describe{
 \item{\verb{external_sd = positive value} (\eqn{\sigma_E^2} known):}{With
 either a proper normal or an improper uniform initial prior, the IPW
@@ -61,8 +68,28 @@ a non-standardized \eqn{t} distribution.}
 }
 
 Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
-conventional normal (or \eqn{t}) power prior if the external standard deviation
-is known (unknown).
+conventional normal (or \eqn{t}) power prior if the external standard
+deviation is known (unknown).
+}
+\examples{
+library(distributional)
+library(dplyr)
+# This function can be used directly on the data
+calc_power_prior_norm(ex_norm_df,
+  response = y,
+  prior = dist_normal(50, 10),
+  external_sd = 0.15)
+
+# Or this function can be used with a propensity score object
+ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+                       external_df = ex_norm_df,
+                       id_col = subjid,
+                       model = ~ cov1 + cov2 + cov3 + cov4)
+calc_power_prior_norm(ps_obj,
+                     response = y,
+                     prior = dist_normal(50, 10),
+                     external_sd = 0.15)
+
 }
 \seealso{
 Other power prior: 
