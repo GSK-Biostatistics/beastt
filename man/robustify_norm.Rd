@@ -23,5 +23,5 @@ the \code{n} parameter
 }
 \examples{
 library(distributional)
-dist_normal(dist_norm(0,1), n = 15)
+robustify_norm(dist_normal(0,1), n = 15)
 }

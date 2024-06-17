@@ -58,7 +58,7 @@ correct_weights <- function(x){
 #'
 #' @examples
 #' library(distributional)
-#' dist_normal(dist_norm(0,1), n = 15)
+#' robustify_norm(dist_normal(0,1), n = 15)
 robustify_norm <- function(prior, n, weights = c(0.5, 0.5)){
   prior_checks(prior, "normal")
   prior_param <- parameters(prior)
