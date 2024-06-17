@@ -275,7 +275,8 @@ posterior distribution will also be a mixture of beta components.</p>
 <span><span class="va">post_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
 <span>                             response <span class="op">=</span> <span class="va">y</span>,</span>
 <span>                             prior <span class="op">=</span> <span class="va">mix_prior</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_mixed</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Control Posterior"</span> <span class="op">=</span> <span class="va">post</span>, </span>
+<span>          <span class="st">"Mixed Posterior"</span> <span class="op">=</span> <span class="va">post_mixed</span><span class="op">)</span></span></code></pre></div>
 <p><img src="binary_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 <p>Lastly, we can also create a posterior distribution for the response
 rate of the active treatment arm by reading the internal data directly
@@ -288,7 +289,9 @@ data.</strong></p>
 <code class="sourceCode R"><span><span class="va">post_treated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span>internal_data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_binary_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                               response <span class="op">=</span> <span class="va">y</span>,</span>
 <span>                               prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_beta.html" class="external-link">dist_beta</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_treated</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Control Posterior"</span> <span class="op">=</span> <span class="va">post</span>, </span>
+<span>          <span class="st">"Mixed Posterior"</span> <span class="op">=</span> <span class="va">post_mixed</span>,</span>
+<span>          <span class="st">"Treatment Posterior"</span> <span class="op">=</span> <span class="va">post_treated</span><span class="op">)</span></span></code></pre></div>
 <p><img src="binary_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
   </div>
 

@@ -293,17 +293,14 @@ be a mixture of normal components. If any component of the prior is a
 <span class="math inline">\(t\)</span> distribution, the prior will be
 approximated with the mixture of two normal distributions.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">prior_param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/parameters.html" class="external-link">parameters</a></span><span class="op">(</span><span class="va">pwr_prior</span><span class="op">)</span></span>
-<span><span class="va">mixed_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_mixture.html" class="external-link">dist_mixture</a></span><span class="op">(</span><span class="va">pwr_prior</span>,</span>
-<span>                            <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="va">prior_param</span><span class="op">$</span><span class="va">mu</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">prior_param</span><span class="op">$</span><span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">*</span><span class="va">n_external</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                            weights <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.5</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">mixed_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/robustify_norm.html">robustify_norm</a></span><span class="op">(</span><span class="va">pwr_prior</span>, <span class="va">n_external</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">post_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_norm.html">calc_post_norm</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
 <span>                             response <span class="op">=</span> <span class="va">y</span>, </span>
 <span>                             prior<span class="op">=</span> <span class="va">mixed_prior</span>,</span>
 <span>                             internal_sd <span class="op">=</span> <span class="va">sd_internal_control</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_mixed</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Control Posterior"</span> <span class="op">=</span> <span class="va">post</span>, </span>
+<span>          <span class="st">"Mixed Posterior"</span> <span class="op">=</span> <span class="va">post_mixed</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 <p>Lastly, we can also create a posterior distribution for the mean of
 the active treatment arm by reading the internal data directly into the
@@ -319,7 +316,10 @@ data.</strong></p>
 <span>                               response <span class="op">=</span> <span class="va">y</span>,</span>
 <span>                               prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span>,</span>
 <span>                               internal_sd <span class="op">=</span> <span class="va">sd_internal_treated</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_treated</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Control Posterior"</span> <span class="op">=</span> <span class="va">post</span>, </span>
+<span>          <span class="st">"Mixed Posterior"</span> <span class="op">=</span> <span class="va">post_mixed</span>,</span>
+<span>          <span class="st">"Treatment Posterior"</span> <span class="op">=</span> <span class="va">post_treated</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
   </div>
 
