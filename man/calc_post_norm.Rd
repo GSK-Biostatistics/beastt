@@ -12,9 +12,10 @@ of the internal data.}
 
 \item{response}{Name of response variable}
 
-\item{prior}{distributional object, if you would like a mixture distribution}
+\item{prior}{distributional object, possibly a mixture distribution}
 
-\item{internal_control_sd}{Assumed known SD of the internal control}
+\item{internal_control_sd}{Standard deviation of internal control response data if
+assumed known. It can be left as \code{NULL} if assumed unknown}
 }
 \value{
 distributional object
