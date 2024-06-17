@@ -4,21 +4,42 @@
 \alias{calc_power_prior_beta}
 \title{Calculate Power Prior Beta}
 \usage{
-calc_power_prior_beta(prior, weighted_obj, response)
+calc_power_prior_beta(weighted_obj, response, prior)
 }
 \arguments{
-\item{prior}{a beta distributional object that is the initial prior for the control
-response rate before the external control data are observed}
-
 \item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{create_prop_scr()}}
 
 \item{response}{Name of response variable}
+
+\item{prior}{A beta distributional object that is the initial prior for the control
+response rate before the external control data are observed}
 }
 \value{
-beta power prior object
+Beta power prior object
 }
 \description{
-Calculate Power Prior Beta
+Calculate a (potentially inverse probability weighted) beta
+power prior for the control response rate using external control data.
+}
+\details{
+Weighted participant-level response data from an external study
+are incorporated into an inverse probability weighted (IPW) power prior
+for the control response rate \eqn{\theta_C}. When borrowing information from
+an external control arm of size \eqn{N_{EC}}, the components of the IPW power
+prior for \eqn{\theta_C} are defined as follows:
+\describe{
+\item{Initial prior:}{\eqn{\theta_C \sim \mbox{Beta}(\nu_0, \phi_0)}}
+\item{IPW likelihood of the external response data \eqn{\boldsymbol{y}_E} with
+weights \eqn{\hat{\boldsymbol{a}}_0}:}{\eqn{\mathcal{L}_E(\theta_C \mid
+    \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0) \propto \exp \left( \sum_{i=1}^{N_{EC}}
+    \hat{a}_{0i} \left[ y_i \log(\theta_C) + (1 - y_i) \log(1 - \theta_C) \right] \right)}}
+\item{IPW power prior:}{\eqn{\theta_C \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0
+    \sim \mbox{Beta} \left( \sum_{i=1}^{N_{EC}} \hat{a}_{0i} y_i + \nu_0,
+    \sum_{i=1}^{N_{EC}} \hat{a}_{0i} (1 - y_i) + \phi_0 \right)}}
+}
+
+Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
+conventional beta power prior.
 }
 \seealso{
 Other power prior: 

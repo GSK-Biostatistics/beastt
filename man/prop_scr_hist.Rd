@@ -6,21 +6,23 @@
 \usage{
 prop_scr_hist(
   x,
-  variable = c("propensity score", "ps", "inverse probablity weight", "ipw"),
+  variable = c("propensity score", "ps", "inverse probability weight", "ipw"),
   ...
 )
 }
 \arguments{
 \item{x}{Propensity score object}
 
-\item{variable}{Variable to plot, it must be either a propensity score or
-inverse probability weight TODO MAKE THIS CLEARER}
+\item{variable}{Variable to plot. It must be either a propensity score
+("ps" or "propensity score") or inverse probability weight ("ipw" or
+"inverse probability weight")}
 
-\item{...}{Optional options for \code{geom_histogram}}
+\item{...}{Optional arguments for \code{geom_histogram}}
 }
 \value{
 ggplot object
 }
 \description{
-Histogram of the Propensity Score Object
+Plot overlapping histograms of the propensity scores for both
+the internal and external participants, or plot external IPWs.
 }

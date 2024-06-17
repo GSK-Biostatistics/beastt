@@ -1,12 +1,34 @@
 
 #' Calculate Power Prior Beta
 #'
-#' @param prior a beta distributional object that is the initial prior for the control
-#'   response rate before the external control data are observed
+#' @description Calculate a (potentially inverse probability weighted) beta
+#'   power prior for the control response rate using external control data.
+#'
 #' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
 #' @param response Name of response variable
+#' @param prior A beta distributional object that is the initial prior for the control
+#'   response rate before the external control data are observed
 #'
-#' @return beta power prior object
+#' @details Weighted participant-level response data from an external study
+#'   are incorporated into an inverse probability weighted (IPW) power prior
+#'   for the control response rate \eqn{\theta_C}. When borrowing information from
+#'   an external control arm of size \eqn{N_{EC}}, the components of the IPW power
+#'   prior for \eqn{\theta_C} are defined as follows:
+#'   \describe{
+#'   \item{Initial prior:}{\eqn{\theta_C \sim \mbox{Beta}(\nu_0, \phi_0)}}
+#'   \item{IPW likelihood of the external response data \eqn{\boldsymbol{y}_E} with
+#'     weights \eqn{\hat{\boldsymbol{a}}_0}:}{\eqn{\mathcal{L}_E(\theta_C \mid
+#'     \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0) \propto \exp \left( \sum_{i=1}^{N_{EC}}
+#'     \hat{a}_{0i} \left[ y_i \log(\theta_C) + (1 - y_i) \log(1 - \theta_C) \right] \right)}}
+#'   \item{IPW power prior:}{\eqn{\theta_C \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0
+#'     \sim \mbox{Beta} \left( \sum_{i=1}^{N_{EC}} \hat{a}_{0i} y_i + \nu_0,
+#'     \sum_{i=1}^{N_{EC}} \hat{a}_{0i} (1 - y_i) + \phi_0 \right)}}
+#'   }
+#'
+#'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
+#'   conventional beta power prior.
+#'
+#' @return Beta power prior object
 #' @export
 #'
 #' @importFrom rlang enquo
@@ -14,7 +36,7 @@
 #' @importFrom distributional dist_beta
 #' @importFrom dplyr summarise
 #' @family power prior
-calc_power_prior_beta <- function(prior, weighted_obj, response){
+calc_power_prior_beta <- function(weighted_obj, response, prior){
   test_prop_scr(weighted_obj)
   response <- enquo(response)
 
@@ -35,20 +57,62 @@ calc_power_prior_beta <- function(prior, weighted_obj, response){
 
 #' Calculate Power Prior Normal
 #'
-#' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
+#' @description Calculate a (potentially inverse probability weighted) normal
+#'   power prior using external data.
+#'
+#' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`.
+#'   Only the external data for the arm(s) of interest should be included in this
+#'   object (e.g., external control data if creating a power prior for the control
+#'   mean)
 #' @param response Name of response variable
-#'@param prior either `NULL` or a normal distributional object that is the
-#'   initial prior for the control mean before the external control data are observed
-#' @param external_control_sd Standard deviation of external control response data if
+#' @param prior Either `NULL` or a normal distributional object that is the
+#'   initial prior for the parameter of interest (e.g., control mean) before
+#'   the external data are observed
+#' @param external_sd Standard deviation of external response data if
 #'   assumed known. It can be left as `NULL` if assumed unknown
 #'
-#' @return normal power prior object
+#' @details Weighted participant-level response data from an external study
+#'   are incorporated into an inverse probability weighted (IPW) power prior
+#'   for the parameter of interest \eqn{\theta} (e.g., the control mean if borrowing
+#'   from an external control arm). When borrowing information from an external
+#'   dataset of size \eqn{N_{E}}, the IPW likelihood of the external response
+#'   data \eqn{y_E} with weights \eqn{\hat{\boldsymbol{a}}_0} is defined as
+#'
+#'   \deqn{\mathcal{L}_E(\theta \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0, \sigma_{E}^2) \propto \exp \left( -\frac{1}{2 \sigma_{E}^2} \sum_{i=1}^{N_{E}} \hat{a}_{0i} (y_i - \theta)^2 \right).}
+#'
+#'   The `prior` argument should be either a distributional object with a
+#'   family type of `normal` or `NULL`, corresponding to the use of a
+#'   normal initial prior or an improper uniform initial prior (i.e.,
+#'   \eqn{\pi(\theta) \propto 1}), respectively.
+#'
+#'   The `external_sd` argument can be a positive value if the external
+#'   standard deviation is assumed known or left as `NULL` otherwise. If
+#'   `external_sd = NULL`, then `prior` must be `NULL` to indicate the
+#'   use of an improper uniform initial prior for \eqn{\theta}, and an improper
+#'   prior is defined for the unknown external standard deviation such that
+#'   \eqn{\pi(\sigma_E^2) \propto (\sigma_E^2)^{-1}}. The details of the IPW power
+#'   prior for each case are as follows:
+#'   \describe{
+#'   \item{`external_sd = positive value` (\eqn{\sigma_E^2} known):}{With
+#'   either a proper normal or an improper uniform initial prior, the IPW
+#'   weighted power prior for \eqn{\theta} is a normal distribution.}
+#'   \item{`external_sd = NULL` (\eqn{\sigma_E^2} unknown):}{With improper
+#'   priors for both \eqn{\theta} and \eqn{\sigma_E^2}, the marginal IPW weighted
+#'   power prior for \eqn{\theta} after integrating over \eqn{\sigma_E^2} is
+#'   a non-standardized \eqn{t} distribution.}
+#'   }
+#'
+#'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
+#'   conventional normal (or \eqn{t}) power prior if the external standard deviation
+#'   is known (unknown).
+#'
+#' @return Normal power prior object
 #' @export
 #' @importFrom rlang enquo is_quosure
 #' @importFrom dplyr pull
 #' @importFrom distributional parameters dist_normal
 #' @family power prior
-calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external_control_sd = NULL){
+calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external_sd = NULL){
   test_prop_scr(weighted_obj)
   response <- enquo(response)
 
@@ -60,13 +124,13 @@ calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external
   weight_resp <- vars |> pull(.data$weight_resp)
   tot_ipw <- vars |> pull(.data$tot_ipw)
 
-  ec_sd_test <- !is.null(external_control_sd) && is.numeric(external_control_sd)
+  ec_sd_test <- !is.null(external_sd) && is.numeric(external_sd)
 
   if(is.null(prior)){
     if(ec_sd_test){
       # IF AN IMPROPER INITIAL PRIOR IS USED - PROPORTIONAL TO 1
       # Hyperparameters of power prior (normal distribution)
-      sd2_hat <- external_control_sd^2 / tot_ipw  # variance of IPW power prior
+      sd2_hat <- external_sd^2 / tot_ipw  # variance of IPW power prior
       mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
       out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
     } else {
@@ -78,22 +142,22 @@ calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external
     prior_checks(prior, "normal")
     hyperparameter <- parameters(prior)
 
-    sd2_hat <- ( tot_ipw/external_control_sd^2 +
+    sd2_hat <- ( tot_ipw/external_sd^2 +
                   hyperparameter$sigma^-2 )^-1           # variance of IP-weighted power prior
-    mean_hat <- (weight_resp/external_control_sd^2 +
+    mean_hat <- (weight_resp/external_sd^2 +
                    hyperparameter$mu/hyperparameter$sigma^2 ) * sd2_hat          # mean of IP-weighted power prior
     out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
   } else {
-    cli_abort("{.agr external_control_sd} must be a number if a prior is being supplied")
+    cli_abort("{.agr external_sd} must be a number if a prior is being supplied")
   }
   out_dist
 
 }
 
-#' Calculate a T distribution power prior
+#' Calculate a t distribution power prior
 #'
-#' @param Y response
-#' @param n number of participants
+#' @param Y Response
+#' @param n Number of participants
 #' @param W Optional vector of weights
 #'
 #' @return t distributional object
@@ -135,10 +199,10 @@ calc_t <- function(Y, n, W =NULL){
 
 #' Prior checks
 #'
-#' @param prior distributional object
-#' @param family string of the type of dist the prior should be
+#' @param prior Distributional object
+#' @param family String of the type of dist the prior should be
 #'
-#' @return errors if prior object is unsuitable
+#' @return Errors if prior object is unsuitable
 #'
 #' @keywords internal
 #' @importFrom stats family

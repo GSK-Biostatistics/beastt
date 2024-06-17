@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{plot_dist}
 \alias{plot_dist}
-\title{Title}
+\title{Plot Distribution}
 \usage{
 plot_dist(...)
 }
@@ -13,5 +13,5 @@ plot_dist(...)
 ggplot object that is the density of the provided distribution
 }
 \description{
-Title
+Plot Distribution
 }

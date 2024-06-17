@@ -1,11 +1,49 @@
 #' Calculate Posterior Normal
 #'
+#' @description Calculate a posterior distribution that is normal (or a mixture
+#'   of normal components). Only the relevant treatment arms from the internal
+#'   dataset should be read in (e.g., only the control arm if constructing a
+#'   posterior distribution for the control mean).
+#'
 #' @param internal_data This can either be a propensity score object or a tibble
 #'   of the internal data.
 #' @param response Name of response variable
-#' @param prior distributional object, possibly a mixture distribution
-#' @param internal_control_sd Standard deviation of internal control response data if
+#' @param prior A distributional object corresponding to a normal distribution,
+#'   a t distribution, or a mixture distribution of normal and/or t components
+#' @param internal_sd Standard deviation of internal response data if
 #'   assumed known. It can be left as `NULL` if assumed unknown
+#'
+#' @details For a given arm of an internal trial (e.g., the control arm or an
+#'   active treatment arm) of size \eqn{N_I}, suppose the response data are normally
+#'   distributed such that \eqn{y_i \sim N(\theta, \sigma_I^2)}, \eqn{i=1,\ldots,N_I}.
+#'   If \eqn{\sigma_I^2} is assumed known, the posterior distribution for \eqn{\theta}
+#'   is written as
+#'
+#'   \deqn{\pi( \theta \mid \boldsymbol{y}, \sigma_{I}^2 ) \propto \mathcal{L}(\theta \mid \boldsymbol{y}, \sigma_{I}^2) \; \pi(\theta),}
+#'
+#'   where \eqn{\mathcal{L}(\theta \mid \boldsymbol{y}, \sigma_{I}^2)} is the
+#'   likelihood of the response data from the internal arm and \eqn{\pi(\theta)}
+#'   is a prior distribution on \eqn{\theta} (either a normal distribution, a
+#'   \eqn{t} distribution, or a mixture distribution with an arbitrary number of
+#'   normal and/or \eqn{t} components). Any \eqn{t} components of the prior for
+#'   \eqn{\theta} are approximated with a mixture of two normal distributions.
+#'
+#'   If \eqn{\sigma_I^2} is unknown, the marginal posterior distribution for
+#'   \eqn{\theta} is instead written as
+#'
+#'   \deqn{\pi( \theta \mid \boldsymbol{y} ) \propto \left\{ \int_0^\infty \mathcal{L}(\theta, \sigma_{I}^2 \mid \boldsymbol{y}) \; \pi(\sigma_{I}^2) \; d\sigma_{I}^2 \right\} \times \pi(\theta).}
+#'
+#'   In this case, the prior for \eqn{\sigma_I^2} is chosen to be
+#'   \eqn{\pi(\sigma_{I}^2) = (\sigma_I^2)^{-1}} such that
+#'   \eqn{\left\{ \int_0^\infty \mathcal{L}(\theta, \sigma_{I}^2 \mid \boldsymbol{y}) \; \pi(\sigma_{I}^2) \; d\sigma_{I}^2 \right\}}
+#'   becomes a non-standardized \eqn{t} distribution. This integrated likelihood
+#'   is then approximated with a mixture of two normal distributions.
+#'
+#'   If `internal_sd` is supplied a positive value and `prior` corresponds to a
+#'   single normal distribution, then the posterior distribution for \eqn{\theta}
+#'   is a normal distribution. If `internal_sd = NULL` or if other types of prior
+#'   distributions are specified (e.g., mixture or t distribution), then the
+#'   posterior distribution is a mixture of normal distributions.
 #'
 #' @return distributional object
 #' @export
@@ -17,7 +55,7 @@ calc_post_norm<- function(
     internal_data,
     response,
     prior,
-    internal_control_sd = NULL
+    internal_sd = NULL
 ){
   # Checking internal data and response variable
   if(is_prop_scr(internal_data)){
@@ -46,19 +84,19 @@ calc_post_norm<- function(
   }
   prior_fam <- family(prior)
 
-  # With known control SD
-  if(!is.null(internal_control_sd)) {
-    # Sum of responses in internal control arm
+  # With known internal SD
+  if(!is.null(internal_sd)) {
+    # Sum of responses in internal arm
     sum_resp <- pull(data, !!response) |>
       sum()
     if(prior_fam == "normal"){
-      out_dist <- calc_norm_post(prior, internal_control_sd, nIC, sum_resp)
+      out_dist <- calc_norm_post(prior, internal_sd, nIC, sum_resp)
     } else if (prior_fam == "student_t") {
       out_dist <- t_to_mixnorm(prior) |>
-        calc_mixnorm_post(internal_control_sd, nIC, sum_resp)
+        calc_mixnorm_post(internal_sd, nIC, sum_resp)
     } else if(prior_fam == "mixture") {
       out_dist <- mix_t_to_mix(prior) |>
-        calc_mixnorm_post(internal_control_sd, nIC, sum_resp)
+        calc_mixnorm_post(internal_sd, nIC, sum_resp)
     } else {
       cli_abort("{.agr prior} must be either normal, t, or a mixture of normals and t")
     }
@@ -81,10 +119,31 @@ calc_post_norm<- function(
 
 #' Calculate Posterior Beta
 #'
+#' @description Calculate a posterior distribution that is beta (or a mixture
+#'   of beta components). Only the relevant treatment arms from the internal
+#'   dataset should be read in (e.g., only the control arm if constructing a
+#'   posterior distribution for the control response rate).
+#'
 #' @param internal_data This can either be a propensity score object or a tibble
 #'   of the internal data.
 #' @param response Name of response variable
-#' @param prior distributional object, possibly a mixture distribution
+#' @param prior A distributional object corresponding to a beta distribution
+#'   or a mixture distribution of beta components
+#'
+#' @details For a given arm of an internal trial (e.g., the control arm or an
+#' active treatment arm) of size \eqn{N_I}, suppose the response data are binary
+#' such that \eqn{y_i \sim \mbox{Bernoulli}(\theta)}, \eqn{i=1,\ldots,N_I}. The
+#' posterior distribution for \eqn{\theta} is written as
+#'
+#' \deqn{\pi( \theta \mid \boldsymbol{y} ) \propto \mathcal{L}(\theta \mid \boldsymbol{y}) \; \pi(\theta),}
+#'
+#' where \eqn{\mathcal{L}(\theta \mid \boldsymbol{y})} is the likelihood of the
+#' response data from the internal arm and \eqn{\pi(\theta)} is a prior
+#' distribution on \eqn{\theta} (either a beta distribution or a mixture
+#' distribution with an arbitrary number of beta components). The posterior
+#' distribution for \eqn{\theta} is either a beta distribution or a mixture of
+#' beta components depending on whether the prior is a single beta
+#' distribution or a mixture distribution.
 #'
 #' @return distributional object
 #' @export
@@ -159,9 +218,9 @@ calc_post_beta<- function(
 
 
 
-#' Internal function to approximate T distributions to a mixture of normals
+#' Internal function to approximate t distributions to a mixture of normals
 #'
-#' @param x distributional object
+#' @param x A distributional object
 #'
 #' @return String of families
 #' @noRd
@@ -194,7 +253,7 @@ t_to_mixnorm <- function(x){
 
 #' Takes a mixture distribution, checks if there is any t distributions and changes them to a mixture of normals
 #'
-#' @param x
+#' @param x A mixture distributional object
 #'
 #' @return mixture distributional object
 #' @importFrom distributional new_dist
@@ -230,21 +289,22 @@ mix_t_to_mix <- function(x){
 }
 
 
-#' @param prior mixture prior
-#' @param n_ic number of internal response
-#' @param sum_resp sum of the internal response
+#' @param prior Mixture prior
+#' @param internal_sd Standard deviation of internal response data
+#' @param n_ic Number of internal response
+#' @param sum_resp Sum of the internal response
 #'
-#' @return mixture distributional
+#' @return Mixture distributional
 #' @noRd
-calc_mixnorm_post <- function(prior,internal_control_sd,  n_ic, sum_resp){
+calc_mixnorm_post <- function(prior, internal_sd, n_ic, sum_resp){
 
   prior_means <- mix_means(prior)
   prior_sds <- mix_sigmas(prior)
   prior_ws <- parameters(prior)$w[[1]]
 
-  # K x 1 vectors of means and SDs of each component of posterior distribution for mu_C
-  post_sds <- (n_ic/internal_control_sd^2 + 1/prior_sds^2)^-.5        # vector of SDs
-  post_means <- post_sds^2 * (sum_resp/internal_control_sd^2 + prior_means/prior_sds^2)   # vector of means
+  # K x 1 vectors of means and SDs of each component of posterior distribution for theta
+  post_sds <- (n_ic/internal_sd^2 + 1/prior_sds^2)^-.5        # vector of SDs
+  post_means <- post_sds^2 * (sum_resp/internal_sd^2 + prior_means/prior_sds^2)   # vector of means
 
   # Create a list of normal distributions
   post_ls <- map2(post_means, post_sds, function(mu, sigma){
@@ -252,37 +312,38 @@ calc_mixnorm_post <- function(prior,internal_control_sd,  n_ic, sum_resp){
   })
 
   # K x 1 vector of posterior weights (unnormalized) corresponding to each component of the
-  # posterior distribution for mu_C
-  log_post_w_propto <- log(prior_ws) - .5*log(2*pi * internal_control_sd^2 * prior_sds^2 * post_sds^-2) -
-    .5 * sum_resp^2/internal_control_sd^2 - .5 * prior_means^2/prior_sds^2 +
+  # posterior distribution for theta
+  log_post_w_propto <- log(prior_ws) - .5*log(2*pi * internal_sd^2 * prior_sds^2 * post_sds^-2) -
+    .5 * sum_resp^2/internal_sd^2 - .5 * prior_means^2/prior_sds^2 +
     .5 * post_means^2 * post_sds^-2
 
   # K x 1 vector of posterior weights (normalized) corresponding to each component of the
-  # posterior distribution for mu_C
+  # posterior distribution for theta
   adj_log_post_w_propto <- exp(log_post_w_propto - max(log_post_w_propto))  # subtract max of log weights before exponentiating
   post_w_norm <- adj_log_post_w_propto / sum(adj_log_post_w_propto)      # normalized posterior weights
   dist_mixture(!!!post_ls, weights = correct_weights(post_w_norm))
 }
 
-#' @param prior normal prior
-#' @param n_ic number of internal response
-#' @param sum_resp sum of the internal response
+#' @param prior Normal prior
+#' @param internal_sd Standard deviation of internal response data
+#' @param n_ic Number of internal response
+#' @param sum_resp Sum of the internal response
 #'
-#' @return normal distributional
+#' @return Normal distributional
 #' @noRd
-calc_norm_post <- function(prior,internal_control_sd, n_ic, sum_resp){
+calc_norm_post <- function(prior, internal_sd, n_ic, sum_resp){
   x <- parameters(prior)
 
-  # K x 1 vectors of means and SDs of each component of posterior distribution for mu_C
-  post_sds <- (n_ic/internal_control_sd^2 + 1/x$sigma^2)^-.5        # vector of SDs
-  post_means <- post_sds^2 * (sum_resp/internal_control_sd^2 + x$mu/x$sigma^2)   # vector of means
+  # K x 1 vectors of means and SDs of each component of posterior distribution for theta
+  post_sds <- (n_ic/internal_sd^2 + 1/x$sigma^2)^-.5        # vector of SDs
+  post_means <- post_sds^2 * (sum_resp/internal_sd^2 + x$mu/x$sigma^2)   # vector of means
   final_dist <- dist_normal(post_means, post_sds)
 }
 
 
 #' Internal function to help determine the family of an object
 #'
-#' @param x distributional object
+#' @param x Distributional object
 #'
 #' @return String of families
 #' @noRd
@@ -307,7 +368,7 @@ calc_t_post <- function(prior, nIC, response){
   prior_sds <- mix_sigmas(prior)
   prior_ws <- parameters(prior)$w[[1]]
 
-  # 2*K x 1 vectors of means and SDs of each normal component of posterior distribution for mu_C
+  # 2*K x 1 vectors of means and SDs of each normal component of posterior distribution for theta
   K <- length(prior_means)
   post_sds <- c((1/like_sds[1]^2 + 1/prior_sds^2)^-.5,    # vector of SDs
                 (1/like_sds[2]^2 + 1/prior_sds^2)^-.5)
@@ -321,7 +382,7 @@ calc_t_post <- function(prior, nIC, response){
   })
 
   # 2*K x 1 vector of posterior weights (unnormalized) corresponding to each component of the
-  # posterior distribution for mu_C
+  # posterior distribution for theta
   log_post_w_propto <-
     c(log(prior_ws) + log(like_ws[1]) - .5*log(2*pi * like_sds[1]^2 * prior_sds^2 * post_sds[1:K]^-2) -
         .5 * like_mean[1]^2/like_sds[1]^2 - .5 * prior_means^2/prior_sds^2 +
@@ -331,7 +392,7 @@ calc_t_post <- function(prior, nIC, response){
         .5 * post_means[(K+1):(2*K)]^2 * post_sds[(K+1):(2*K)]^-2)
 
   # 2*K x 1 vector of posterior weights (normalized) corresponding to each component of the
-  # posterior distribution for mu_C
+  # posterior distribution for theta
   adj_log_post_w_propto <- exp(log_post_w_propto - max(log_post_w_propto))  # subtract max of log weights before exponentiating
   post_w_norm <- adj_log_post_w_propto / sum(adj_log_post_w_propto)
   dist_mixture(!!!post_ls, weights = correct_weights(post_w_norm))

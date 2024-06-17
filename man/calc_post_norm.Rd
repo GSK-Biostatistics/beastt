@@ -4,7 +4,7 @@
 \alias{calc_post_norm}
 \title{Calculate Posterior Normal}
 \usage{
-calc_post_norm(internal_data, response, prior, internal_control_sd = NULL)
+calc_post_norm(internal_data, response, prior, internal_sd = NULL)
 }
 \arguments{
 \item{internal_data}{This can either be a propensity score object or a tibble
@@ -12,14 +12,51 @@ of the internal data.}
 
 \item{response}{Name of response variable}
 
-\item{prior}{distributional object, possibly a mixture distribution}
+\item{prior}{A distributional object corresponding to a normal distribution,
+a t distribution, or a mixture distribution of normal and/or t components}
 
-\item{internal_control_sd}{Standard deviation of internal control response data if
+\item{internal_sd}{Standard deviation of internal response data if
 assumed known. It can be left as \code{NULL} if assumed unknown}
 }
 \value{
 distributional object
 }
 \description{
-Calculate Posterior Normal
+Calculate a posterior distribution that is normal (or a mixture
+of normal components). Only the relevant treatment arms from the internal
+dataset should be read in (e.g., only the control arm if constructing a
+posterior distribution for the control mean).
+}
+\details{
+For a given arm of an internal trial (e.g., the control arm or an
+active treatment arm) of size \eqn{N_I}, suppose the response data are normally
+distributed such that \eqn{y_i \sim N(\theta, \sigma_I^2)}, \eqn{i=1,\ldots,N_I}.
+If \eqn{\sigma_I^2} is assumed known, the posterior distribution for \eqn{\theta}
+is written as
+
+\deqn{\pi( \theta \mid \boldsymbol{y}, \sigma_{I}^2 ) \propto \mathcal{L}(\theta \mid \boldsymbol{y}, \sigma_{I}^2) \; \pi(\theta),}
+
+where \eqn{\mathcal{L}(\theta \mid \boldsymbol{y}, \sigma_{I}^2)} is the
+likelihood of the response data from the internal arm and \eqn{\pi(\theta)}
+is a prior distribution on \eqn{\theta} (either a normal distribution, a
+\eqn{t} distribution, or a mixture distribution with an arbitrary number of
+normal and/or \eqn{t} components). Any \eqn{t} components of the prior for
+\eqn{\theta} are approximated with a mixture of two normal distributions.
+
+If \eqn{\sigma_I^2} is unknown, the marginal posterior distribution for
+\eqn{\theta} is instead written as
+
+\deqn{\pi( \theta \mid \boldsymbol{y} ) \propto \left\{ \int_0^\infty \mathcal{L}(\theta, \sigma_{I}^2 \mid \boldsymbol{y}) \; \pi(\sigma_{I}^2) \; d\sigma_{I}^2 \right\} \times \pi(\theta).}
+
+In this case, the prior for \eqn{\sigma_I^2} is chosen to be
+\eqn{\pi(\sigma_{I}^2) = (\sigma_I^2)^{-1}} such that
+\eqn{\left\{ \int_0^\infty \mathcal{L}(\theta, \sigma_{I}^2 \mid \boldsymbol{y}) \; \pi(\sigma_{I}^2) \; d\sigma_{I}^2 \right\}}
+becomes a non-standardized \eqn{t} distribution. This integrated likelihood
+is then approximated with a mixture of two normal distributions.
+
+If \code{internal_sd} is supplied a positive value and \code{prior} corresponds to a
+single normal distribution, then the posterior distribution for \eqn{\theta}
+is a normal distribution. If \code{internal_sd = NULL} or if other types of prior
+distributions are specified (e.g., mixture or t distribution), then the
+posterior distribution is a mixture of normal distributions.
 }

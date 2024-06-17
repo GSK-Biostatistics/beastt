@@ -1,4 +1,4 @@
-#' Title
+#' Plot Distribution
 #'
 #' @param ... Distributional object(s) to plot. If there are multiple objects you can name them.
 #'
