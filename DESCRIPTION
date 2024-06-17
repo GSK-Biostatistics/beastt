@@ -20,6 +20,7 @@ License: Apache License (>= 2)
 Suggests: 
     knitr,
     rmarkdown,
+    spelling,
     testthat (>= 3.0.0),
     tibble
 Config/testthat/edition: 3
@@ -43,3 +44,4 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
 LazyData: true
+Language: en-US
