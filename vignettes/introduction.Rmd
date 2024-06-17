@@ -11,32 +11,65 @@ vignette: >
 ---
 
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-library(beastt)
+
+## Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (BEASTT)
+
+## Overview
+
+Welcome to the "beastt" package! This R package is designed to assist users in performing
+Bayesian dynamic borrowing with covariate adjustment via inverse probability weighting for
+simulations and data analyses in clinical trials.
+
+## Installation
+
+You can install the development version of beastt from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("GSK-Biostatistics/beastt")
 ```
 
-In this vignette, you will learn about the scope of `beastt()` and where to find additional information on how to implement your analysis in `beastt()`.
+## Functions
 
-## Introduction
+### `calc_prop_scr()`
 
-Bayesian dynamic borrowing (BDB) is a way to incorporate external data into the analysis of data from an internal trial to effectively increase the sample size and in turn increase power. BEASTT focuses on implementing BDB, specifically through the use of inverse probability weighted power priors that can be incorporated into a robust mixtures prior.
+Calculate propensity scores using this function and obtain the inverse probability weight 
+calculated for each subject. Propensity scores are essential in order to balance baseline
+covariate distributions between internal and external trial participants.
 
-`beastt` has the following goals:
+**Usage:**
 
-- goal 1
-- goal 2
-- goal 3
+```R
+calc_prop_scr(internal_df, external_df, id_col, model)
+```
 
+- `internal_df`: Internal dataset.
+- `external_df`: External dataset.
+- `id_col`: Name of the column in both datasets used to identify each subject.
+- `model`: Model used to calculate propensity scores.
 
-## Common Usage
+### `calc_power_prior()`
 
-### Create Data Sets
+Calculate power priors based on a distribution, hyperparameters, a weighted object and a response variable. 
 
-```{r eval=FALSE}
+Power priors provide a Bayesian framework for incorporating external information into the analysis.
+
+**Usage:**
+
+```R
+calc_power_prior(prior, weighted_obj, response)
+```
+
+- `prior`: A {distributional} object that is the prior of the external data.
+- `weighted_obj`: A weighted object created by calling `calc_prop_scr()`.
+- `response`: Name of the response variable.
+- `...`: Additional parameters needed depending on the type of power prior used.
+
+## Examples
+
+Here are some examples demonstrating the usage of the package:
+
+```R
 library(beastt)
 library(ggdist)
 library(ggplot2)
@@ -49,10 +82,21 @@ internal_df <- data.frame(id_col = 1:20, cov1 = rnorm(10, 2), cov2 = rnorm(100, 
 external_df <- data.frame(id_col = 21:40, cov1 = rnorm(10, 2), cov2 = rnorm(100, 18), 
                           y = rnorm(20, mean = 8, sd = 4)
 
+# Example for propensity score calculation
+model <- as.formula("~cov1 + cov2")
+psscores <- calc_prop_scr(internal_df = internal_df, external_df = external_df, 
+                           id_col = id_col, model = model)
+
+# Example for power prior calculation using a Normal prior for external data
+powerprior <- calc_power_prior(prior = dist_normal(15, 100), weighted_obj = psscores, 
+                               response = y)
+
+# Plot power prior and interval
+ggplot(tibble(), aes(xdist = powerprior, y = 1)) +
+  stat_slabinterval()
 ```
 
 
-### Propensity Score
+## License
 
-
-### Power Prior
+This package is released under the [Apache License](>= 2).
