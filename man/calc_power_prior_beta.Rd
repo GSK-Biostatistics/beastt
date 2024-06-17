@@ -4,15 +4,17 @@
 \alias{calc_power_prior_beta}
 \title{Calculate Power Prior Beta}
 \usage{
-calc_power_prior_beta(weighted_obj, response, prior)
+calc_power_prior_beta(external_data, response, prior)
 }
 \arguments{
-\item{weighted_obj}{A \code{prop_scr_obj} created by calling \code{create_prop_scr()}}
+\item{external_data}{This can either be a \code{prop_scr_obj} created by calling
+\code{create_prop_scr()} or a tibble of the external data. If it is just a
+tibble the weights will be assumed to be 1.}
 
 \item{response}{Name of response variable}
 
-\item{prior}{A beta distributional object that is the initial prior for the control
-response rate before the external control data are observed}
+\item{prior}{A beta distributional object that is the initial prior for the
+control response rate before the external control data are observed}
 }
 \value{
 Beta power prior object
@@ -22,10 +24,10 @@ Calculate a (potentially inverse probability weighted) beta
 power prior for the control response rate using external control data.
 }
 \details{
-Weighted participant-level response data from an external study
-are incorporated into an inverse probability weighted (IPW) power prior
-for the control response rate \eqn{\theta_C}. When borrowing information from
-an external control arm of size \eqn{N_{EC}}, the components of the IPW power
+Weighted participant-level response data from an external study are
+incorporated into an inverse probability weighted (IPW) power prior for the
+control response rate \eqn{\theta_C}. When borrowing information from an
+external control arm of size \eqn{N_{EC}}, the components of the IPW power
 prior for \eqn{\theta_C} are defined as follows:
 \describe{
 \item{Initial prior:}{\eqn{\theta_C \sim \mbox{Beta}(\nu_0, \phi_0)}}

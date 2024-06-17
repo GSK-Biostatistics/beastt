@@ -4,15 +4,17 @@
 #' @description Calculate a (potentially inverse probability weighted) beta
 #'   power prior for the control response rate using external control data.
 #'
-#' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`
+#' @param external_data This can either be a `prop_scr_obj` created by calling
+#'   `create_prop_scr()` or a tibble of the external data. If it is just a
+#'   tibble the weights will be assumed to be 1.
 #' @param response Name of response variable
-#' @param prior A beta distributional object that is the initial prior for the control
-#'   response rate before the external control data are observed
+#' @param prior A beta distributional object that is the initial prior for the
+#'   control response rate before the external control data are observed
 #'
-#' @details Weighted participant-level response data from an external study
-#'   are incorporated into an inverse probability weighted (IPW) power prior
-#'   for the control response rate \eqn{\theta_C}. When borrowing information from
-#'   an external control arm of size \eqn{N_{EC}}, the components of the IPW power
+#' @details Weighted participant-level response data from an external study are
+#'   incorporated into an inverse probability weighted (IPW) power prior for the
+#'   control response rate \eqn{\theta_C}. When borrowing information from an
+#'   external control arm of size \eqn{N_{EC}}, the components of the IPW power
 #'   prior for \eqn{\theta_C} are defined as follows:
 #'   \describe{
 #'   \item{Initial prior:}{\eqn{\theta_C \sim \mbox{Beta}(\nu_0, \phi_0)}}
@@ -36,17 +38,31 @@
 #' @importFrom distributional dist_beta
 #' @importFrom dplyr summarise
 #' @family power prior
-calc_power_prior_beta <- function(weighted_obj, response, prior){
-  test_prop_scr(weighted_obj)
+calc_power_prior_beta <- function(external_data, response, prior){
+  if(is_prop_scr(external_data)){
+    data <- external_data$external_df
+    weights <- data$`___weight___`
+  } else if(is.data.frame(external_data)){
+    data <- external_data
+    weights <- 1
+  } else {
+    cli_abort("{.agr external_data} either a dataset or `prop_scr` object type")
+  }
+
+  # Check the response
   response <- enquo(response)
+  check <- safely(select)(data, !!response)
+  if(!is.null(check$error)){
+    cli_abort("{.agr response} was not found in {.agr external_data}")
+  }
 
   prior_checks(prior, "beta")
 
   hyperparameter <- parameters(prior)
 
-  params <- weighted_obj$external_df |>
-    mutate(shape1_response = .data$`___weight___`*!!response,
-           shape2_response = .data$`___weight___`*(1-!!response)) |>
+  params <- data |>
+    mutate(shape1_response = weights*!!response,
+           shape2_response = weights*(1-!!response)) |>
     summarise(sum(.data$shape1_response) + hyperparameter['shape1'],
               sum(.data$shape2_response) + hyperparameter['shape2']
     )
@@ -60,38 +76,41 @@ calc_power_prior_beta <- function(weighted_obj, response, prior){
 #' @description Calculate a (potentially inverse probability weighted) normal
 #'   power prior using external data.
 #'
-#' @param weighted_obj A `prop_scr_obj` created by calling `create_prop_scr()`.
-#'   Only the external data for the arm(s) of interest should be included in this
-#'   object (e.g., external control data if creating a power prior for the control
-#'   mean)
+#' @param external_data This can either be a `prop_scr_obj` created by calling
+#'   `create_prop_scr()` or a tibble of the external data. If it is just a
+#'   tibble the weights will be assumed to be 1. Only the external data for the
+#'   arm(s) of interest should be included in this object (e.g., external
+#'   control data if creating a power prior for the control mean)
 #' @param response Name of response variable
 #' @param prior Either `NULL` or a normal distributional object that is the
-#'   initial prior for the parameter of interest (e.g., control mean) before
-#'   the external data are observed
-#' @param external_sd Standard deviation of external response data if
-#'   assumed known. It can be left as `NULL` if assumed unknown
+#'   initial prior for the parameter of interest (e.g., control mean) before the
+#'   external data are observed
+#' @param external_sd Standard deviation of external response data if assumed
+#'   known. It can be left as `NULL` if assumed unknown
 #'
-#' @details Weighted participant-level response data from an external study
-#'   are incorporated into an inverse probability weighted (IPW) power prior
-#'   for the parameter of interest \eqn{\theta} (e.g., the control mean if borrowing
+#' @details Weighted participant-level response data from an external study are
+#'   incorporated into an inverse probability weighted (IPW) power prior for the
+#'   parameter of interest \eqn{\theta} (e.g., the control mean if borrowing
 #'   from an external control arm). When borrowing information from an external
 #'   dataset of size \eqn{N_{E}}, the IPW likelihood of the external response
 #'   data \eqn{y_E} with weights \eqn{\hat{\boldsymbol{a}}_0} is defined as
 #'
-#'   \deqn{\mathcal{L}_E(\theta \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0, \sigma_{E}^2) \propto \exp \left( -\frac{1}{2 \sigma_{E}^2} \sum_{i=1}^{N_{E}} \hat{a}_{0i} (y_i - \theta)^2 \right).}
+#'   \deqn{\mathcal{L}_E(\theta \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0,
+#'   \sigma_{E}^2) \propto \exp \left( -\frac{1}{2 \sigma_{E}^2}
+#'   \sum_{i=1}^{N_{E}} \hat{a}_{0i} (y_i - \theta)^2 \right).}
 #'
-#'   The `prior` argument should be either a distributional object with a
-#'   family type of `normal` or `NULL`, corresponding to the use of a
-#'   normal initial prior or an improper uniform initial prior (i.e.,
-#'   \eqn{\pi(\theta) \propto 1}), respectively.
+#'   The `prior` argument should be either a distributional object with a family
+#'   type of `normal` or `NULL`, corresponding to the use of a normal initial
+#'   prior or an improper uniform initial prior (i.e., \eqn{\pi(\theta) \propto
+#'   1}), respectively.
 #'
-#'   The `external_sd` argument can be a positive value if the external
-#'   standard deviation is assumed known or left as `NULL` otherwise. If
-#'   `external_sd = NULL`, then `prior` must be `NULL` to indicate the
-#'   use of an improper uniform initial prior for \eqn{\theta}, and an improper
-#'   prior is defined for the unknown external standard deviation such that
-#'   \eqn{\pi(\sigma_E^2) \propto (\sigma_E^2)^{-1}}. The details of the IPW power
-#'   prior for each case are as follows:
+#'   The `external_sd` argument can be a positive value if the external standard
+#'   deviation is assumed known or left as `NULL` otherwise. If `external_sd =
+#'   NULL`, then `prior` must be `NULL` to indicate the use of an improper
+#'   uniform initial prior for \eqn{\theta}, and an improper prior is defined
+#'   for the unknown external standard deviation such that \eqn{\pi(\sigma_E^2)
+#'   \propto (\sigma_E^2)^{-1}}. The details of the IPW power prior for each
+#'   case are as follows:
 #'   \describe{
 #'   \item{`external_sd = positive value` (\eqn{\sigma_E^2} known):}{With
 #'   either a proper normal or an improper uniform initial prior, the IPW
@@ -103,8 +122,8 @@ calc_power_prior_beta <- function(weighted_obj, response, prior){
 #'   }
 #'
 #'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
-#'   conventional normal (or \eqn{t}) power prior if the external standard deviation
-#'   is known (unknown).
+#'   conventional normal (or \eqn{t}) power prior if the external standard
+#'   deviation is known (unknown).
 #'
 #' @return Normal power prior object
 #' @export
@@ -112,15 +131,29 @@ calc_power_prior_beta <- function(weighted_obj, response, prior){
 #' @importFrom dplyr pull
 #' @importFrom distributional parameters dist_normal
 #' @family power prior
-calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external_sd = NULL){
-  test_prop_scr(weighted_obj)
+calc_power_prior_norm <- function(external_data, response, prior = NULL, external_sd = NULL){
+  if(is_prop_scr(external_data)){
+    data <- external_data$external_df
+    weights <- data$`___weight___`
+  } else if(is.data.frame(external_data)){
+    data <- external_data
+    weights <- 1
+  } else {
+    cli_abort("{.agr external_data} either a dataset or `prop_scr` object type")
+  }
+
+  # Check the response
   response <- enquo(response)
+  check <- safely(select)(data, !!response)
+  if(!is.null(check$error)){
+    cli_abort("{.agr response} was not found in {.agr external_data}")
+  }
 
   # mean of IP-weighted power prior
-  vars <- weighted_obj$external_df |>
+  vars <- data |>
     summarise(
-      tot_ipw = sum(.data$`___weight___`),
-      weight_resp = sum(.data$`___weight___`*!!response))
+      tot_ipw = sum(weights),
+      weight_resp = sum(weights*!!response))
   weight_resp <- vars |> pull(.data$weight_resp)
   tot_ipw <- vars |> pull(.data$tot_ipw)
 
@@ -134,9 +167,9 @@ calc_power_prior_norm <- function(weighted_obj, response, prior = NULL, external
       mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
       out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
     } else {
-      out_dist <- calc_t(weighted_obj$external_df$y,
-                         n= nrow(weighted_obj$external_df),
-                         weighted_obj$external_df$`___weight___`)
+      out_dist <- calc_t(pull(data, !!response),
+                         n= nrow(data),
+                         W = weights)
     }
   } else if(ec_sd_test) {
     prior_checks(prior, "normal")
