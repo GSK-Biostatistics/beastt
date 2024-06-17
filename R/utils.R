@@ -43,3 +43,28 @@ correct_weights <- function(x){
   x[n] <- 1 - sum(x[1:(n-1)])
   x
 }
+
+#' Robustify Normal Distributions
+#'
+#' Adds vague normal component, where the level of vagueness is controlled by
+#' the `n` parameter
+#' @param prior Normal distributional object
+#' @param n Number of theoretical participants
+#' @param weights Vector of weights, where the first number corresponds to the
+#'   informative component and the second is the vague
+#'
+#' @return mixture distribution
+#' @export
+#'
+#' @examples
+#' library(distributional)
+#' dist_normal(dist_norm(0,1), n = 15)
+robustify_norm <- function(prior, n, weights = c(0.5, 0.5)){
+  prior_checks(prior, "normal")
+  prior_param <- parameters(prior)
+  robust_prior <- dist_mixture(prior,
+                               dist_normal(prior_param$mu, sqrt(prior_param$sigma^2*n)),
+                               weights = weights
+  )
+  robust_prior
+}
