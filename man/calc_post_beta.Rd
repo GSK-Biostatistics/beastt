@@ -12,7 +12,7 @@ of the internal data.}
 
 \item{response}{Name of response variable}
 
-\item{prior}{distributional object, if you would like a mixture distribution}
+\item{prior}{distributional object, possibly a mixture distribution}
 }
 \value{
 distributional object
