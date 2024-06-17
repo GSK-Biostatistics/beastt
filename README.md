@@ -32,9 +32,9 @@ devtools::install_github("GSK-Biostatistics/beastt")
 
 ## Usage
 
-At the moment {beastt} covers normal and binomial cases for more
+At the moment {beastt} covers cases when borrowing from external control data with either normal or binary endpoints.
 For more information, see the vignettes. Future updates are expected to include cases
-repeated measure cases.
+with survival endpoints and repeated measure.
 
 ## Contributing
 
