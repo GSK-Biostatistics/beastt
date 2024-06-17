@@ -17,13 +17,13 @@ calc_power_prior_norm(
 \item{response}{Name of response variable}
 
 \item{prior}{either \code{NULL} or a normal distributional object that is the
-prior of the external data}
+initial prior for the control mean before the external control data are observed}
 
-\item{external_control_sd}{Standard deviation of external control arm if
-assumed known. It can be left as \code{NULL} if there is no prior}
+\item{external_control_sd}{Standard deviation of external control response data if
+assumed known. It can be left as \code{NULL} if assumed unknown}
 }
 \value{
-beta power prior object
+normal power prior object
 }
 \description{
 Calculate Power Prior Normal

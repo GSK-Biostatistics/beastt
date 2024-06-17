@@ -4,10 +4,10 @@
 \alias{plot_dist}
 \title{Title}
 \usage{
-plot_dist(distribution)
+plot_dist(...)
 }
 \arguments{
-\item{distribution}{Distributional object to plot}
+\item{...}{Distributional object(s) to plot. If there are multiple objects you can name them.}
 }
 \value{
 ggplot object that is the density of the provided distribution
