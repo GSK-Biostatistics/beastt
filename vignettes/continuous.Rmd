@@ -27,6 +27,7 @@ For this example we are going to walk through how to use Bayesian dynamic borrow
 library(tibble)
 library(distributional)
 library(ggplot2)
+set.seed(1234)
 
 summary(int_norm_df)
 summary(ex_norm_df)

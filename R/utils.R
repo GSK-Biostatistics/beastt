@@ -18,3 +18,16 @@ plot_dist <- function(distribution){
     theme_bw()
 
 }
+
+
+#' Correct weights to always sum to 1
+#'
+#' @param x vector of weights
+#'
+#' @noRd
+#' @return vector of weights that sum to 1
+correct_weights <- function(x){
+  n <- length(x)
+  x[n] <- 1 - sum(x[1:(n-1)])
+  x
+}
