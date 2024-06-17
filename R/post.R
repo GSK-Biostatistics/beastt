@@ -148,7 +148,7 @@ calc_post_beta<- function(
       post_w_norm <- adj_log_post_w_propto / sum(adj_log_post_w_propto)      # normalized posterior weights
 
       dist_ls <- map2(shape1_new, shape2_new, dist_beta)
-      out_dist <- dist_mixture(!!!dist_ls, weights = post_w_norm)
+      out_dist <- dist_mixture(!!!dist_ls, weights = correct_weights(post_w_norm))
     }
   } else {
     cli_abort("{.agr prior} must be either beta or a mixture of betas")
@@ -167,6 +167,7 @@ calc_post_beta<- function(
 #' @noRd
 #' @importFrom purrr quietly
 #' @importFrom stats quantile
+#' @importFrom distributional variance
 t_to_mixnorm <- function(x){
   # distribution is constrained to equal the mean of the t distribution
   # quantiles of t distribution
@@ -187,7 +188,7 @@ t_to_mixnorm <- function(x){
   norm_mix_mu <- normEM_obj$mu          # 2 x 1 vector of means associated with each normal component
   norm_mix_sigma <- normEM_obj$sigma    # 2 x 1 vector of SDs associated with each normal component
   norm_ls <- map2(norm_mix_mu, norm_mix_sigma, \(mu, sigma) dist_normal(mu, sigma))
-  dist_mixture(!!!norm_ls, weights = c(norm_mix_w[1], 1-norm_mix_w[1]))
+  dist_mixture(!!!norm_ls, weights = correct_weights(norm_mix_w))
 }
 
 
@@ -219,8 +220,8 @@ mix_t_to_mix <- function(x){
           new_dist(!!!parameters(dist), class=class(dist)[1])
         })
       # This is to make sure it adds to 1
-      new_weight_vec <- c(parameters(x)$w[[1]][-i], new_weights[1],
-                          1-sum(parameters(x)$w[[1]][-i], new_weights[1]))
+      new_weight_vec <- c(parameters(x)$w[[1]][-i], new_weights) |>
+        correct_weights()
       x <- dist_mixture(!!!new_dist_ls, weights = new_weight_vec)
       t_check <- "student_t" %in% unlist(get_base_families(x))
     }
@@ -260,7 +261,7 @@ calc_mixnorm_post <- function(prior,internal_control_sd,  n_ic, sum_resp){
   # posterior distribution for mu_C
   adj_log_post_w_propto <- exp(log_post_w_propto - max(log_post_w_propto))  # subtract max of log weights before exponentiating
   post_w_norm <- adj_log_post_w_propto / sum(adj_log_post_w_propto)      # normalized posterior weights
-  dist_mixture(!!!post_ls, weights = post_w_norm)
+  dist_mixture(!!!post_ls, weights = correct_weights(post_w_norm))
 }
 
 #' @param prior normal prior
@@ -333,8 +334,7 @@ calc_t_post <- function(prior, nIC, response){
   # posterior distribution for mu_C
   adj_log_post_w_propto <- exp(log_post_w_propto - max(log_post_w_propto))  # subtract max of log weights before exponentiating
   post_w_norm <- adj_log_post_w_propto / sum(adj_log_post_w_propto)
-  sum_fixed_w <- c(1-sum(post_w_norm[-1]), post_w_norm[-1])
-  dist_mixture(!!!post_ls, weights = sum_fixed_w)
+  dist_mixture(!!!post_ls, weights = correct_weights(post_w_norm))
 
 }
 
