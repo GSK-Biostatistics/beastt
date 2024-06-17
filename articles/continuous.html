@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Continuous Case With Assumed Known SD • beastt</title>
+<title>Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm • beastt</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Continuous Case With Assumed Known SD">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm">
 <meta property="og:description" content="beastt">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -50,10 +50,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/binary.html">binary</a>
+      <a href="../articles/binary.html">Binary Endpoint Case - Borrowing from an External Control Arm</a>
     </li>
     <li>
-      <a href="../articles/continuous.html">Continuous Case With Assumed Known SD</a>
+      <a href="../articles/continuous.html">Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm</a>
     </li>
     <li>
       <a href="../articles/introduction.html">Package Introduction</a>
@@ -74,7 +74,8 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Continuous Case With Assumed Known SD</h1>
+      <h1 data-toc-skip>Normal Endpoint Case with Assumed Known SD -
+Borrowing from an External Control Arm</h1>
             
       
       
@@ -84,16 +85,46 @@
 
     
     
-<p>For this example we are going to walk through how to use Bayesian
-dynamic borrowing with propensity score matching. For this example we
-are just going to use the data from the package. The data we have has a
-response variable and then four covariates to match on. Covariate 1, is
-a normally distributed with a mean around 55 and 50 for the internal and
-external data respectively. All other covariates are binary responses
-with varying response rate.</p>
+<p>In this example, we are going to walk through how to use Bayesian
+dynamic borrowing (BDB) with the inclusion of inverse probability
+weighting to balance baseline covariate distributions between external
+and internal datasets. This particular example considers a hypothetical
+trial with a cross sectional normal endpoint and a known standard
+deviation (SD) in each treatment arm (external control arm and both
+internal arms), and our objective is to use BDB with IPWs to construct a
+posterior distribution for the control mean <span class="math inline">\(\theta_C\)</span>. We will use simulated internal
+and external datasets from the package where each dataset has a normally
+distributed response variable and four baseline covariates which we will
+balance.</p>
+<p>The external control dataset has a sample size of 150 participants,
+and the distributions of the four covariates are as follows: - Covariate
+1: normal with a mean and standard deviation of approximately 50 and 10,
+respectively - Covariate 2: binary (0 vs. 1) with approximately 20% of
+participants with level 1 - Covariate 3: binary (0 vs. 1) with
+approximately 60% of participants with level 1 - Covariate 4: binary (0
+vs. 1) with approximately 30% of participants with level 1</p>
+<p>The internal dataset has 120 participants with 60 participants in
+each of the control arm and the active treatment arms. The covariate
+distributions of each arm are as follows: - Covariate 1: normal with a
+mean and standard deviation of approximately 55 and 8, respectively -
+Covariate 2: binary (0 vs. 1) with approximately 30% of participants
+with level 1 - Covariate 3: binary (0 vs. 1) with approximately 50% of
+participants with level 1 - Covariate 4: binary (0 vs. 1) with
+approximately 30% of participants with level 1</p>
+<p>We assume the standard deviations of both the external and internal
+response data are known and equal to 0.15.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/" class="external-link">tibble</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pkg.mitchelloharawild.com/distributional/" class="external-link">distributional</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span></span>
@@ -127,16 +158,25 @@ with varying response rate.</p>
 <span><span class="co">#&gt;  Mean   :0.3467   Mean   :45.00  </span></span>
 <span><span class="co">#&gt;  3rd Qu.:1.0000   3rd Qu.:48.34  </span></span>
 <span><span class="co">#&gt;  Max.   :1.0000   Max.   :56.99</span></span>
-<span><span class="va">sd_external_control</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
-<span><span class="va">sd_internal_control</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
+<span><span class="va">sd_external_control</span> <span class="op">&lt;-</span> <span class="fl">0.15</span></span>
+<span><span class="va">sd_internal_control</span> <span class="op">&lt;-</span> <span class="fl">0.15</span></span>
 <span><span class="va">n_external</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ex_norm_df</span><span class="op">)</span></span></code></pre></div>
-<p>With the data we can calculate the propensity scores for the internal
-and external controls using the <code>calc_prop_scr</code> function.
-This creates a propensity score object which we can use for calculating
-power priors in the next step.</p>
+<p>With the covariate data from both the external and internal datasets,
+we can calculate the propensity scores and ATT inverse probability
+weights (IPWs) for the internal and external controls using the
+<code>calc_prop_scr</code> function. This creates a propensity score
+object which we can use for calculating an inverse probability weighted
+power prior in the next step.</p>
+<p><strong>Note: when reading external and internal datasets into
+<code>calc_prop_scr</code>, be sure to include only the treatment arms
+across which you want to balance the covariate distributions.</strong>
+In this example, we want to balance the covariate distributions of the
+external control arm to be similar to those of the internal control arm,
+so we will exclude the internal active treatment arm data from this
+function.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps_model</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">cov1</span> <span class="op">+</span> <span class="va">cov2</span> <span class="op">+</span> <span class="va">cov3</span> <span class="op">+</span> <span class="va">cov4</span></span>
-<span><span class="va">ps_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_prop_scr.html">calc_prop_scr</a></span><span class="op">(</span>internal_df <span class="op">=</span> <span class="va">int_norm_df</span>, </span>
+<span><span class="va">ps_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_prop_scr.html">calc_prop_scr</a></span><span class="op">(</span>internal_df <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_norm_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>, </span>
 <span>                        external_df <span class="op">=</span> <span class="va">ex_norm_df</span>, </span>
 <span>                        id_col <span class="op">=</span> <span class="va">subjid</span>,</span>
 <span>                        model <span class="op">=</span> <span class="va">ps_model</span><span class="op">)</span></span>
@@ -148,40 +188,41 @@ power priors in the next step.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Propensity Scores and Weights</span> <span style="color: #00BBBB;">───────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 150 × 4</span></span></span>
-<span><span class="co">#&gt;    subjid Internal `Propensity Score` `Inverse Probablity Weight`</span></span>
-<span><span class="co">#&gt;     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>      1 FALSE                 0.314                       0.458</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>      2 FALSE                 0.365                       0.576</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>      3 FALSE                 0.618                       1.62 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>      4 FALSE                 0.406                       0.684</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>      5 FALSE                 0.406                       0.684</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>      6 FALSE                 0.644                       1.81 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>      7 FALSE                 0.515                       1.06 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>      8 FALSE                 0.245                       0.324</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>      9 FALSE                 0.302                       0.432</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>     10 FALSE                 0.339                       0.514</span></span>
+<span><span class="co">#&gt;    subjid Internal `Propensity Score` `Inverse Probability Weight`</span></span>
+<span><span class="co">#&gt;     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>      1 FALSE                0.175                        0.212 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>      2 FALSE                0.219                        0.281 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>      3 FALSE                0.497                        0.990 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>      4 FALSE                0.257                        0.347 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>      5 FALSE                0.257                        0.347 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>      6 FALSE                0.425                        0.740 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>      7 FALSE                0.328                        0.489 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>      8 FALSE                0.083<span style="text-decoration: underline;">3</span>                       0.090<span style="text-decoration: underline;">8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>      9 FALSE                0.165                        0.198 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>     10 FALSE                0.196                        0.244 </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 140 more rows</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Absolute Standardized Mean Difference</span> <span style="color: #00BBBB;">───────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
 <span><span class="co">#&gt;   covariate diff_unadj diff_adj</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cov1          0.526    0.123 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> cov2          0.134    0.052<span style="text-decoration: underline;">2</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> cov3          0.135    0.090<span style="text-decoration: underline;">9</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> cov4          0.099<span style="text-decoration: underline;">9</span>   0.072<span style="text-decoration: underline;">9</span></span></span></code></pre></div>
-<p>In order to check the suitability of the external data we can create
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cov1          0.670    0.154 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> cov2          0.229    0.090<span style="text-decoration: underline;">5</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> cov3          0.067<span style="text-decoration: underline;">7</span>   0.148 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> cov4          0.252    0.041<span style="text-decoration: underline;">3</span></span></span></code></pre></div>
+<p>In order to check the suitability of the external data, we can create
 a variety of diagnostic plots. The first plot we might want is a
-histogram. To get that we are going to use the
-<code>prop_scr_hist</code> function. This function takes in the
-propensity score object made in the previous step. Then we can
-optionally supply the variable we want to look at, either the propensity
-score or the inverse probability weight. By default it will plot the
+histogram of the overlapping propensity score distributions from both
+datasets. To get this, we use the <code>prop_scr_hist</code> function.
+This function takes in the propensity score object made in the previous
+step, and we can optionally supply the variable we want to look at
+(either the propensity score or the IPW). By default, it will plot the
 propensity scores. Additionally, we can look at the densities rather
 than histograms by using the <code>prop_scr_dens</code> function. When
-looking at the inverse probability weights with either the histogram or
-the density functions, it is important to note only the external data
-will be shown because value of the internal data will just be 1.</p>
+looking at the IPWs with either the histogram or the density functions,
+it is important to note that only the IPWs for external control
+participants will be shown because the ATT IPWs of all internal control
+participants are equal to 1.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_hist.html">prop_scr_hist</a></span><span class="op">(</span><span class="va">ps_obj</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
@@ -189,62 +230,97 @@ will be shown because value of the internal data will just be 1.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_dens.html">prop_scr_dens</a></span><span class="op">(</span><span class="va">ps_obj</span>, variable <span class="op">=</span> <span class="st">"ipw"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
 <p>The final plot we might want to look at is a love plot to visualize
-the standard mean differences of the covariates between the internal and
-external data. To do this we are just going to use the ‘prop_scr_love’
-function. Like the previous function the only required parameter for
-this function is the propensity score object, but we can also provide a
-location for a reference line.</p>
+the absolute standard mean differences (both unadjusted and adjusted by
+the IPWs) of the covariates between the internal and external data. To
+do this, we use the <code>prop_scr_love</code> function. Like the
+previous function, the only required parameter for this function is the
+propensity score object, but we can also provide a location along the
+x-axis for a vertical reference line.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_love.html">prop_scr_love</a></span><span class="op">(</span><span class="va">ps_obj</span>, reference_line <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_love.html">prop_scr_love</a></span><span class="op">(</span><span class="va">ps_obj</span>, reference_line <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<p>Now that we are happy with our propensity score we can use it to
-calculate a power prior. To calculate the power prior we need to
-supply:</p>
+<p>Now that we are happy with our propensity score object, we can use it
+to calculate a normal inverse probability weighted power prior for <span class="math inline">\(\theta_C\)</span>. To calculate the power prior,
+we need to supply:</p>
 <ul>
 <li><p>weighted object, the propensity score we created above</p></li>
-<li><p>response variable, in this case y</p></li>
-<li><p>prior, in the form of a distributional object</p></li>
-<li><p>external control sd</p></li>
+<li><p>response variable, in this case <span class="math inline">\(y\)</span></p></li>
+<li><p>initial prior, in the form of a normal distributional
+object</p></li>
+<li><p>SD of the external control response data, assumed known</p></li>
 </ul>
 <p>The prior and the external control SD are optional. If no prior is
-provided, a improper initial prior will be used. If there is no external
-control sd or prior then a t distirbution power prior will be
-created.</p>
-<p>Finally, once we have a power prior we might want to plot it. To do
-that we can just the <code>plot_dist</code> function.</p>
+provided, an improper uniform prior will be used for the initial prior;
+i.e., <span class="math inline">\(\pi(\theta_C) \propto 1\)</span>. If
+no external control SD or initial prior are specified (i.e., both the
+<code>prior</code> and <code>external_sd</code> arguments set as
+<code>NULL</code>), then a non-standardized <span class="math inline">\(t\)</span> power prior will be created (not
+covered in this vignette). In this example, we define the initial prior
+to be a vague normal distribution with a mean 50 and SD 10.</p>
+<p>Once we have a power prior, we might want to plot it. To do that, we
+use the <code>plot_dist</code> function.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pwr_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_power_prior_norm.html">calc_power_prior_norm</a></span><span class="op">(</span></span>
-<span>  <span class="va">ps_obj</span>, response <span class="op">=</span> <span class="va">y</span>, </span>
-<span>  prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">92</span>, <span class="fl">100</span><span class="op">)</span>, </span>
-<span>  external_control_sd <span class="op">=</span> <span class="va">sd_external_control</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">pwr_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_power_prior_norm.html">calc_power_prior_norm</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
+<span>                                   response <span class="op">=</span> <span class="va">y</span>,</span>
+<span>                                   prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span>, </span>
+<span>                                   external_sd <span class="op">=</span> <span class="va">sd_external_control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">pwr_prior</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
-<p>Now that we have a power prior we can calculate the posterior using
-the <code>calc_post_norm</code> function</p>
+<p>Now that we have a normal power prior, we can calculate the posterior
+distribution for <span class="math inline">\(\theta_C\)</span> using the
+<code>calc_post_norm</code> function. By defining our prior to be a
+normal distribution and by assuming the SD of the internal response data
+to be known, the resulting posterior distribution will also be normal
+(the case when the SD is unknown is not covered in this vignette).</p>
+<p><strong>Note: if reading internal data directly into
+<code>calc_post_norm</code> instead of a propensity score object, be
+sure to include only the treatment arm of interest (e.g., the internal
+control arm if creating a posterior distribution for <span class="math inline">\(\theta_C\)</span>).</strong></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_norm.html">calc_post_norm</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
-<span>                       response <span class="op">=</span> <span class="va">y</span>,</span>
-<span>                       internal_control_sd <span class="op">=</span> <span class="va">sd_internal_control</span>, </span>
-<span>                       prior<span class="op">=</span> <span class="va">pwr_prior</span><span class="op">)</span></span>
+<span>                       response <span class="op">=</span> <span class="va">y</span>, </span>
+<span>                       prior <span class="op">=</span> <span class="va">pwr_prior</span>,</span>
+<span>                       internal_sd <span class="op">=</span> <span class="va">sd_internal_control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<p>If you want to add a vague component to the distirbution you just
-make a mixture distribution and pass it to
-<code>calc_post_norm</code></p>
+<p>If we want to robustify our power prior for <span class="math inline">\(\theta_C\)</span>, we can add a vague component to
+the power prior distribution we previously created to construct a robust
+mixture prior which we can then pass to <code>calc_post_norm</code>. In
+general, we can define our prior to be a mixture distribution with an
+arbitrary number of normal and/or <span class="math inline">\(t\)</span>
+components, in which case the resulting posterior distribution will also
+be a mixture of normal components. If any component of the prior is a
+<span class="math inline">\(t\)</span> distribution, the prior will be
+approximated with the mixture of two normal distributions.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prior_param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/parameters.html" class="external-link">parameters</a></span><span class="op">(</span><span class="va">pwr_prior</span><span class="op">)</span></span>
-<span><span class="va">mixed_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_mixture.html" class="external-link">dist_mixture</a></span><span class="op">(</span></span>
-<span>  <span class="va">pwr_prior</span>, </span>
-<span>  <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="va">prior_param</span><span class="op">$</span><span class="va">mu</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">prior_param</span><span class="op">$</span><span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">*</span><span class="va">n_external</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  weights <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.5</span><span class="op">)</span></span>
+<span><span class="va">mixed_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_mixture.html" class="external-link">dist_mixture</a></span><span class="op">(</span><span class="va">pwr_prior</span>,</span>
+<span>                            <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="va">prior_param</span><span class="op">$</span><span class="va">mu</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">prior_param</span><span class="op">$</span><span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">*</span><span class="va">n_external</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                            weights <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.5</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_norm.html">calc_post_norm</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
-<span>                       response <span class="op">=</span> <span class="va">y</span>,</span>
-<span>                       internal_control_sd <span class="op">=</span> <span class="va">sd_internal_control</span>, </span>
-<span>                       prior<span class="op">=</span> <span class="va">mixed_prior</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">post_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_norm.html">calc_post_norm</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
+<span>                             response <span class="op">=</span> <span class="va">y</span>, </span>
+<span>                             prior<span class="op">=</span> <span class="va">mixed_prior</span>,</span>
+<span>                             internal_sd <span class="op">=</span> <span class="va">sd_internal_control</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_mixed</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p>Lastly, we can also create a posterior distribution for the mean of
+the active treatment arm by reading the internal data directly into the
+<code>calc_post_norm</code> function and assuming the SD of the internal
+active treatment arm to be equal to 0.15. In this case, we assume a
+vague normal prior with mean 50 and SD 10.</p>
+<p><strong>As noted earlier, be sure to read in only the data for the
+internal active treatment arm while excluding the internal control
+data.</strong></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sd_internal_treated</span> <span class="op">&lt;-</span> <span class="fl">0.15</span></span>
+<span><span class="va">post_treated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_norm.html">calc_post_norm</a></span><span class="op">(</span>internal_data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_norm_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                               response <span class="op">=</span> <span class="va">y</span>,</span>
+<span>                               prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>                               internal_sd <span class="op">=</span> <span class="va">sd_internal_treated</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_treated</span><span class="op">)</span></span></code></pre></div>
+<p><img src="continuous_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
