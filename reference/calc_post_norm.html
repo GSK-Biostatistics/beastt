@@ -40,9 +40,6 @@ posterior distribution for the control mean)."><!-- mathjax --><script src="http
     <li>
       <a href="../articles/continuous.html">Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm</a>
     </li>
-    <li>
-      <a href="../articles/introduction.html">Package Introduction</a>
-    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -125,6 +122,17 @@ distributions are specified (e.g., mixture or t distribution), then the
 posterior distribution is a mixture of normal distributions.</p>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pkg.mitchelloharawild.com/distributional/" class="external-link">distributional</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">post_treated</span> <span class="op">&lt;-</span> <span class="fu">calc_post_norm</span><span class="op">(</span>internal_data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_norm_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                               response <span class="op">=</span> <span class="va">y</span>,</span></span>
+<span class="r-in"><span>                               prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                               internal_sd <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

@@ -38,9 +38,6 @@ the n parameter"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/
     <li>
       <a href="../articles/continuous.html">Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm</a>
     </li>
-    <li>
-      <a href="../articles/introduction.html">Package Introduction</a>
-    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -85,6 +82,17 @@ informative component and the second is the vague</p></dd>
     
 
 <p>mixture distribution</p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>In cases with a normal endpoint, a robust mixture prior can be created by
+adding a vague normal component to any normal prior with mean \(\theta\)
+and variance \(\sigma^2\).The vague component is calculated to have the
+same mean \(\theta\) and variance equal to \(\sigma^2 \times n\), where
+<code>n</code> is the specified number of theoretical participants. If robustifying a normal
+power prior that was calculated from external control data and <code>n</code> is defined as
+the number of external control participants, and the vague component would
+then correspond to one external control participant's worth of data.</p>
     </div>
 
     <div id="ref-examples">
