@@ -60,3 +60,12 @@ is a normal distribution. If \code{internal_sd = NULL} or if other types of prio
 distributions are specified (e.g., mixture or t distribution), then the
 posterior distribution is a mixture of normal distributions.
 }
+\examples{
+library(distributional)
+library(dplyr)
+post_treated <- calc_post_norm(internal_data = filter(int_norm_df, trt == 1),
+                               response = y,
+                               prior = dist_normal(50, 10),
+                               internal_sd = 0.25)
+
+}

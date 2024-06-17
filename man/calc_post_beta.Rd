@@ -40,3 +40,10 @@ distribution for \eqn{\theta} is either a beta distribution or a mixture of
 beta components depending on whether the prior is a single beta
 distribution or a mixture distribution.
 }
+\examples{
+library(dplyr)
+library(distributional)
+calc_post_beta(internal_data = filter(int_binary_df, trt == 1),
+                              response = y,
+                              prior = dist_beta(0.5, 0.5))
+}

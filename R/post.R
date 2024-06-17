@@ -50,6 +50,13 @@
 #' @importFrom dplyr pull
 #' @importFrom purrr safely map map2
 #' @importFrom distributional dist_normal dist_mixture is_distribution parameters
+#' @examples
+#' library(distributional)
+#' library(dplyr)
+#' post_treated <- calc_post_norm(internal_data = filter(int_norm_df, trt == 1),
+#'                                response = y,
+#'                                prior = dist_normal(50, 10),
+#'                                internal_sd = 0.15)
 #'
 calc_post_norm<- function(
     internal_data,
@@ -150,12 +157,13 @@ calc_post_norm<- function(
 #' @importFrom dplyr pull
 #' @importFrom purrr safely map map2
 #' @importFrom distributional dist_beta dist_mixture is_distribution parameters
-#'
-calc_post_beta<- function(
-    internal_data,
-    response,
-    prior
-){
+#' @examples
+#' library(dplyr)
+#' library(distributional)
+#' calc_post_beta(internal_data = filter(int_binary_df, trt == 1),
+#'                               response = y,
+#'                               prior = dist_beta(0.5, 0.5))
+calc_post_beta<- function(internal_data, response, prior){
   # Checking internal data and response variable
   if(is_prop_scr(internal_data)){
     data <- internal_data$internal_df

@@ -48,6 +48,20 @@
 #' @importFrom dplyr mutate filter tibble as_tibble
 #' @importFrom stats glm
 #' @importFrom cobalt bal.tab
+#' @examples
+#' # This can be used for both continuous and binary data
+#' library(dplyr)
+#' # Continuous
+#' calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+#'                        external_df = ex_norm_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#' # Binary
+#' calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+#'                        external_df = ex_binary_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#'
 calc_prop_scr <- function(internal_df, external_df,
                             id_col, model, ...){
   if(!is_formula(model)){
@@ -197,6 +211,14 @@ glance.prop_scr <- function(x, ...){
 #'
 #' @return Boolean
 #' @export
+#' @examples
+#' library(dplyr)
+#' x <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+#'                        external_df = ex_norm_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#' is_prop_scr(x)
+#'
 is_prop_scr <- function(x){
   inherits(x, "prop_scr")
 }
@@ -237,6 +259,16 @@ test_prop_scr <- function(x){
 #'    theme_bw
 #' @importFrom dplyr bind_rows
 #' @importFrom stringr str_glue
+#' @examples
+#' library(dplyr)
+#' ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+#'                        external_df = ex_norm_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#' # Plotting the Propensity Scores
+#' prop_scr_hist(ps_obj)
+#' # Or plotting the inverse probability weights
+#' prop_scr_hist(ps_obj, variable = "ipw")
 prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse probability weight", "ipw"),
                           ...){
   test_prop_scr(x)
@@ -293,6 +325,17 @@ prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse pro
 #'   theme_bw
 #' @importFrom dplyr bind_rows
 #' @importFrom stringr str_glue
+#' @examples
+#' library(dplyr)
+#' ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+#'                        external_df = ex_norm_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#' # Plotting the Propensity Scores
+#' prop_scr_dens(ps_obj)
+#' # Or plotting the inverse probability weights
+#' prop_scr_dens(ps_obj, variable = "ipw")
+#'
 prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse probability weight", "ipw"),
                           ...){
   test_prop_scr(x)
@@ -348,6 +391,15 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
 #' @importFrom ggplot2 ggplot aes geom_point labs scale_color_manual ggtitle
 #'   theme_bw geom_vline
 #' @importFrom tidyr pivot_longer
+#' @examples
+#' library(dplyr)
+#' ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+#'                        external_df = ex_norm_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#' # Plotting the Propensity Scores
+#' prop_scr_love(ps_obj, reference_line = 0.1)
+#'
 prop_scr_love <- function(x, reference_line = NULL, ...){
   test_prop_scr(x)
 
