@@ -46,7 +46,7 @@ correct_weights <- function(x){
 
 #' Robustify Normal Distributions
 #'
-#' Adds vague normal component, where the level of vagueness is controlled by
+#' @description Adds vague normal component, where the level of vagueness is controlled by
 #' the `n` parameter
 #' @param prior Normal distributional object
 #' @param n Number of theoretical participants
