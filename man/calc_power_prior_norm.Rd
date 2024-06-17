@@ -71,6 +71,26 @@ Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
 conventional normal (or \eqn{t}) power prior if the external standard
 deviation is known (unknown).
 }
+\examples{
+library(distributional)
+library(dplyr)
+# This function can be used directly on the data
+calc_power_prior_norm(ex_norm_df,
+  response = y,
+  prior = dist_normal(50, 10),
+  external_sd = 0.15)
+
+# Or this function can be used with a propensity score object
+ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+                       external_df = ex_norm_df,
+                       id_col = subjid,
+                       model = ~ cov1 + cov2 + cov3 + cov4)
+calc_power_prior_norm(ps_obj,
+                     response = y,
+                     prior = dist_normal(50, 10),
+                     external_sd = 0.15)
+
+}
 \seealso{
 Other power prior: 
 \code{\link{calc_power_prior_beta}()}

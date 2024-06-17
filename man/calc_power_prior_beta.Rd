@@ -43,6 +43,24 @@ weights \eqn{\hat{\boldsymbol{a}}_0}:}{\eqn{\mathcal{L}_E(\theta_C \mid
 Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
 conventional beta power prior.
 }
+\examples{
+library(distributional)
+library(dplyr)
+# This function can be used directly on the data
+calc_power_prior_beta(external_data = ex_binary_df,
+  response = y,
+  prior = dist_beta(0.5, 0.5))
+
+# Or this function can be used with a propensity score object
+ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+  external_df = ex_binary_df,
+  id_col = subjid,
+  model = ~ cov1 + cov2 + cov3 + cov4)
+
+calc_power_prior_beta(ps_obj,
+  response = y,
+  prior = dist_beta(0.5, 0.5))
+}
 \seealso{
 Other power prior: 
 \code{\link{calc_power_prior_norm}()}
