@@ -53,6 +53,15 @@ correct_weights <- function(x){
 #' @param weights Vector of weights, where the first number corresponds to the
 #'   informative component and the second is the vague
 #'
+#' @details In cases with a normal endpoint, a robust mixture prior can be created by
+#'    adding a vague normal component to any normal prior with mean \eqn{\theta}
+#'    and variance \eqn{\sigma^2}.The vague component is calculated to have the
+#'    same mean \eqn{\theta} and variance equal to \eqn{\sigma^2 \times n}, where
+#'    `n` is the specified number of theoretical participants. If robustifying a normal
+#'    power prior that was calculated from external control data and `n` is defined as
+#'    the number of external control participants, and the vague component would
+#'    then correspond to one external control participant's worth of data.
+#'
 #' @return mixture distribution
 #' @export
 #'
