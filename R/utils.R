@@ -1,6 +1,8 @@
 #' Plot Distribution
 #'
-#' @param ... Distributional object(s) to plot. If there are multiple objects you can name them.
+#' @param ... Distributional object(s) to plot. When passing multiple objects
+#'   naming them will change the labels in the plot, else they will use the
+#'   distributional format
 #'
 #' @return ggplot object that is the density of the provided distribution
 #' @export
@@ -9,6 +11,12 @@
 #' @importFrom ggplot2 ggplot theme_bw
 #' @importFrom ggdist stat_slabinterval
 #' @importFrom purrr map_chr map_lgl
+#' @examples
+#' library(distributional)
+#' plot_dist(dist_normal(0, 1))
+#' #Plotting Multiple
+#' plot_dist(dist_normal(0, 1), dist_normal(10, 5))
+#' plot_dist('Prior' = dist_normal(0, 1), 'Posterior' = dist_normal(10, 5))
 plot_dist <- function(...){
   input <- list(...)
   if(!all(map_lgl(input, is_distribution))){
@@ -20,7 +28,7 @@ plot_dist <- function(...){
   fill_alpha <- ifelse(n > 1, 0.5, 1)
   if(is.null(Distributions) & n > 1){
     Distributions <- map_chr(input, format)
-    if(unique(Distributions) != n)
+    if(length(unique(Distributions)) != n)
       Distributions <- paste0(1:n,": ", Distributions)
 
   }

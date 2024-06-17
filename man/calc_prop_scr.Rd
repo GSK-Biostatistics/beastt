@@ -54,3 +54,18 @@ In a weighted estimator, data from participants in the external study
 are given a weight of \eqn{\hat{e}(x_i)⁄(1 - \hat{e}(x_i))} whereas data
 from participants in the internal trial are given a weight of 1.
 }
+\examples{
+# This can be used for both continuous and binary data
+library(dplyr)
+# Continuous
+calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+                       external_df = ex_norm_df,
+                       id_col = subjid,
+                       model = ~ cov1 + cov2 + cov3 + cov4)
+# Binary
+calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+                       external_df = ex_binary_df,
+                       id_col = subjid,
+                       model = ~ cov1 + cov2 + cov3 + cov4)
+
+}

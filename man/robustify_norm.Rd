@@ -21,6 +21,16 @@ mixture distribution
 Adds vague normal component, where the level of vagueness is controlled by
 the \code{n} parameter
 }
+\details{
+In cases with a normal endpoint, a robust mixture prior can be created by
+adding a vague normal component to any normal prior with mean \eqn{\theta}
+and variance \eqn{\sigma^2}.The vague component is calculated to have the
+same mean \eqn{\theta} and variance equal to \eqn{\sigma^2 \times n}, where
+\code{n} is the specified number of theoretical participants. If robustifying a normal
+power prior that was calculated from external control data and \code{n} is defined as
+the number of external control participants, and the vague component would
+then correspond to one external control participant's worth of data.
+}
 \examples{
 library(distributional)
 robustify_norm(dist_normal(0,1), n = 15)
