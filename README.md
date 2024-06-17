@@ -33,7 +33,7 @@ devtools::install_github("GSK-Biostatistics/beastt")
 ## Usage
 
 At the moment {beastt} covers normal and binomial cases for more
-information see the vingettes. We are looking to add survival and
+For more information, see the vignettes. Future updates are expected to include cases
 repeated measure cases.
 
 ## Contributing
