@@ -313,7 +313,7 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
 
   plot <-   .data |>
     ggplot(aes(x = !!x_var, fill = .data$`___internal___`)) +
-    labs(y = "", x = x_label, fill = "Dataset") +
+    labs(y = "Density", x = x_label, fill = "Dataset") +
     scale_fill_manual(values = c("#FFA21F", "#5398BE"),
                       labels = c("TRUE" =  "Internal", "FALSE" = "External")) +
     ggtitle(str_glue("Density of {x_label}s")) +
@@ -321,7 +321,7 @@ prop_scr_dens <- function(x, variable = c("propensity score", "ps", "inverse pro
 
   if(length(list(...)) == 0) {
     plot <- plot +
-      geom_density(alpha = 0.8)
+      geom_density(alpha = 0.5)
   } else {
     plot <- plot +
       geom_density(...)
