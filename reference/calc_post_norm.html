@@ -44,7 +44,13 @@ posterior distribution for the control mean)."><!-- mathjax --><script src="http
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/GSK-Biostatistics/beastt/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -54,7 +60,7 @@ posterior distribution for the control mean)."><!-- mathjax --><script src="http
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate Posterior Normal</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/GSK-Biostatistics/beastt/blob/HEAD/R/post.R" class="external-link"><code>R/post.R</code></a></small>
     <div class="hidden name"><code>calc_post_norm.Rd</code></div>
     </div>
 
@@ -132,7 +138,7 @@ posterior distribution is a mixture of normal distributions.</p>
 <span class="r-in"><span><span class="va">post_treated</span> <span class="op">&lt;-</span> <span class="fu">calc_post_norm</span><span class="op">(</span>internal_data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_norm_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                               response <span class="op">=</span> <span class="va">y</span>,</span></span>
 <span class="r-in"><span>                               prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                               internal_sd <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                               internal_sd <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
