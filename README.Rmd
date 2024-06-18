@@ -44,4 +44,4 @@ Feel free to contribute to the {beastt} package by reporting issues or submittin
 
 ## License
 
-This package is released under the [Apache License](%3E=%202).
+This package is released under the Apache License.
