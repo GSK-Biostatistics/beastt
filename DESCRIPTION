@@ -15,8 +15,13 @@ Authors@R:
                     comment = c(ORCID = "0000-0001-9946-0119")),
                     person("GlaxoSmithKline Research & Development Limited", role = c("cph", "fnd"))
                     )
-Description: Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (BEASTT).
+Description: Bayesian dynamic borrowing with covariate adjustment via inverse probability 
+  weighting for simulations and data analyses in clinical trials. This makes it easy to use
+  propensity score methods to balance covariate distributions between external and internal 
+  data. 
 License: Apache License (>= 2)
+URL: https://gsk-biostatistics.github.io/beastt/, https://github.com/GSK-Biostatistics/beastt
+BugReports: https://github.com/GSK-Biostatistics/beastt/issues
 Suggests: 
     knitr,
     rmarkdown,
