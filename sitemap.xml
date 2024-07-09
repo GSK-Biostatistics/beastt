@@ -1,78 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>/articles/binary.html</loc>
-  </url>
-  <url>
-    <loc>/articles/continuous.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_post_beta.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_post_norm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_power_prior_beta.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_power_prior_norm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calc_prop_scr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ex_binary_df.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ex_norm_df.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/int_binary_df.html</loc>
-  </url>
-  <url>
-    <loc>/reference/int_norm_df.html</loc>
-  </url>
-  <url>
-    <loc>/reference/is_prop_scr.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_dist.html</loc>
-  </url>
-  <url>
-    <loc>/reference/prop_scr_dens.html</loc>
-  </url>
-  <url>
-    <loc>/reference/prop_scr_hist.html</loc>
-  </url>
-  <url>
-    <loc>/reference/prop_scr_love.html</loc>
-  </url>
-  <url>
-    <loc>/reference/reexports.html</loc>
-  </url>
-  <url>
-    <loc>/reference/robustify_norm.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/articles/binary.html</loc></url>
+<url><loc>/articles/continuous.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/calc_post_beta.html</loc></url>
+<url><loc>/reference/calc_post_norm.html</loc></url>
+<url><loc>/reference/calc_power_prior_beta.html</loc></url>
+<url><loc>/reference/calc_power_prior_norm.html</loc></url>
+<url><loc>/reference/calc_prop_scr.html</loc></url>
+<url><loc>/reference/ex_binary_df.html</loc></url>
+<url><loc>/reference/ex_norm_df.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/int_binary_df.html</loc></url>
+<url><loc>/reference/int_norm_df.html</loc></url>
+<url><loc>/reference/is_prop_scr.html</loc></url>
+<url><loc>/reference/plot_dist.html</loc></url>
+<url><loc>/reference/prop_scr_dens.html</loc></url>
+<url><loc>/reference/prop_scr_hist.html</loc></url>
+<url><loc>/reference/prop_scr_love.html</loc></url>
+<url><loc>/reference/reexports.html</loc></url>
+<url><loc>/reference/robustify_norm.html</loc></url>
 </urlset>
+
