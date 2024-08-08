@@ -1,6 +1,6 @@
 Package: beastt
 Title: Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     c(person(given = "Christina",
                     family = "Fillmore",
