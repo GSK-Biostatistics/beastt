@@ -44,7 +44,11 @@ Imports:
     distributional,
     tidyr,
     ggdist,
-    mixtools
+    mixtools,
+    shiny,
+    bslib,
+    miniUI,
+    rstudioapi
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
