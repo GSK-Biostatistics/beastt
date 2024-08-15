@@ -7,11 +7,15 @@
 #'@import shiny
 #'@import miniUI
 #'@import bslib
+#'@importFrom rstudioapi documentNew
 bdb_simulator <- function(){
   # Define UI for application
   ui <- page_sidebar(
     id = "bdb_sim_app",
-    theme = bs_theme(bootswatch = "yeti", primary = "#F36633"
+    theme = bs_theme(bootswatch = "united",
+                     primary = "#F36633",
+                     secondary = "#f39633",
+                     "navbar-bgkkjj" = "#F36633"
     ),
     title ="BDB Simulator Template Maker",
     sidebar = sidebar(
@@ -49,6 +53,7 @@ bdb_simulator <- function(){
 
   # Define server logic
   server <- function(input, output, session) {
+    bslib::bs_theme()
     shiny::observeEvent(input$submit, {
       rstudioapi::documentNew(
         "############## Simulation Template ################",
