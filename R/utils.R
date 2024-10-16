@@ -11,6 +11,7 @@
 #' @importFrom ggplot2 ggplot theme_bw
 #' @importFrom ggdist stat_slabinterval
 #' @importFrom purrr map_chr map_lgl
+#' @importFrom grDevices rainbow
 #' @examples
 #' library(distributional)
 #' plot_dist(dist_normal(0, 1))
