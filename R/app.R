@@ -15,7 +15,7 @@ bdb_simulator <- function(){
     theme = bs_theme(bootswatch = "united",
                      primary = "#F36633",
                      secondary = "#f39633",
-                     "navbar-bgkkjj" = "#F36633"
+                     "navbar-bg" = "#F36633"
     ),
     title ="BDB Simulator Template Maker",
     sidebar = sidebar(
