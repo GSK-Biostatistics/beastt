@@ -256,9 +256,10 @@ test_prop_scr <- function(x){
 #' @return ggplot object
 #' @export
 #' @importFrom ggplot2 ggplot aes geom_histogram labs scale_fill_manual ggtitle
-#'    theme_bw
+#'    theme_bw after_stat
 #' @importFrom dplyr bind_rows
 #' @importFrom stringr str_glue
+#' @importFrom stats density
 #' @examples
 #' library(dplyr)
 #' ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
@@ -288,8 +289,8 @@ prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse pro
   }
 
   plot <-   .data|>
-    ggplot(aes(x = !!x_var, fill = .data$`___internal___`)) +
-    labs(y = "", x = x_label, fill = "Dataset") +
+    ggplot(aes(x = !!x_var, fill = .data$`___internal___`, y=after_stat(density))) +
+    labs(y = "Density", x = x_label, fill = "Dataset") +
     scale_fill_manual(values = c("#FFA21F", "#5398BE"),
                       labels = c("TRUE" =  "Internal", "FALSE" = "External")) +
     ggtitle(str_glue("Histogram of {x_label}s")) +
@@ -297,7 +298,7 @@ prop_scr_hist <- function(x, variable = c("propensity score", "ps", "inverse pro
 
   if(length(list(...)) == 0) {
     plot <- plot +
-      geom_histogram(position = "identity", binwidth = .05)
+      geom_histogram(position = "identity", binwidth = .05, alpha=0.5)
   } else {
     plot <- plot +
       geom_histogram(position = "identity", ...)
