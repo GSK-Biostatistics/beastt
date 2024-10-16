@@ -1,5 +1,5 @@
-Name: BDB Template
+Name: BDB Code Template Maker
 Description: Select simulation characteristics and get template code
-Binding: bdb_template_maker
+Binding: bdb_code_template_maker
 Interactive: true
 

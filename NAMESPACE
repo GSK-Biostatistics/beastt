@@ -3,7 +3,7 @@
 S3method(glance,prop_scr)
 S3method(print,prop_scr)
 S3method(tidy,prop_scr)
-export(bdb_template_maker)
+export(bdb_code_template_maker)
 export(calc_post_beta)
 export(calc_post_norm)
 export(calc_power_prior_beta)
