@@ -1,6 +1,6 @@
-#' BDB Simulator Template Maker
+#' BDB Template Maker
 #'
-#' RStudio add-in to create template BDB simulation code
+#' RStudio add-in to create template BDB code
 #'
 #' @export
 #'
@@ -8,46 +8,59 @@
 #'@import miniUI
 #'@import bslib
 #'@importFrom rstudioapi documentNew
-bdb_simulator <- function(){
+bdb_template_maker <- function(){
   # Define UI for application
-  ui <- page_sidebar(
-    id = "bdb_sim_app",
+  ui <- fluidPage(
+    id = "bdb_template_app",
     theme = bs_theme(bootswatch = "united",
                      primary = "#F36633",
                      secondary = "#f39633",
                      "navbar-bg" = "#F36633"
     ),
-    title ="BDB Simulator Template Maker",
-    sidebar = sidebar(
-      h3("Simulation"),
-      shiny::numericInput("seed", "Seed:", value = 1234),
-      shiny::radioButtons("simType", "Simulation Structure",
-                          choices = c("By scenario", "By iteration")),
-      h3("Study"),
-      shiny::numericInput("ssIntArm", "Sample Size Internal Arm:", value = NULL),
-      shiny::numericInput("RMPWeights", "Weights for RMP:", value = NULL),
-      shiny::actionButton(inputId="submit", label= "Submit")
-    ),
-    navset_card_pill(
-      placement = "above",
-      nav_panel(title = "Data",
-                shiny::checkboxGroupInput(
-                  inputId = "dataChks",
-                  label = "",
-                  choices = c("External Data",
-                              "Differing Sample Size per Arm",
-                            "Estimate 'true' Covariate Effects",
-                            "Underlying SD (Normal Case)")
+    titlePanel("BDB Template Maker"),
+    sidebarLayout(
+      sidebarPanel(
+        h3("Inputs"),
+        shiny::radioButtons("Purpose", "Purpose",
+                            choices = c("Analysis", "Simulation")),
+        h3("Study"),
+        shiny::selectInput("endPoint", "Endpoint Type",
+                           choices=c("Binary", "Normal", "Survival")),
+        shiny::numericInput("ssIntArm", "Sample Size Internal Arm:", value = NULL),
+        shiny::numericInput("RMPWeights", "Weights for RMP:", value = NULL),
+        shiny::actionButton(inputId="submit", label= "Submit")
+      ),
+      mainPanel(
+        h3("Data"),
+        shiny::checkboxGroupInput(
+          inputId = "dataChks",
+          label = "",
+          choices = c("External Data",
+                      "Differing Sample Size per Arm",
+                      "Estimate 'true' Covariate Effects",
+                      "Underlying SD (Normal Case)",
+                      "Robustify Power Prior")
 
-                ),
-                shiny::radioButtons("covDatGen",
-                                    label = "Coraviate Data Generation",
-                                    choices = c("External Data Based (bootstrap)",
-                                                "Assumed known covariance",
-                                                "Other"))
-                ),
-      nav_panel(title = "Priors", p("Second tab content.")),
-      nav_panel(title = "Posteriors and Inference", p("Third tab content"))
+        ),
+        shiny::radioButtons("covDatGen",
+                            label = "Covariate Data Generation",
+                            choices = c("External Data Based (bootstrap)",
+                                        "Assumed known covariance",
+                                        "Other")),
+        shiny::selectInput("borrType", "Type of Borrowing",
+                           choices=c("On control arm",
+                                     "On treatment arm",
+                                     "No borrowing")),
+        shiny::checkboxGroupInput(
+          inputId = "Plots",
+          label = "Output plots",
+          choices=c("Histogram of Propensity Scores",
+                    "Density of Inverse Probability Weights",
+                    "Covariates Balance",
+                    "Prior Distribution",
+                    "Posterior Distributions")
+        )
+      )
     )
   )
 
