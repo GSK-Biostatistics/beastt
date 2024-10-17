@@ -27,10 +27,6 @@ bdb_code_template_maker <- function(){
       shiny::actionButton(inputId="submit", label= "Submit")
     ),
     card(
-      h3("Data"),
-     
-
-      ),
       shiny::selectInput("borrType", "Type of Borrowing",
                          choices=c("On control arm",
                                    "On treatment arm",
