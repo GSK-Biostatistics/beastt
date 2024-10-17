@@ -19,33 +19,18 @@ bdb_code_template_maker <- function(){
     ),
     title ="BDB Code Template Maker",
     sidebar=sidebar(
-      h3("Inputs"),
+      h3("Study Design"),
       shiny::radioButtons("Purpose", "Purpose",
                           choices = c("Analysis", "Simulation")),
-      h3("Study"),
       shiny::selectInput("endPoint", "Endpoint Type",
                          choices=c("Binary", "Normal", "Survival")),
-      shiny::numericInput("ssIntArm", "Sample Size Internal Arm:", value = NULL),
-      shiny::numericInput("RMPWeights", "Weights for RMP:", value = NULL),
       shiny::actionButton(inputId="submit", label= "Submit")
     ),
     card(
       h3("Data"),
-      shiny::checkboxGroupInput(
-        inputId = "dataChks",
-        label = "",
-        choices = c("External Data",
-                    "Differing Sample Size per Arm",
-                    "Estimate 'true' Covariate Effects",
-                    "Underlying SD (Normal Case)",
-                    "Robustify Power Prior")
+     
 
       ),
-      shiny::radioButtons("covDatGen",
-                          label = "Covariate Data Generation",
-                          choices = c("External Data Based (bootstrap)",
-                                      "Assumed known covariance",
-                                      "Other")),
       shiny::selectInput("borrType", "Type of Borrowing",
                          choices=c("On control arm",
                                    "On treatment arm",
