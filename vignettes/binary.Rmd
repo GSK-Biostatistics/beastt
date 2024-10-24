@@ -90,17 +90,25 @@ post <- calc_post_beta(ps_obj,
 plot_dist(post)
 ```
 
-If we want to robustify our power prior for $\theta_C$, we can add a vague component to the power prior distribution we previously created to construct a robust mixture prior which we can then pass to `calc_post_beta`. In general, we can define our prior to be a mixture distribution with an arbitrary number of beta components, in which case the resulting posterior distribution will also be a mixture of beta components.
+If we want to robustify our power prior for $\theta_C$, we can add a vague component to the power prior distribution we previously created to construct a robust mixture prior. In general, we can define our prior to be a mixture distribution with an arbitrary number of beta components, and see that this prior has features similar to the components.
 
 ```{r}
 mix_prior <- dist_mixture(pwr_prior,
                           dist_beta(0.5, 0.5),
                           weights = c(0.5, 0.5))
+vague <- dist_beta(0.5, 0.5)
+plot_dist("Vague Prior" = vague, 
+          "Robust Mixed Prior" = mix_prior,
+          "Power Prior" = pwr_prior)
+```
+
+We can pass the resulting robust mixture prior to `calc_post_beta`, and see that the resulting posterior distribution will also be a mixture of beta components.
+
+```{r}
 post_mixed <- calc_post_beta(ps_obj,
                              response = y,
                              prior = mix_prior)
-plot_dist("Control Posterior" = post, 
-          "Mixed Posterior" = post_mixed)
+plot_dist(post_mixed)
 ```
 
 Lastly, we can also create a posterior distribution for the response rate of the active treatment arm by reading the internal data directly into the `calc_post_beta` function. In this case, we assume a vague beta prior.
@@ -111,7 +119,6 @@ Lastly, we can also create a posterior distribution for the response rate of the
 post_treated <- calc_post_beta(internal_data = filter(int_binary_df, trt == 1),
                                response = y,
                                prior = dist_beta(0.5, 0.5))
-plot_dist("Control Posterior" = post, 
-          "Mixed Posterior" = post_mixed,
+plot_dist("Control Robust Mixed Posterior" = post_mixed,
           "Treatment Posterior" = post_treated)
 ```

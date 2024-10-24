@@ -9,7 +9,7 @@
 #'
 #' @importFrom distributional is_distribution
 #' @importFrom ggplot2 ggplot theme_bw
-#' @importFrom ggdist stat_slabinterval
+#' @importFrom ggdist stat_slab
 #' @importFrom purrr map_chr map_lgl
 #' @importFrom grDevices rainbow
 #' @examples
@@ -35,14 +35,15 @@ plot_dist <- function(...){
 
   fill_alpha <- ifelse(n > 1, 0.5, 1)
   if(is.null(Distributions) & n > 0){
-    Distributions <- map_chr(input, format)
+    Distributions <- map_chr(input, format, width = 2)
     if(length(unique(Distributions)) != n)
       Distributions <- paste0(1:n,": ", Distributions)
 
   }
 
   ggplot(data.frame(), aes(xdist = input, fill = Distributions)) +
-    stat_slabinterval(alpha = fill_alpha) +
+    stat_slab(alpha=fill_alpha) +
+    stat_slab(slab_color="black", show.legend = FALSE) +
     labs(y = "Density", x = "") +
     scale_fill_manual(values = colors) +
     theme_bw()
