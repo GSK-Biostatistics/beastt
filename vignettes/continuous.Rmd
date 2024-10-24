@@ -100,7 +100,6 @@ pwr_prior <- calc_power_prior_norm(ps_obj,
 plot_dist(pwr_prior)
 ```
 
-
 Now that we have a normal power prior, we can calculate the posterior distribution for $\theta_C$ using the `calc_post_norm` function. By defining our prior to be a normal distribution and by assuming the SD of the internal response data to be known, the resulting posterior distribution will also be normal (the case when the SD is unknown is not covered in this vignette).
 
 **Note: if reading internal data directly into `calc_post_norm` instead of a propensity score object, be sure to include only the treatment arm of interest (e.g., the internal control arm if creating a posterior distribution for $\theta_C$).**
@@ -113,17 +112,24 @@ post <- calc_post_norm(ps_obj,
 plot_dist(post)
 ```
 
-If we want to robustify our power prior for $\theta_C$, we can add a vague component to the power prior distribution we previously created to construct a robust mixture prior which we can then pass to `calc_post_norm`. In general, we can define our prior to be a mixture distribution with an arbitrary number of normal and/or $t$ components, in which case the resulting posterior distribution will also be a mixture of normal components. If any component of the prior is a $t$ distribution, the prior will be approximated with the mixture of two normal distributions.
+If we want to robustify our power prior for $\theta_C$, we can add a vague component to the power prior distribution we previously created to construct a robust mixture prior which we can then pass to `calc_post_norm`. In general, we can define our prior to be a mixture distribution with an arbitrary number of normal and/or $t$ components. If any component of the prior is a $t$ distribution, the prior will be approximated with the mixture of two normal distributions.
 
 ```{r}
 mixed_prior <- robustify_norm(pwr_prior, n_external)
+vague <- dist_normal(50, 10)
+plot_dist("Vague Prior" = vague,
+          "Robust Mixture Prior" = mixed_prior,
+          "Power Prior" = pwr_prior)
+```
 
+The resulting posterior distribution will also be a mixture of normal components. 
+
+```{r}
 post_mixed <- calc_post_norm(ps_obj,
                              response = y, 
                              prior= mixed_prior,
                              internal_sd = sd_internal_control)
-plot_dist("Control Posterior" = post, 
-          "Mixed Posterior" = post_mixed)
+plot_dist(post_mixed)
 ```
 
 Lastly, we can also create a posterior distribution for the mean of the active treatment arm by reading the internal data directly into the `calc_post_norm` function and assuming the SD of the internal active treatment arm to be equal to 0.15. In this case, we assume a vague normal prior with mean 50 and SD 10.
@@ -137,8 +143,7 @@ post_treated <- calc_post_norm(internal_data = filter(int_norm_df, trt == 1),
                                prior = dist_normal(50, 10),
                                internal_sd = sd_internal_treated)
 
-plot_dist("Control Posterior" = post, 
-          "Mixed Posterior" = post_mixed,
+plot_dist("Control Robust Mixture Posterior" = post_mixed,
           "Treatment Posterior" = post_treated)
 ```
 
