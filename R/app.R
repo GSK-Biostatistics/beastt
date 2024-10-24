@@ -26,37 +26,24 @@ bdb_code_template_maker <- function(){
                          choices=c("Binary", "Normal", "Survival")),
       shiny::actionButton(inputId="submit", label= "Submit")
     ),
-    #shiny::uiOutput("plotChoice"),
     analysisUI("analysis")
-    #shiny::uiOutput("analysisUI")
   )
 
   # Define server logic
   server <- function(input, output, session) {
     bslib::bs_theme()
     reactiveEndpoint <- reactive(input$endPoint)
-    analysisServer("analysis", reactiveEndpoint)
+    test <- analysisServer("analysis", reactiveEndpoint)
+    observeEvent(test(),{
+      print(test())
 
-    # shiny::observeEvent(input$endPoint, {
-    #   # if (input$endPoint=="Binary") {
-    #   #   binaryServer("bin")
-    #   # }
-    #   output$plotChoice <- shiny::renderUI({
-    #
-    #   })
-    #
-    # })
+    })
+    observeEvent(input$submit,{
+    })
 
-    # shiny::observeEvent(input$submit, {
-    #   rstudioapi::documentNew(
-    #     "############## Simulation Template ################",
-    #     type = "r"
-    #   )
-    #   invisible(stopApp())
-    # })
   }
   # # Run the application
-  runGadget(ui, server, viewer = shiny::paneViewer())
-              # dialogViewer("", width = 1000, height = 800))
-  # runApp(ui, server)
+  runGadget(ui, server
+              # , viewer =dialogViewer("", width = 1000, height = 800),
+            )
 }

@@ -1,5 +1,4 @@
 binaryanalysisUI <- function(id) {
-  browser()
   ns <- NS(id)
   tagList(
     h4("Binary Analysis"),
@@ -13,8 +12,8 @@ binaryanalysisUI <- function(id) {
 
 binaryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
-
+    reactive({list(borrType = input$borrType,
+                   robustify = input$robustify)})
   })
 }
-
 

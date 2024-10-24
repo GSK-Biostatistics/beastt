@@ -1,24 +1,35 @@
 analysisUI <- function(id) {
   ns <- NS(id)
   tagList(
-    uiOutput("analysisUI")
+    uiOutput(ns("analysisUI"))
   )
 }
 
 analysisServer <- function(id, reactiveEndpoint) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    observeEvent(reactiveEndpoint, {
+    bin_svr <- binaryServer("bin")
+    norm_svr <- normalServer("norm")
+
+    output$analysisUI <- shiny::renderUI({
       if (reactiveEndpoint()=="Binary") {
-        # browser works here
-        output$analysisUI <- shiny::renderUI({binaryanalysisUI("bin")})
-        binaryServer("bin")
+        binaryanalysisUI(ns("bin"))
       } else if (reactiveEndpoint()=="Normal") {
-        output$analysisUI <- renderUI(normalanalysisUI("norm"))
-        normalServer("norm")
+        normalanalysisUI(ns("norm"))
       } else {
-        output$analysisUI <- renderUI({h3("bad")})
+        h3("bad")
       }
     })
+    selected_inputs <- reactive({
+      if (reactiveEndpoint()=="Binary") {
+        bin_svr()
+      } else if (reactiveEndpoint()=="Normal") {
+        norm_svr()
+      }
+    })
+
+
+    return(selected_inputs)
+
   })
 }

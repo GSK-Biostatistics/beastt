@@ -8,15 +8,20 @@ normalanalysisUI <- function(id) {
                                  "No borrowing")),
     shiny::checkboxInput(ns("robustify"), "Robustify Power Prior"),
     shiny::radioButtons(ns("stddev"), "Standard Deviation",
-                        choices = c("Known", "Unknown (Student's *t* approximation)"),
-                        inline = TRUE),
+                        width = '100%',
+                        choices = c("Known", "Unknown (Student's t approximation)")
+                        ),
   )
 }
 
 normalServer <- function(id) {
   moduleServer(id, function(input, output, session) {
+    return(reactive({list(
+      borrType = input$borrType,
+      robustify = input$robustify,
+      stddev = input$stddev
 
-    input$borrType
+    )}))
 
   })
 }
