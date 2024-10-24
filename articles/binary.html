@@ -274,21 +274,28 @@ control arm if creating a posterior distribution for
 <p>If we want to robustify our power prior for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>,
 we can add a vague component to the power prior distribution we
-previously created to construct a robust mixture prior which we can then
-pass to <code>calc_post_beta</code>. In general, we can define our prior
-to be a mixture distribution with an arbitrary number of beta
-components, in which case the resulting posterior distribution will also
-be a mixture of beta components.</p>
+previously created to construct a robust mixture prior. In general, we
+can define our prior to be a mixture distribution with an arbitrary
+number of beta components, and see that this prior has features similar
+to the components.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mix_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_mixture.html" class="external-link">dist_mixture</a></span><span class="op">(</span><span class="va">pwr_prior</span>,</span>
 <span>                          <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_beta.html" class="external-link">dist_beta</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>,</span>
 <span>                          weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">post_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
+<span><span class="va">vague</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_beta.html" class="external-link">dist_beta</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Vague Prior"</span> <span class="op">=</span> <span class="va">vague</span>, </span>
+<span>          <span class="st">"Robust Mixed Prior"</span> <span class="op">=</span> <span class="va">mix_prior</span>,</span>
+<span>          <span class="st">"Power Prior"</span> <span class="op">=</span> <span class="va">pwr_prior</span><span class="op">)</span></span></code></pre></div>
+<p><img src="binary_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p>We can pass the resulting robust mixture prior to
+<code>calc_post_beta</code>, and see that the resulting posterior
+distribution will also be a mixture of beta components.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">post_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
 <span>                             response <span class="op">=</span> <span class="va">y</span>,</span>
 <span>                             prior <span class="op">=</span> <span class="va">mix_prior</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Control Posterior"</span> <span class="op">=</span> <span class="va">post</span>, </span>
-<span>          <span class="st">"Mixed Posterior"</span> <span class="op">=</span> <span class="va">post_mixed</span><span class="op">)</span></span></code></pre></div>
-<p><img src="binary_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_mixed</span><span class="op">)</span></span></code></pre></div>
+<p><img src="binary_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <p>Lastly, we can also create a posterior distribution for the response
 rate of the active treatment arm by reading the internal data directly
 into the <code>calc_post_beta</code> function. In this case, we assume a
@@ -296,14 +303,13 @@ vague beta prior.</p>
 <p><strong>As noted earlier, be sure to read in only the data for the
 internal active treatment arm while excluding the internal control
 data.</strong></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_treated</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span>internal_data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_binary_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                               response <span class="op">=</span> <span class="va">y</span>,</span>
 <span>                               prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_beta.html" class="external-link">dist_beta</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Control Posterior"</span> <span class="op">=</span> <span class="va">post</span>, </span>
-<span>          <span class="st">"Mixed Posterior"</span> <span class="op">=</span> <span class="va">post_mixed</span>,</span>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Control Robust Mixed Posterior"</span> <span class="op">=</span> <span class="va">post_mixed</span>,</span>
 <span>          <span class="st">"Treatment Posterior"</span> <span class="op">=</span> <span class="va">post_treated</span><span class="op">)</span></span></code></pre></div>
-<p><img src="binary_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<p><img src="binary_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
