@@ -118,7 +118,7 @@ If we want to robustify our power prior for $\theta_C$, we can add a vague compo
 mixed_prior <- robustify_norm(pwr_prior, n_external)
 vague <- dist_normal(50, 10)
 plot_dist("Vague Prior" = vague,
-          "Robust Mixed Prior" = mixed_prior,
+          "Robust Mixture Prior" = mixed_prior,
           "Power Prior" = pwr_prior)
 ```
 
@@ -143,7 +143,7 @@ post_treated <- calc_post_norm(internal_data = filter(int_norm_df, trt == 1),
                                prior = dist_normal(50, 10),
                                internal_sd = sd_internal_treated)
 
-plot_dist("Control Robust Mixed Posterior" = post_mixed,
+plot_dist("Control Robust Mixture Posterior" = post_mixed,
           "Treatment Posterior" = post_treated)
 ```
 
