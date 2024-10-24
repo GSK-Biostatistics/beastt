@@ -41,9 +41,9 @@ plot_dist <- function(...){
 
   }
 
-  ggplot(data.frame(), aes(xdist = input, fill = Distributions)) +
-    stat_slab(alpha=fill_alpha) +
-    stat_slab(slab_color="black", show.legend = FALSE) +
+  ggplot(data.frame(), aes(xdist = input)) +
+    stat_slab(aes(fill = Distributions), alpha=fill_alpha) +
+    stat_slab(fill = NA, slab_color="black", show.legend = FALSE) +
     labs(y = "Density", x = "") +
     scale_fill_manual(values = colors) +
     theme_bw()
