@@ -311,9 +311,7 @@ distribution, the prior will be approximated with the mixture of two
 normal distributions.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mixed_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/robustify_norm.html">robustify_norm</a></span><span class="op">(</span><span class="va">pwr_prior</span>, <span class="va">n_external</span><span class="op">)</span></span>
-<span><span class="va">vague</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Vague Prior"</span> <span class="op">=</span> <span class="va">vague</span>,</span>
-<span>          <span class="st">"Robust Mixture Prior"</span> <span class="op">=</span> <span class="va">mixed_prior</span>,</span>
+<span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Robust Mixture Prior"</span> <span class="op">=</span> <span class="va">mixed_prior</span>,</span>
 <span>          <span class="st">"Power Prior"</span> <span class="op">=</span> <span class="va">pwr_prior</span><span class="op">)</span></span></code></pre></div>
 <p><img src="continuous_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 <p>The resulting posterior distribution will also be a mixture of normal
