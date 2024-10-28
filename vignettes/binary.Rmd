@@ -98,7 +98,7 @@ mix_prior <- dist_mixture(pwr_prior,
                           weights = c(0.5, 0.5))
 vague <- dist_beta(0.5, 0.5)
 plot_dist("Vague Prior" = vague, 
-          "Robust Mixed Prior" = mix_prior,
+          "Robust Mixture Prior" = mix_prior,
           "Power Prior" = pwr_prior)
 ```
 
@@ -119,6 +119,6 @@ Lastly, we can also create a posterior distribution for the response rate of the
 post_treated <- calc_post_beta(internal_data = filter(int_binary_df, trt == 1),
                                response = y,
                                prior = dist_beta(0.5, 0.5))
-plot_dist("Control Robust Mixed Posterior" = post_mixed,
+plot_dist("Control Robust Mixture Posterior" = post_mixed,
           "Treatment Posterior" = post_treated)
 ```
