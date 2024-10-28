@@ -62,6 +62,26 @@ write_prior_sect <- function(doc, endpoint, selections){
     "Normal" = "dist_normal(0, 10)"
   )
 
+  if(selections$robustify){
+    robust_prior <- str_glue("mix_prior <- dist_mixture(pwr_prior, {prior}, weights = c(0.5, 0.5))")
+    robust_post <- "post_mixed <- calc_post_beta(ps_obj, response = y, prior = mix_prior)"
+  } else {
+    robust_prior <- ""
+    robust_post <- ""
+  }
+
+  if(length(selections$plots$plotPrior) > 0){
+    priors_to_plot <- dplyr::case_match(selections$plots$plotPrior,
+            "Vague" ~ str_glue('"Vague Prior" = {prior}'),
+            "Power Prior" ~ '"Power Prior" = pwr_prior',
+            "Robust Mixture" ~ str_glue('"Robustified Power Prior" = mix_prior')
+    ) |>
+      paste0(collapse = ", \n")
+    prior_plots <- str_glue('plot_dist({priors_to_plot})')
+
+  } else {
+    prior_plots <- ""
+  }
 
   doc$priors <- stringr::str_glue(
     "# Calculate Propensity Scores by creating a prop_scr object
@@ -74,6 +94,9 @@ write_prior_sect <- function(doc, endpoint, selections){
     pwr_prior <- calc_power_prior_beta(ps_obj,
                                    response = y,
                                    prior = {prior})
+
+    {robust_prior}
+    {prior_plots}
     "
   )
   doc
