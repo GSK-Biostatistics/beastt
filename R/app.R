@@ -44,6 +44,6 @@ bdb_code_template_maker <- function(){
   }
   # # Run the application
   runGadget(ui, server
-              # , viewer =dialogViewer("", width = 1000, height = 800),
+              , viewer =dialogViewer("", width = 1000, height = 800),
             )
 }
