@@ -1,3 +1,9 @@
+#' Analysis UI
+#'
+#' @param id mod id
+#'
+#' @noMd
+#' @importFrom shiny NS tagList uiOutput
 analysisUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -5,13 +11,20 @@ analysisUI <- function(id) {
   )
 }
 
+#' Analysis Server
+#'
+#' @param id mod ID
+#' @param reactiveEndpoint reactive element with the type of endpoint
+#'
+#' @noMd
+#' @importFrom shiny renderUI h3 reactive
 analysisServer <- function(id, reactiveEndpoint) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     bin_svr <- binaryServer("bin")
     norm_svr <- normalServer("norm")
 
-    output$analysisUI <- shiny::renderUI({
+    output$analysisUI <- renderUI({
       if (reactiveEndpoint()=="Binary") {
         binaryanalysisUI(ns("bin"))
       } else if (reactiveEndpoint()=="Normal") {
