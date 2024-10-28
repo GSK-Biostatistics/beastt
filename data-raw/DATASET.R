@@ -1,7 +1,7 @@
 
 # Normal Data -------------------------------------------------------------
 
-set.seed(123)
+set.seed(12345)
 
 ## Make the external dataset
 n_external <- 150
