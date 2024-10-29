@@ -1,4 +1,12 @@
-
+#' Write Code function
+#'
+#' @param simulation A purpose, either "Simulation" or "Analysis"
+#' @param endpoint An endpoint type, one of "Binary", "Normal" or "Survival"
+#' @param selections input from UI
+#'
+#' @importFrom rstudioapi documentNew
+#' @importFrom dplyr case_match
+#' @importFrom stringr str_glue
 write_code <- function(simulation, endpoint, selections){
   doc <- list(
     header = "########################################################
@@ -25,7 +33,7 @@ internal_df <- read.csv('DATA LOCATION')\nexternal_df <- read.csv('DATA LOCATION
     write_post_sect(endpoint, selections) |>
     paste0(collapse = "\n")
 
-  rstudioapi::documentNew(out, type = "r")
+  documentNew(out, type = "r")
 
 
 }
@@ -42,7 +50,7 @@ write_prior_sect <- function(doc, endpoint, selections){
     int_dat <- "internal_df"
   }
   if(length(selections$plots$plotProp) > 0){
-    prop_plots <- dplyr::case_match(selections$plots$plotProp,
+    prop_plots <- case_match(selections$plots$plotProp,
            "Histogram" ~ 'prop_scr_hist(ps_obj)',
            "Histogram - IPW" ~ 'prop_scr_hist(ps_obj, variable = "ipw")',
            "Density" ~ 'prop_scr_dens(ps_obj)',
@@ -68,7 +76,7 @@ write_prior_sect <- function(doc, endpoint, selections){
   }
 
   if(length(selections$plots$plotPrior) > 0){
-    priors_to_plot <- dplyr::case_match(selections$plots$plotPrior,
+    priors_to_plot <- case_match(selections$plots$plotPrior,
             "Vague" ~ str_glue('"Vague Prior" = {prior}'),
             "Power Prior" ~ '"Power Prior" = pwr_prior',
             "Robust Mixture" ~ str_glue('"Robustified Power Prior" = mix_prior')
@@ -80,7 +88,7 @@ write_prior_sect <- function(doc, endpoint, selections){
     prior_plots <- ""
   }
 
-  doc$priors <- stringr::str_glue(
+  doc$priors <- str_glue(
     "# Calculate Propensity Scores by creating a prop_scr object
     ps_obj <- calc_prop_scr(internal_df = {int_dat},
                         external_df = external_df,
@@ -117,7 +125,7 @@ write_post_sect <- function(doc, endpoint, selections){
   }
 
   if(length(selections$plots$plotPost) > 0){
-    posts_to_plot <- dplyr::case_match(selections$plots$plotPost,
+    posts_to_plot <- case_match(selections$plots$plotPost,
             "Prior" ~ str_glue('plot_dist({prior_to_plot}, {post_to_plot})'),
             "Posterior" ~ str_glue('plot_dist({post_to_plot})')
     ) |>
@@ -127,7 +135,7 @@ write_post_sect <- function(doc, endpoint, selections){
   } else {
     post_plots <- ""
   }
-  doc$posts <- stringr:: str_glue(
+  doc$posts <- str_glue(
   "# Calculate posterior distribution
   {post}
 
