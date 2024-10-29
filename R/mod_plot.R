@@ -25,7 +25,7 @@ plotUI <- function(id, robust) {
              shiny::checkboxGroupInput(ns("plotProp"),
                                        "Propensity Score Plot(s)",
                                        choices =
-                                         c("Historgram", "Historgram - IPW",
+                                         c("Histogram", "Histogram - IPW",
                                            "Density", "Density - IPW",
                                            "Love"))),
 

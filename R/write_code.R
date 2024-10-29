@@ -2,9 +2,8 @@
 write_code <- function(simulation, endpoint, selections){
   doc <- list(
     header = "########################################################
-################# {beastt} Template ################# \n
+#################  {beastt} Template  #################\n
 ########################################################\n
-
 library(beastt)\nlibrary(distributional)\nlibrary(dplyr)
     ",
 
@@ -64,10 +63,8 @@ write_prior_sect <- function(doc, endpoint, selections){
 
   if(selections$robustify){
     robust_prior <- str_glue("mix_prior <- dist_mixture(pwr_prior, {prior}, weights = c(0.5, 0.5))")
-    robust_post <- "post_mixed <- calc_post_beta(ps_obj, response = y, prior = mix_prior)"
   } else {
     robust_prior <- ""
-    robust_post <- ""
   }
 
   if(length(selections$plots$plotPrior) > 0){
@@ -90,12 +87,17 @@ write_prior_sect <- function(doc, endpoint, selections){
                         id_col = subjid, # EDIT 'subjid' IF COLUMN NAME IS DIFFERENT
                         model = ~ cov1 + cov2 + cov3 + cov4) #EDIT TO THE CORRECT COVARIATES
     ps_obj
+
+    # Create plots related to Propensity Scores
     {prop_plots}
+
+    # Calculate power prior
     pwr_prior <- calc_power_prior_beta(ps_obj,
                                    response = y,
                                    prior = {prior})
-
     {robust_prior}
+
+    # Create prior plots
     {prior_plots}
     "
   )
@@ -103,6 +105,35 @@ write_prior_sect <- function(doc, endpoint, selections){
 
 }
 
-write_post_sect <- function(doc, endpoint, selection){
+write_post_sect <- function(doc, endpoint, selections){
+  if(selections$robustify){
+    post <- "post_mixed <- calc_post_beta(ps_obj, response = y, prior = mix_prior)"
+    post_to_plot <- '"Robust Mixture Posterior" = post_mixed'
+    prior_to_plot <- '"Robust Mixture Prior" = mix_prior'
+  } else {
+    post <- "post <- calc_post_beta(ps_obj, response = y, prior = pwr_prior)"
+    post_to_plot <- '"Posterior" = post'
+    prior_to_plot <- '"Power Prior" = pwr_prior'
+  }
+
+  if(length(selections$plots$plotPost) > 0){
+    posts_to_plot <- dplyr::case_match(selections$plots$plotPost,
+            "Prior" ~ str_glue('plot_dist({prior_to_plot}, {post_to_plot})'),
+            "Posterior" ~ str_glue('plot_dist({post_to_plot})')
+    ) |>
+      paste0(collapse = "\n")
+    post_plots <- str_glue('plot_dist({posts_to_plot})')
+
+  } else {
+    post_plots <- ""
+  }
+  doc$posts <- stringr:: str_glue(
+  "# Calculate posterior distribution
+  {post}
+
+  # Create posterior plots
+  {post_plots}
+  "
+  )
   doc
 }
