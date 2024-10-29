@@ -130,7 +130,7 @@ write_post_sect <- function(doc, endpoint, selections){
             "Posterior" ~ str_glue('plot_dist({post_to_plot})')
     ) |>
       paste0(collapse = "\n")
-    post_plots <- str_glue('plot_dist({posts_to_plot})')
+    post_plots <- str_glue('{posts_to_plot}')
 
   } else {
     post_plots <- ""
