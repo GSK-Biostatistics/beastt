@@ -23,7 +23,7 @@ binaryanalysisUI <- function(id) {
 #' @param id mod it
 #' @noMd
 #' @importFrom shiny renderUI reactive
-#' @import shinyjs
+#' @importFrom shinyjs hide show
 binaryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns

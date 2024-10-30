@@ -1,17 +1,10 @@
-#' Write Code function
-#'
-#' @param simulation A purpose, either "Simulation" or "Analysis"
-#' @param endpoint An endpoint type, one of "Binary", "Normal" or "Survival"
-#' @param selections input from UI
-#'
-#' @importFrom rstudioapi documentNew
-#' @importFrom dplyr case_match
-#' @importFrom stringr str_glue
+
 write_code <- function(simulation, endpoint, selections){
   doc <- list(
     header = "########################################################
-#################  {beastt} Template  #################\n
+################# {beastt} Template ################# \n
 ########################################################\n
+
 library(beastt)\nlibrary(distributional)\nlibrary(dplyr)
     ",
 
@@ -21,7 +14,7 @@ library(beastt)\nlibrary(distributional)\nlibrary(dplyr)
   )
 
   if(simulation == "Simulation"){
-    doc <- write_simulation_sect(doc, endpoint, selections)
+    doc <- write_simulation_sect(doc, endpoint, selection)
   } else {
     doc$data_setup <- "################# Read in Data ################# \n
 internal_df <- read.csv('DATA LOCATION')\nexternal_df <- read.csv('DATA LOCATION')\n
@@ -33,7 +26,7 @@ internal_df <- read.csv('DATA LOCATION')\nexternal_df <- read.csv('DATA LOCATION
     write_post_sect(endpoint, selections) |>
     paste0(collapse = "\n")
 
-  documentNew(out, type = "r")
+  rstudioapi::documentNew(out, type = "r")
 
 
 }
@@ -50,7 +43,7 @@ write_prior_sect <- function(doc, endpoint, selections){
     int_dat <- "internal_df"
   }
   if(length(selections$plots$plotProp) > 0){
-    prop_plots <- case_match(selections$plots$plotProp,
+    prop_plots <- dplyr::case_match(selections$plots$plotProp,
            "Histogram" ~ 'prop_scr_hist(ps_obj)',
            "Histogram - IPW" ~ 'prop_scr_hist(ps_obj, variable = "ipw")',
            "Density" ~ 'prop_scr_dens(ps_obj)',
@@ -69,79 +62,29 @@ write_prior_sect <- function(doc, endpoint, selections){
     "Normal" = "dist_normal(0, 10)"
   )
 
-  if(selections$robustify){
-    robust_prior <- str_glue("mix_prior <- dist_mixture(pwr_prior, {prior}, weights = c(0.5, 0.5))")
-  } else {
-    robust_prior <- ""
-  }
+  pwer_fx <- switch(endpoint,
+                    "Binary" = "calc_power_prior_beta",
+                    "Normal" = "calc_power_prior_norm"
+                    )
 
-  if(length(selections$plots$plotPrior) > 0){
-    priors_to_plot <- case_match(selections$plots$plotPrior,
-            "Vague" ~ str_glue('"Vague Prior" = {prior}'),
-            "Power Prior" ~ '"Power Prior" = pwr_prior',
-            "Robust Mixture" ~ str_glue('"Robustified Power Prior" = mix_prior')
-    ) |>
-      paste0(collapse = ", \n")
-    prior_plots <- str_glue('plot_dist({priors_to_plot})')
 
-  } else {
-    prior_plots <- ""
-  }
-
-  doc$priors <- str_glue(
+  doc$priors <- stringr::str_glue(
     "# Calculate Propensity Scores by creating a prop_scr object
     ps_obj <- calc_prop_scr(internal_df = {int_dat},
                         external_df = external_df,
                         id_col = subjid, # EDIT 'subjid' IF COLUMN NAME IS DIFFERENT
                         model = ~ cov1 + cov2 + cov3 + cov4) #EDIT TO THE CORRECT COVARIATES
     ps_obj
-
-    # Create plots related to Propensity Scores
     {prop_plots}
-
-    # Calculate power prior
-    pwr_prior <- calc_power_prior_beta(ps_obj,
+    pwr_prior <- {pwer_fx}(ps_obj,
                                    response = y,
                                    prior = {prior})
-    {robust_prior}
-
-    # Create prior plots
-    {prior_plots}
     "
   )
   doc
 
 }
 
-write_post_sect <- function(doc, endpoint, selections){
-  if(selections$robustify){
-    post <- "post_mixed <- calc_post_beta(ps_obj, response = y, prior = mix_prior)"
-    post_to_plot <- '"Robust Mixture Posterior" = post_mixed'
-    prior_to_plot <- '"Robust Mixture Prior" = mix_prior'
-  } else {
-    post <- "post <- calc_post_beta(ps_obj, response = y, prior = pwr_prior)"
-    post_to_plot <- '"Posterior" = post'
-    prior_to_plot <- '"Power Prior" = pwr_prior'
-  }
-
-  if(length(selections$plots$plotPost) > 0){
-    posts_to_plot <- case_match(selections$plots$plotPost,
-            "Prior" ~ str_glue('plot_dist({prior_to_plot}, {post_to_plot})'),
-            "Posterior" ~ str_glue('plot_dist({post_to_plot})')
-    ) |>
-      paste0(collapse = "\n")
-    post_plots <- str_glue('{posts_to_plot}')
-
-  } else {
-    post_plots <- ""
-  }
-  doc$posts <- str_glue(
-  "# Calculate posterior distribution
-  {post}
-
-  # Create posterior plots
-  {post_plots}
-  "
-  )
+write_post_sect <- function(doc, endpoint, selection){
   doc
 }

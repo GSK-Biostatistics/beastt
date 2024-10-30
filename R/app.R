@@ -6,6 +6,7 @@
 #'
 #'@import shiny
 #'@import miniUI
+#'@importFrom shinyjs useShinyjs
 #'@importFrom bslib bs_theme page_sidebar sidebar
 #'@importFrom rstudioapi documentNew
 bdb_code_template_maker <- function(){

@@ -28,7 +28,7 @@ normalanalysisUI <- function(id) {
 #'
 #' @noMd
 #' @importFrom shiny renderUI reactive
-#' @import shinyjs
+#' @importFrom shinyjs hide show
 normalServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
