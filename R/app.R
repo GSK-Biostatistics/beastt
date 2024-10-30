@@ -11,6 +11,7 @@
 bdb_code_template_maker <- function(){
   # Define UI for application
   ui <- page_sidebar(
+    shinyjs::useShinyjs(),
     id = "bdb_template_app",
     theme = bs_theme(bootswatch = "united",
                      primary = "#F36633",

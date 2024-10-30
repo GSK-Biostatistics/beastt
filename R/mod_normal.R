@@ -10,14 +10,14 @@ normalanalysisUI <- function(id) {
     h4("Normal Analysis"),
     hr(),
     selectInput(ns("borrType"), "Type of Borrowing",
-                       choices=c("On control arm",
-                                 "On treatment arm",
-                                 "No borrowing")),
+                choices=c("On control arm",
+                          "On treatment arm",
+                          "No borrowing")),
     checkboxInput(ns("robustify"), "Robustify Power Prior"),
     radioButtons(ns("stddev"), "Standard Deviation",
-                        width = '100%',
-                        choices = c("Known", "Unknown (Student's t approximation)")
-                        ),
+                 width = '100%',
+                 choices = c("Known", "Unknown (Student's t approximation)")
+    ),
     uiOutput(ns("plots"))
   )
 }
@@ -28,9 +28,17 @@ normalanalysisUI <- function(id) {
 #'
 #' @noMd
 #' @importFrom shiny renderUI reactive
+#' @importFrom shinyjs hide show
 normalServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+    observeEvent(input$borrType, {
+      if (input$borrType == "No borrowing") {
+        hide("robustify")
+      } else {
+        show("robustify")
+      }
+    })
     plot_select <- plotServer("plot-select")
 
     output$plots <- renderUI({

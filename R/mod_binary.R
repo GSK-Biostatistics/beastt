@@ -10,9 +10,9 @@ binaryanalysisUI <- function(id) {
     h4("Binary Analysis"),
     hr(),
     selectInput(ns("borrType"), "Type of Borrowing",
-                       choices=c("On control arm",
-                                 "On treatment arm",
-                                 "No borrowing")),
+                choices=c("On control arm",
+                          "On treatment arm",
+                          "No borrowing")),
     checkboxInput(ns("robustify"), "Robustify Power Prior"),
     uiOutput(ns("plots"))
   )
@@ -23,9 +23,18 @@ binaryanalysisUI <- function(id) {
 #' @param id mod it
 #' @noMd
 #' @importFrom shiny renderUI reactive
+#' @importFrom shinyjs hide show
 binaryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+    observeEvent(input$borrType, {
+      if (input$borrType == "No borrowing") {
+        hide("robustify")
+      } else {
+        show("robustify")
+      }
+    })
+
     plot_select <- plotServer("plot-select")
 
     output$plots <- renderUI({
@@ -35,8 +44,6 @@ binaryServer <- function(id) {
     reactive({list(borrType = input$borrType,
                    robustify = input$robustify,
                    plots = plot_select()
-                   )})
+    )})
   })
-
 }
-
