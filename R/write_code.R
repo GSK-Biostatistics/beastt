@@ -21,7 +21,7 @@ library(beastt)\nlibrary(distributional)\nlibrary(dplyr)
   )
 
   if(simulation == "Simulation"){
-    doc <- write_simulation_sect(doc, endpoint, selection)
+    doc <- write_simulation_sect(doc, endpoint, selections)
   } else {
     doc$data_setup <- "################# Read in Data ################# \n
 internal_df <- read.csv('DATA LOCATION')\nexternal_df <- read.csv('DATA LOCATION')\n
