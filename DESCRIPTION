@@ -46,6 +46,7 @@ Imports:
     ggdist,
     mixtools,
     shiny,
+    shinyjs,
     bslib,
     miniUI,
     rstudioapi

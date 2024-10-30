@@ -6,11 +6,13 @@
 #'
 #'@import shiny
 #'@import miniUI
-#'@import bslib
+#'@importFrom shinyjs useShinyjs
+#'@importFrom bslib bs_theme page_sidebar sidebar
 #'@importFrom rstudioapi documentNew
 bdb_code_template_maker <- function(){
   # Define UI for application
   ui <- page_sidebar(
+    shinyjs::useShinyjs(),
     id = "bdb_template_app",
     theme = bs_theme(bootswatch = "united",
                      primary = "#F36633",
@@ -20,25 +22,24 @@ bdb_code_template_maker <- function(){
     title ="BDB Code Template Maker",
     sidebar=sidebar(
       h3("Study Design"),
-      shiny::radioButtons("Purpose", "Purpose",
+      radioButtons("purpose", "Purpose",
                           choices = c("Analysis", "Simulation")),
-      shiny::selectInput("endPoint", "Endpoint Type",
+      selectInput("endPoint", "Endpoint Type",
                          choices=c("Binary", "Normal", "Survival")),
-      shiny::actionButton(inputId="submit", label= "Submit")
+      actionButton(inputId="submit", label= "Submit")
     ),
     analysisUI("analysis")
   )
 
   # Define server logic
   server <- function(input, output, session) {
-    bslib::bs_theme()
+    bs_theme()
     reactiveEndpoint <- reactive(input$endPoint)
-    test <- analysisServer("analysis", reactiveEndpoint)
-    observeEvent(test(),{
-      print(test())
-
-    })
+    all_inputs <- analysisServer("analysis", reactiveEndpoint)
     observeEvent(input$submit,{
+      write_code(input$purpose, input$endPoint, all_inputs())
+      stopApp()
+
     })
 
   }
