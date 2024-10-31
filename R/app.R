@@ -7,7 +7,7 @@
 #'@import shiny
 #'@import miniUI
 #'@importFrom shinyjs useShinyjs
-#'@importFrom bslib bs_theme page_sidebar sidebar
+#'@importFrom bslib bs_theme page_sidebar sidebar navset_card_pill nav_panel
 #'@importFrom rstudioapi documentNew
 bdb_code_template_maker <- function(){
   # Define UI for application
@@ -23,19 +23,25 @@ bdb_code_template_maker <- function(){
     sidebar=sidebar(
       h3("Study Design"),
       radioButtons("purpose", "Purpose",
-                          choices = c("Analysis", "Simulation")),
+                   choices = c("Analysis", "Simulation")),
       selectInput("endPoint", "Endpoint Type",
-                         choices=c("Binary", "Normal", "Survival")),
+                  choices=c("Binary", "Normal", "Survival")),
       actionButton(inputId="submit", label= "Submit")
     ),
-    analysisUI("analysis")
+    navset_card_pill(
+      placement = "above",
+      nav_panel(title = "Analysis",
+                analysisUI("analysis")),
+      nav_panel(title = "Simulation",
+                simulationUI("simulation"))
+    )
   )
 
   # Define server logic
   server <- function(input, output, session) {
     bs_theme()
     reactiveEndpoint <- reactive(input$endPoint)
-    all_inputs <- analysisServer("analysis", reactiveEndpoint)
+    all_inputs <- c(analysisServer("analysis", reactiveEndpoint), simulationServer("simulation"))
     observeEvent(input$submit,{
       write_code(input$purpose, input$endPoint, all_inputs())
       stopApp()
@@ -45,6 +51,6 @@ bdb_code_template_maker <- function(){
   }
   # # Run the application
   runGadget(ui, server
-              , viewer =dialogViewer("", width = 1000, height = 800),
-            )
+            , viewer =dialogViewer("", width = 1000, height = 800),
+  )
 }
