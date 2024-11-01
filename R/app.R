@@ -23,17 +23,18 @@ bdb_code_template_maker <- function(){
     sidebar=sidebar(
       h3("Study Design"),
       radioButtons("purpose", "Purpose",
-                   choices = c("Analysis", "Simulation")),
+                   choices = c("Simulation", "Analysis")),
       selectInput("endPoint", "Endpoint Type",
                   choices=c("Binary", "Normal", "Survival")),
       actionButton(inputId="submit", label= "Submit")
     ),
     navset_card_pill(
       placement = "above",
+      id = "tabs",
+      nav_panel(title = "Simulation",
+                simulationUI("simulation")),
       nav_panel(title = "Analysis",
                 analysisUI("analysis")),
-      nav_panel(title = "Simulation",
-                simulationUI("simulation"))
     )
   )
 
@@ -41,6 +42,14 @@ bdb_code_template_maker <- function(){
   server <- function(input, output, session) {
     bs_theme()
     reactiveEndpoint <- reactive(input$endPoint)
+    observeEvent(input$purpose, {
+      if (input$purpose=="Simulation") {
+        bslib::nav_show("tabs", "Simulation", select=TRUE, session=session)
+      } else {
+        bslib::nav_hide("tabs", "Simulation", session=session)
+        bslib::nav_select("tabs", "Analysis", session=session)
+      }
+    })
     all_inputs <- c(analysisServer("analysis", reactiveEndpoint), simulationServer("simulation"))
     observeEvent(input$submit,{
       write_code(input$purpose, input$endPoint, all_inputs())

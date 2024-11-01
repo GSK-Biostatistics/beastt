@@ -10,9 +10,10 @@ simulationUI <- function(id) {
     h4("Simulation"),
     radioButtons(ns("internal"), "Internal Data",
                  choices = c("Bootstrap", "Simulate from scratch")),
-    checkboxGroupInput(ns("parallel"), "Parallelisation",
-                       choices=c("by iteration", "by scenario",
-                                 "Vary internal control sample size",
+    radioButtons(ns("parallel"), "Parallelisation",
+                 choices = c("by iteration", "by scenario")),
+    checkboxGroupInput(ns("scenarioOptions"), "",
+                       choices=c("Vary internal control sample size",
                                  "Weight of informative component of RMP",
                                  "Treatment effect", "Drift")),
     checkboxInput(ns("covImb"), "Covariate Imbalance"),
@@ -32,6 +33,13 @@ simulationUI <- function(id) {
 simulationServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+    observeEvent(input$parallel, {
+      if (input$parallel == "by iteration") {
+        hide("scenarioOptions")
+      } else {
+        show("scenarioOptions")
+      }
+    })
     observeEvent(input$internal, {
       if (input$internal == "Bootstrap") {
         show("covImb")
