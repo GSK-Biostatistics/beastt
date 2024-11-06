@@ -8,6 +8,7 @@ simulationUI <- function(id) {
   ns <- NS(id)
   tagList(
     h4("Simulation"),
+    hr(),
     radioButtons(ns("internal"), "Internal Data",
                  choices = c("Bootstrap", "Simulate from scratch")),
     radioButtons(ns("parallel"), "Parallelisation",
