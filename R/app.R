@@ -34,7 +34,7 @@ bdb_code_template_maker <- function(){
       nav_panel(title = "Simulation",
                 simulationUI("simulation")),
       nav_panel(title = "Analysis",
-                analysisUI("analysis")),
+                analysisUI("analysis"))
     )
   )
 
@@ -50,9 +50,15 @@ bdb_code_template_maker <- function(){
         bslib::nav_select("tabs", "Analysis", session=session)
       }
     })
-    all_inputs <- c(analysisServer("analysis", reactiveEndpoint), simulationServer("simulation"))
-    observeEvent(input$submit,{
-      write_code(input$purpose, input$endPoint, all_inputs())
+    selections <- reactive({list(
+      purpose = input$purpose,
+      endPoint = input$endPoint
+    )})
+    analysis_inputs <- analysisServer("analysis", selections)
+    simulation_inputs <- simulationServer("simulation", selections)
+    observeEvent(input$submit, {
+      all_inputs <- c(analysis_inputs(), simulation_inputs())
+      write_code(input$purpose, input$endPoint, all_inputs)
       stopApp()
 
     })

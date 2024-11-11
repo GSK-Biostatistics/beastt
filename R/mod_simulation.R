@@ -30,7 +30,7 @@ simulationUI <- function(id) {
 #'
 #' @importFrom shiny renderUI h3 reactive observeEvent
 #' @importFrom shinyjs hide show
-simulationServer <- function(id) {
+simulationServer <- function(id, selections) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     observeEvent(input$parallel, {
@@ -47,6 +47,16 @@ simulationServer <- function(id) {
         hide("covImb")
       }
     })
+
+    return(reactive({list(
+      purpose = selections$purpose,
+      endPoint = selections$endPoint,
+      internal = input$internal,
+      parallel = input$parallel,
+      scenarioOptions = input$scenarioOptions,
+      covImb = input$covImb,
+      opChar = input$opchar
+    )}))
 
   })
 }

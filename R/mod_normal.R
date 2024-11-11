@@ -29,7 +29,7 @@ normalanalysisUI <- function(id) {
 #' @noMd
 #' @importFrom shiny renderUI reactive
 #' @importFrom shinyjs hide show
-normalServer <- function(id) {
+normalServer <- function(id, selections) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     observeEvent(input$borrType, {
@@ -39,20 +39,21 @@ normalServer <- function(id) {
         show("robustify")
       }
     })
-    plot_select <- plotServer("plot-select")
+    plot_select <- plotServer("plot-select", selections)
 
     output$plots <- renderUI({
-      plotUI(ns("plot-select"), input$robustify)
+      plotUI(ns("plot-select"))
     })
 
+    return(selections)
 
-    return(reactive({list(
-      borrType = input$borrType,
-      robustify = input$robustify,
-      stddev = input$stddev,
-      plots = plot_select()
-
-    )}))
+    # return(reactive({list(
+    #   borrType = input$borrType,
+    #   robustify = input$robustify,
+    #   stddev = input$stddev,
+    #   plots = plot_select()
+    #
+    # )}))
 
   })
 }
