@@ -19,6 +19,15 @@ bdb_code_template_maker <- function(){
                      secondary = "#f39633",
                      "navbar-bg" = "#F36633"
     ),
+    tags$style(HTML("
+      hr {
+          margin: var(--bs-space-0) !important;
+          padding: var(--bs-space-0) !important;
+      }
+      .bslib-card .card-body {
+          overflow: hidden;
+      }
+    ")),
     title ="BDB Code Template Maker",
     sidebar=sidebar(
       h3("Study Design"),
