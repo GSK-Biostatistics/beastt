@@ -2,7 +2,6 @@
 #' Inputs for plots
 #'
 #' @param id mod id
-#' @param robust Boolean if the
 #'
 #' @noMd
 #'
@@ -24,7 +23,7 @@ plotUI <- function(id) {
       column(3,
              shiny::checkboxGroupInput(ns("plotPrior"),
                                        "Prior Plot",
-                                       choices = c("Vague", "Power Prior"))),
+                                       choices = c())),
       column(3,
              shiny::checkboxGroupInput(ns("plotPost"),
                                        "Posterior Plot",
@@ -36,15 +35,18 @@ plotUI <- function(id) {
 #' Plot Inputs server
 #'
 #' @param id mod id
+#' @param input_list list of inputs
 #'
 #' @noMd
 #' @importFrom shiny moduleServer moduleServer
-plotServer <- function(id, selections) {
+plotServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
-    observeEvent(selections()$robustify,{
-      choices <- if (is.null(selections()$robustify)) {
+    ns <- session$ns
+
+    observeEvent(input_list$analysis_inputs()$robustify,{
+      choices <- if (is.null(input_list$analysis_inputs()$robustify)) {
         c("Vague", "Power Prior")
-      } else if (selections()$robustify) {
+      } else if (input_list$analysis_inputs()$robustify) {
         c("Vague", "Power Prior", "Robust Mixture")
       } else {
         c("Vague", "Power Prior")
@@ -55,39 +57,13 @@ plotServer <- function(id, selections) {
       )
     })
 
-    struct <- reactiveVal(NULL)
-    observeEvent(selections(),{
-      struct(selections())
-    })
+    plot_choices <- reactive({
+      list(plotProp = input$plotProp,
+           plotPrior = input$plotPrior,
+           plotPost = input$plotPost
+    )})
 
-    observeEvent(input$plotProp,{
-      struct(input$plotProp)
-    })
-
-    observeEvent(input$plotPrior,{
-      struct(input$plotPrior)
-    })
-
-    observeEvent(input$plotPost,{
-      struct(input$plotPost)
-    })
-
-    # old_selections <- reactiveVal(selections())
-    # observeEvent(input$plotProp, {
-    #   temp <- old_selections()
-    #   browser()
-    #   temp$plotProp <- input$plotProp
-    #   old_selections(temp)
-    # })
-
-    return(struct)
-
-
-    # return(reactive({list(
-    #   plotProp = input$plotProp,
-    #   plotPrior = input$plotPrior,
-    #   plotPost = input$plotPost
-    # )}))
+    return(plot_choices)
 
   })
 }

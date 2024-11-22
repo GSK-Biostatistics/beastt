@@ -18,25 +18,28 @@ analysisUI <- function(id) {
 #'
 #' @noMd
 #' @importFrom shiny renderUI h3 reactive
-analysisServer <- function(id, selections) {
+analysisServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    bin_svr <- binaryServer("bin", selections)
-    norm_svr <- normalServer("norm", selections)
+    bin_svr <- binaryServer("bin", input_list)
+    norm_svr <- normalServer("norm", input_list)
 
-    output$analysisUI <- renderUI({
-      if (selections()$endPoint=="Binary") {
-        binaryanalysisUI(ns("bin"))
-      } else if (selections()$endPoint=="Normal") {
-        normalanalysisUI(ns("norm"))
-      } else {
-        h3("bad")
-      }
+    observeEvent(input_list$selections()$endPoint, {
+      output$analysisUI <- renderUI({
+        if (input_list$selections()$endPoint=="Binary") {
+          binaryanalysisUI(ns("bin"))
+        } else if (input_list$selections()$endPoint=="Normal") {
+          normalanalysisUI(ns("norm"))
+        } else {
+          h3("bad")
+        }
+      })
     })
+
     selected_inputs <- reactive({
-      if (selections()$endPoint=="Binary") {
+      if (input_list$selections()$endPoint == "Binary") {
         bin_svr()
-      } else if (selections()$endPoint=="Normal") {
+      } else if (input_list$selections()$endPoint == "Normal") {
         norm_svr()
       }
     })

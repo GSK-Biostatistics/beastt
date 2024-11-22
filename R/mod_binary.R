@@ -13,7 +13,7 @@ binaryanalysisUI <- function(id) {
                 choices=c("On control arm",
                           "On treatment arm",
                           "No borrowing")),
-    checkboxInput(ns("robustify"), "Robustify Power Prior"),
+    checkboxInput(ns("robustify"), "Robustify Power Prior", value=FALSE),
     uiOutput(ns("plots"))
   )
 }
@@ -24,38 +24,9 @@ binaryanalysisUI <- function(id) {
 #' @noMd
 #' @importFrom shiny renderUI reactive
 #' @importFrom shinyjs hide show
-binaryServer <- function(id, selections) {
+binaryServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
-    # want to take the reactive list selections (created as all_inputs in app.R),
-    # add the inputs borrType and robustify, and create a new reactive list
-
-    observeEvent(input$borrType, {
-      toUpdate = selections()
-      toUpdate$borrType <- input$borrType
-      selections = reactive(toUpdate)
-    })
-
-    observeEvent(input$robustify, {
-      toUpdate = selections()
-      toUpdate$robustify <- input$robustify
-      selections = reactive(toUpdate)
-    })
-
-    #selections <- reactiveValues(items=list())
-    struct <- reactiveVal(NULL)
-    # observeEvent(selections(),{
-    #   struct(selections())
-    # })
-    #
-    # observeEvent(input$borrType,{
-    #   struct(input$borrType)
-    # })
-    #
-    # observeEvent(input$robustify,{
-    #   struct(input$robustify)
-    # })
 
     observeEvent(input$borrType, {
       if (input$borrType == "No borrowing") {
@@ -69,13 +40,14 @@ binaryServer <- function(id, selections) {
       plotUI(ns("plot-select"))
     })
 
-    plot_select <- plotServer("plot-select", selections)
+    plot_select <- plotServer("plot-select", input_list)
 
-    return(selections)
+    binary_selections <- reactive({list(
+      borrType = input$borrType,
+      robustify = input$robustify,
+      plots = plot_select()
+    )})
 
-    # reactive({list(borrType = input$borrType,
-    #                robustify = input$robustify,
-    #                plots = plot_select()
-    # )})
+    return(binary_selections)
   })
 }
