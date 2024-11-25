@@ -51,13 +51,14 @@ bdb_code_template_maker <- function(){
     observeEvent(input$purpose, {
       if (input$purpose=="Simulation") {
         bslib::nav_show("tabs", "Simulation", select=TRUE, session=session)
-        all_inputs$simulation_inputs <- simulationServer("simulation", all_inputs)
       } else {
         bslib::nav_hide("tabs", "Simulation", session=session)
         bslib::nav_select("tabs", "Analysis", session=session)
       }
     })
 
+
+    all_inputs$simulation_inputs <- simulationServer("simulation", all_inputs)
     all_inputs$analysis_inputs <- analysisServer("analysis", all_inputs)
 
     observeEvent(input$submit, {
@@ -67,7 +68,6 @@ bdb_code_template_maker <- function(){
 
       final_inputs <- list(final_selections, final_analysis, final_simulation)
       names(final_inputs) <- c("selections", "analysis_inputs", "simulation_inputs")
-
       write_code(input$purpose, input$endPoint, final_inputs)
       stopApp()
 

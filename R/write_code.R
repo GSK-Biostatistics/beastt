@@ -8,6 +8,7 @@
 #' @importFrom dplyr case_match
 #' @importFrom stringr str_glue
 write_code <- function(simulation, endpoint, input_list){
+  browser()
 
   doc <- list(
     header = "########################################################
