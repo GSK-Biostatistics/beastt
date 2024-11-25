@@ -12,7 +12,7 @@ binaryanalysisUI <- function(id) {
     selectInput(ns("borrType"), "Type of Borrowing",
                 choices=c("On control arm",
                           "On treatment arm",
-                          "No borrowing")),
+                          "No borrowing"), selected="On control arm"),
     checkboxInput(ns("robustify"), "Robustify Power Prior", value=FALSE),
     uiOutput(ns("plots"))
   )
@@ -40,7 +40,12 @@ binaryServer <- function(id, input_list) {
       plotUI(ns("plot-select"))
     })
 
-    plot_select <- plotServer("plot-select", input_list)
+    plot_select <- reactiveVal(list())
+
+    observeEvent(input$robustify, {
+      plot_list <- plotServer("plot-select", base_input, input$robustify)
+      plot_select(plot_list)
+    })
 
     binary_selections <- reactive({list(
       borrType = input$borrType,

@@ -23,7 +23,7 @@ plotUI <- function(id) {
       column(3,
              shiny::checkboxGroupInput(ns("plotPrior"),
                                        "Prior Plot",
-                                       choices = c())),
+                                       choices = c("Vague", "Power Prior"))),
       column(3,
              shiny::checkboxGroupInput(ns("plotPost"),
                                        "Posterior Plot",
@@ -39,14 +39,14 @@ plotUI <- function(id) {
 #'
 #' @noMd
 #' @importFrom shiny moduleServer moduleServer
-plotServer <- function(id, input_list) {
+plotServer <- function(id, input_list, rob) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    observeEvent(input_list$analysis_inputs()$robustify,{
-      choices <- if (is.null(input_list$analysis_inputs()$robustify)) {
+    observeEvent(rob, {
+      choices <- if (is.null(rob)) {
         c("Vague", "Power Prior")
-      } else if (input_list$analysis_inputs()$robustify) {
+      } else if (rob) {
         c("Vague", "Power Prior", "Robust Mixture")
       } else {
         c("Vague", "Power Prior")
@@ -57,11 +57,9 @@ plotServer <- function(id, input_list) {
       )
     })
 
-    plot_choices <- reactive({
-      list(plotProp = input$plotProp,
+    plot_choices <- list(plotProp = input$plotProp,
            plotPrior = input$plotPrior,
-           plotPost = input$plotPost
-    )})
+           plotPost = input$plotPost)
 
     return(plot_choices)
 

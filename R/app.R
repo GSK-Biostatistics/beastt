@@ -42,12 +42,6 @@ bdb_code_template_maker <- function(){
   server <- function(input, output, session) {
     bs_theme()
 
-    all_inputs <- list(
-      selections = reactive(list(purpose=input$purpose, endPoint=input$endPoint)),
-      simulation_inputs = reactive(list()),
-      analysis_inputs = reactive(list())
-    )
-
     observeEvent(input$purpose, {
       if (input$purpose=="Simulation") {
         bslib::nav_show("tabs", "Simulation", select=TRUE, session=session)
@@ -57,17 +51,20 @@ bdb_code_template_maker <- function(){
       }
     })
 
+    base_input <- reactive({
+      list(purpose=input$purpose, endPoint=input$endPoint)
+    })
 
-    all_inputs$simulation_inputs <- simulationServer("simulation", all_inputs)
-    all_inputs$analysis_inputs <- analysisServer("analysis", all_inputs)
+    simulation_out <- simulationServer("simulation", base_input)
+    analysis_out <- analysisServer("analysis", base_input)
 
     observeEvent(input$submit, {
-      final_selections <- all_inputs$selections()
-      final_analysis <- all_inputs$analysis_inputs()
-      final_simulation <- all_inputs$simulation_inputs()
+      req(simulation_out)
+      req(analysis_out)
 
-      final_inputs <- list(final_selections, final_analysis, final_simulation)
-      names(final_inputs) <- c("selections", "analysis_inputs", "simulation_inputs")
+      final_inputs <- list(simulation_inputs = simulation_out(),
+                           analysis_inputs = analysis_out())
+
       write_code(input$purpose, input$endPoint, final_inputs)
       stopApp()
 

@@ -24,11 +24,11 @@ analysisServer <- function(id, input_list) {
     bin_svr <- binaryServer("bin", input_list)
     norm_svr <- normalServer("norm", input_list)
 
-    observeEvent(input_list$selections()$endPoint, {
+    observeEvent(input_list()$endPoint, {
       output$analysisUI <- renderUI({
-        if (input_list$selections()$endPoint=="Binary") {
+        if (input_list()$endPoint=="Binary") {
           binaryanalysisUI(ns("bin"))
-        } else if (input_list$selections()$endPoint=="Normal") {
+        } else if (input_list()$endPoint=="Normal") {
           normalanalysisUI(ns("norm"))
         } else {
           h3("bad")
@@ -37,9 +37,9 @@ analysisServer <- function(id, input_list) {
     })
 
     selected_inputs <- reactive({
-      if (input_list$selections()$endPoint == "Binary") {
+      if (input_list()$endPoint == "Binary") {
         bin_svr()
-      } else if (input_list$selections()$endPoint == "Normal") {
+      } else if (input_list()$endPoint == "Normal") {
         norm_svr()
       }
     })
