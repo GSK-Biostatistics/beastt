@@ -27,6 +27,7 @@ simulationUI <- function(id) {
 #' Simulation Server
 #'
 #' @param id mod ID
+#' @param input_list input from UI
 #'
 #' @noMd
 #'

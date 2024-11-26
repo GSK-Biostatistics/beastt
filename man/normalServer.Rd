@@ -4,10 +4,12 @@
 \alias{normalServer}
 \title{norm input server}
 \usage{
-normalServer(id)
+normalServer(id, input_list)
 }
 \arguments{
 \item{id}{mod id}
+
+\item{input_list}{input from UI}
 }
 \description{
 norm input server

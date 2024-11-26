@@ -7,7 +7,7 @@
 #'@import shiny
 #'@import miniUI
 #'@importFrom shinyjs useShinyjs
-#'@importFrom bslib bs_theme page_sidebar sidebar navset_card_pill nav_panel
+#'@importFrom bslib bs_theme page_sidebar sidebar navset_card_pill nav_panel nav_show nav_hide nav_select
 #'@importFrom rstudioapi documentNew
 bdb_code_template_maker <- function(){
   # Define UI for application
@@ -44,10 +44,10 @@ bdb_code_template_maker <- function(){
 
     observeEvent(input$purpose, {
       if (input$purpose=="Simulation") {
-        bslib::nav_show("tabs", "Simulation", select=TRUE, session=session)
+        nav_show("tabs", "Simulation", select=TRUE, session=session)
       } else {
-        bslib::nav_hide("tabs", "Simulation", session=session)
-        bslib::nav_select("tabs", "Analysis", session=session)
+        nav_hide("tabs", "Simulation", session=session)
+        nav_select("tabs", "Analysis", session=session)
       }
     })
 

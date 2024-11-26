@@ -20,9 +20,10 @@ binaryanalysisUI <- function(id) {
 
 #' Binary Server UI
 #'
-#' @param id mod it
+#' @param id mod id
+#' @param input_list input from UI
 #' @noMd
-#' @importFrom shiny renderUI reactive
+#' @importFrom shiny renderUI reactive reactiveVal observeEvent
 #' @importFrom shinyjs hide show
 binaryServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
@@ -43,7 +44,7 @@ binaryServer <- function(id, input_list) {
     plot_select <- reactiveVal(list())
 
     observeEvent(input$robustify, {
-      plot_list <- plotServer("plot-select", base_input, input$robustify)
+      plot_list <- plotServer("plot-select", input_list, input$robustify)
       plot_select(plot_list)
     })
 

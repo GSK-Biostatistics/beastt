@@ -14,7 +14,7 @@ analysisUI <- function(id) {
 #' Analysis Server
 #'
 #' @param id mod ID
-#' @param reactiveEndpoint reactive element with the type of endpoint
+#' @param input_list input from UI
 #'
 #' @noMd
 #' @importFrom shiny renderUI h3 reactive

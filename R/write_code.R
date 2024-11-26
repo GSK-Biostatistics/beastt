@@ -2,7 +2,7 @@
 #'
 #' @param simulation A purpose, either "Simulation" or "Analysis"
 #' @param endpoint An endpoint type, one of "Binary", "Normal" or "Survival"
-#' @param selections input from UI
+#' @param input_list input from UI
 #'
 #' @importFrom rstudioapi documentNew
 #' @importFrom dplyr case_match

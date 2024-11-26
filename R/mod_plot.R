@@ -36,17 +36,18 @@ plotUI <- function(id) {
 #'
 #' @param id mod id
 #' @param input_list list of inputs
+#' @param robust robustify
 #'
 #' @noMd
-#' @importFrom shiny moduleServer moduleServer
-plotServer <- function(id, input_list, rob) {
+#' @importFrom shiny moduleServer moduleServer observeEvent updateCheckboxGroupInput
+plotServer <- function(id, input_list, robust) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    observeEvent(rob, {
-      choices <- if (is.null(rob)) {
+    observeEvent(robust, {
+      choices <- if (is.null(robust)) {
         c("Vague", "Power Prior")
-      } else if (rob) {
+      } else if (robust) {
         c("Vague", "Power Prior", "Robust Mixture")
       } else {
         c("Vague", "Power Prior")

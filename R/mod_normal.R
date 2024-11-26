@@ -25,9 +25,10 @@ normalanalysisUI <- function(id) {
 #' norm input server
 #'
 #' @param id mod id
+#' @param input_list input from UI
 #'
 #' @noMd
-#' @importFrom shiny renderUI reactive
+#' @importFrom shiny renderUI reactive observeEvent reactiveVal
 #' @importFrom shinyjs hide show
 normalServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
@@ -47,7 +48,7 @@ normalServer <- function(id, input_list) {
     plot_select <- reactiveVal(list())
 
     observeEvent(input$robustify, {
-      plot_list <- plotServer("plot-select", base_input, input$robustify)
+      plot_list <- plotServer("plot-select", input_list, input$robustify)
       plot_select(plot_list)
     })
 
