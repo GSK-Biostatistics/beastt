@@ -24,16 +24,15 @@ binaryanalysisUI <- function(id) {
 #' @param input_list input from UI
 #' @noMd
 #' @importFrom shiny renderUI reactive reactiveVal observeEvent
-#' @importFrom shinyjs hide show
 binaryServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
     observeEvent(input$borrType, {
       if (input$borrType == "No borrowing") {
-        hide("robustify")
+        shinyjs::hide("robustify")
       } else {
-        show("robustify")
+        shinyjs::show("robustify")
       }
     })
 

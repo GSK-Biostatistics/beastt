@@ -29,15 +29,14 @@ normalanalysisUI <- function(id) {
 #'
 #' @noMd
 #' @importFrom shiny renderUI reactive observeEvent reactiveVal
-#' @importFrom shinyjs hide show
 normalServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     observeEvent(input$borrType, {
       if (input$borrType == "No borrowing") {
-        hide("robustify")
+        shinyjs::hide("robustify")
       } else {
-        show("robustify")
+        shinyjs::show("robustify")
       }
     })
 
