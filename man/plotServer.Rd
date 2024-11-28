@@ -4,10 +4,14 @@
 \alias{plotServer}
 \title{Plot Inputs server}
 \usage{
-plotServer(id)
+plotServer(id, input_list, robust)
 }
 \arguments{
 \item{id}{mod id}
+
+\item{input_list}{list of inputs}
+
+\item{robust}{robustify}
 }
 \description{
 Plot Inputs server

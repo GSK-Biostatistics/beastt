@@ -12,8 +12,8 @@ normalanalysisUI <- function(id) {
     selectInput(ns("borrType"), "Type of Borrowing",
                 choices=c("On control arm",
                           "On treatment arm",
-                          "No borrowing")),
-    checkboxInput(ns("robustify"), "Robustify Power Prior"),
+                          "No borrowing"), selected="On control arm"),
+    checkboxInput(ns("robustify"), "Robustify Power Prior", value=FALSE),
     radioButtons(ns("stddev"), "Standard Deviation",
                  width = '100%',
                  choices = c("Known", "Unknown (Student's t approximation)")
@@ -25,35 +25,39 @@ normalanalysisUI <- function(id) {
 #' norm input server
 #'
 #' @param id mod id
+#' @param input_list input from UI
 #'
 #' @noMd
-#' @importFrom shiny renderUI reactive
-#' @importFrom shinyjs hide show
-normalServer <- function(id) {
+#' @importFrom shiny renderUI reactive observeEvent reactiveVal
+normalServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     observeEvent(input$borrType, {
       if (input$borrType == "No borrowing") {
-        hide("robustify")
+        shinyjs::hide("robustify")
       } else {
-        show("robustify")
+        shinyjs::show("robustify")
       }
     })
-    plot_select <- plotServer("plot-select")
 
     output$plots <- renderUI({
-      plotUI(ns("plot-select"), input$robustify)
+      plotUI(ns("plot-select"))
     })
 
+    plot_select <- reactiveVal(list())
 
-    return(reactive({list(
+    observeEvent(input$robustify, {
+      plot_list <- plotServer("plot-select", input_list, input$robustify)
+      plot_select(plot_list)
+    })
+
+    normal_selections <- reactive({list(
       borrType = input$borrType,
       robustify = input$robustify,
-      stddev = input$stddev,
-      plots = plot_select()
+      stddev = input$stddev
+    )})
 
-    )}))
-
+    return(normal_selections)
   })
 }
 

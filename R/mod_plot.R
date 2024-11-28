@@ -2,21 +2,12 @@
 #' Inputs for plots
 #'
 #' @param id mod id
-#' @param robust Boolean if the
 #'
 #' @noMd
 #'
 #' @importFrom shiny h4 hr fluidRow column checkboxGroupInput
-plotUI <- function(id, robust) {
+plotUI <- function(id) {
   ns <- NS(id)
-  if(robust){
-    prior_choices <- c("Vague",
-                       "Power Prior",
-                       "Robust Mixture")
-  } else {
-    prior_choices <- c("Vague",
-                       "Power Prior")
-  }
   tagList(
     h4("Plots"),
     hr(),
@@ -32,7 +23,7 @@ plotUI <- function(id, robust) {
       column(3,
              shiny::checkboxGroupInput(ns("plotPrior"),
                                        "Prior Plot",
-                                       choices = prior_choices)),
+                                       choices = c("Vague", "Power Prior"))),
       column(3,
              shiny::checkboxGroupInput(ns("plotPost"),
                                        "Posterior Plot",
@@ -44,16 +35,34 @@ plotUI <- function(id, robust) {
 #' Plot Inputs server
 #'
 #' @param id mod id
+#' @param input_list list of inputs
+#' @param robust robustify
 #'
 #' @noMd
-#' @importFrom shiny moduleServer moduleServer
-plotServer <- function(id) {
+#' @importFrom shiny moduleServer moduleServer observeEvent updateCheckboxGroupInput
+plotServer <- function(id, input_list, robust) {
   moduleServer(id, function(input, output, session) {
-    return(reactive({list(
-      plotProp = input$plotProp,
-      plotPrior = input$plotPrior,
-      plotPost = input$plotPost
-    )}))
+    ns <- session$ns
+
+    observeEvent(robust, {
+      choices <- if (is.null(robust)) {
+        c("Vague", "Power Prior")
+      } else if (robust) {
+        c("Vague", "Power Prior", "Robust Mixture")
+      } else {
+        c("Vague", "Power Prior")
+      }
+      updateCheckboxGroupInput(session = session,
+                               inputId = "plotPrior",
+                               choices = choices
+      )
+    })
+
+    plot_choices <- list(plotProp = input$plotProp,
+           plotPrior = input$plotPrior,
+           plotPost = input$plotPost)
+
+    return(plot_choices)
 
   })
 }

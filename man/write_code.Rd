@@ -4,14 +4,14 @@
 \alias{write_code}
 \title{Write Code function}
 \usage{
-write_code(simulation, endpoint, selections)
+write_code(simulation, endpoint, input_list)
 }
 \arguments{
 \item{simulation}{A purpose, either "Simulation" or "Analysis"}
 
 \item{endpoint}{An endpoint type, one of "Binary", "Normal" or "Survival"}
 
-\item{selections}{input from UI}
+\item{input_list}{input from UI}
 }
 \description{
 Write Code function
