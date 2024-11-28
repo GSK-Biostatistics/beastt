@@ -23,7 +23,7 @@ binaryanalysisUI <- function(id) {
 #' @param id mod it
 #' @noMd
 #' @importFrom shiny renderUI reactive
-#' @importFrom shinyjs hide show
+#' @importFrom shinyjs hide
 binaryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -31,7 +31,7 @@ binaryServer <- function(id) {
       if (input$borrType == "No borrowing") {
         hide("robustify")
       } else {
-        show("robustify")
+        shinyjs::show("robustify")
       }
     })
 

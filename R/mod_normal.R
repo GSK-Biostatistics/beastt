@@ -28,7 +28,7 @@ normalanalysisUI <- function(id) {
 #'
 #' @noMd
 #' @importFrom shiny renderUI reactive
-#' @importFrom shinyjs hide show
+#' @importFrom shinyjs hide
 normalServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -36,7 +36,7 @@ normalServer <- function(id) {
       if (input$borrType == "No borrowing") {
         hide("robustify")
       } else {
-        show("robustify")
+        shinyjs::show("robustify")
       }
     })
     plot_select <- plotServer("plot-select")

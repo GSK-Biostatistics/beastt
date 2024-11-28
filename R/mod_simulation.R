@@ -30,7 +30,7 @@ simulationUI <- function(id) {
 #' @noMd
 #'
 #' @importFrom shiny renderUI h3 reactive observeEvent
-#' @importFrom shinyjs hide show
+#' @importFrom shinyjs hide
 simulationServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
@@ -38,7 +38,7 @@ simulationServer <- function(id) {
       if (input$parallel == "by iteration") {
         hide("scenarioOptions")
       } else {
-        show("scenarioOptions")
+        shinyjs::show("scenarioOptions")
       }
     })
     observeEvent(input$internal, {

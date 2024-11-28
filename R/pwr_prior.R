@@ -249,7 +249,7 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
 #' @export
 #'
 #' @importFrom distributional dist_multivariate_normal
-#' @importFrom rstan sampling
+#' @importFrom rstan sampling extract
 calc_power_prior_weibull <- function(external_data,
                                      response, event,
                                      intercept, shape,
@@ -324,20 +324,39 @@ calc_power_prior_weibull <- function(external_data,
       beta0_sd = intercept_parms$sigma,                        # SD of normal prior on the log-inverse-scale parameter
       alpha_scale = shape                   # scale of half-normal prior on the shape parameter
     )
-    browser()
+    if(length(list(...))> 0){
+      input_vals <- list(...)
+      defaults <- list(object = stanmodels$`weibullpp`,
+                       data = stan_data_pp,
+                       warmup = 15000,       # number of burn-in iterations to discard
+                       iter = 35000,         # total number of iterations (including burn-in)
+                       chains = 1,           # number of chains
+                       cores = 1,            # number of cores
+                       refresh = 0)          # suppress console output text
+      defaults[names(input_vals)] <- input_vals
 
-    # Sample log-shape and log-inverse-scale parameters from the IP-weighed power prior via MCMC
-    stan_samp_pp <- sampling(stanmodels$`weibull-pwr-prior`,
-                             data = stan_data_pp,
-                             warmup = 15000,       # number of burn-in iterations to discard
-                             iter = 35000,         # total number of iterations (including burn-in)
-                             chains = 1,           # number of chains
-                             cores = 1,            # number of cores
-                             refresh = 0)          # suppress console output text
+      # Sample log-shape and log-inverse-scale parameters from the IP-weighed power prior via MCMC
+      stan_samp_pp <- do.call(sampling, defaults)
+    } else {
+      # Sample log-shape and log-inverse-scale parameters from the IP-weighed power prior via MCMC
+      stan_samp_pp <- sampling(stanmodels$`weibullpp`,
+                               data = stan_data_pp,
+                               warmup = 15000,       # number of burn-in iterations to discard
+                               iter = 35000,         # total number of iterations (including burn-in)
+                               chains = 1,           # number of chains
+                               cores = 1,            # number of cores
+                               refresh = 0)          # suppress console output text
+    }
+
     samples_pp <- as.data.frame(extract(stan_samp_pp, pars = c("beta0", "alpha")))
     samples_pp_mat <- cbind(log_alpha = log(samples_pp$alpha),   # log-shape
                             beta0 = samples_pp$beta0)            # log-inverse-scale
-
+    # Calculate mean vector and covariance matrix of the approximated IP-weighted power prior
+    # used as the informative component of the RMP (i.e., mean vector and covariance matrix of
+    # the MCMC samples)
+    inf_prior_mean_ap1 <- colMeans(samples_pp_mat)   # mean vector
+    inf_prior_cov_ap1 <- cov(samples_pp_mat)         # covariance matrix
+    out_dist <- dist_multivariate_normal(list(inf_prior_mean_ap1), list(inf_prior_cov_ap1))
 
   }
 

@@ -2,7 +2,7 @@
 #'
 #' @description Inverse Probablity Weighted Baysian Dynamic Barrowing
 #'
-#' @docType package
+#' @docType _PACKAGE
 #' @name beastt-package
 #' @aliases beastt
 #' @useDynLib beastt, .registration = TRUE
