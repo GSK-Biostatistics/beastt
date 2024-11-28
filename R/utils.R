@@ -67,7 +67,7 @@ correct_weights <- function(x){
 #'
 #' @description Adds vague normal component, where the level of vagueness is controlled by
 #' the `n` parameter
-#' @param prior Normal distributional object
+#' @param prior Normal or Multivariate Normal distributional object
 #' @param n Number of theoretical participants
 #' @param weights Vector of weights, where the first number corresponds to the
 #'   informative component and the second is the vague
@@ -88,10 +88,54 @@ correct_weights <- function(x){
 #' library(distributional)
 #' robustify_norm(dist_normal(0,1), n = 15)
 robustify_norm <- function(prior, n, weights = c(0.5, 0.5)){
-  prior_checks(prior, "normal")
+  prior_fam <- family(prior)
+  if(prior_fam == "norm"){
+    prior_param <- parameters(prior)
+    robust_prior <- dist_mixture(prior,
+                                 dist_normal(prior_param$mu, sqrt(prior_param$sigma^2*n)),
+                                 weights = weights
+    )
+    robust_prior
+  } else if(prior_fam == "mvnorm") {
+    robust_prior <- robustify_mvnorm(prior, n, weights)
+  } else {
+    cli_abort("{.agr prior} must be either normal or a multivariate normal")
+  }
+  robust_prior
+}
+
+#' Robustify Multivariate Normal Distributions
+#'
+#' @description Adds vague normal component, where the level of vagueness is controlled by
+#' the `n` parameter
+#' @param prior Multivariate Normal distributional object
+#' @param n Number of theoretical participants
+#' @param weights Vector of weights, where the first number corresponds to the
+#'   informative component and the second is the vague
+#'
+#' @details In cases with a normal endpoint, a robust mixture prior can be created by
+#'    adding a vague normal component to any normal prior with mean \eqn{\theta}
+#'    and variance \eqn{\sigma^2}.The vague component is calculated to have the
+#'    same mean \eqn{\theta} and variance equal to \eqn{\sigma^2 \times n}, where
+#'    `n` is the specified number of theoretical participants. If robustifying a normal
+#'    power prior that was calculated from external control data and `n` is defined as
+#'    the number of external control participants, and the vague component would
+#'    then correspond to one external control participant's worth of data.
+#'
+#' @return mixture distribution
+#' @export
+#'
+#' @examples
+#' library(distributional)
+#' robustify_mvnorm(
+#'       dist_multivariate_normal(mu = list(c(1, 0)), sigma = list(c(10, 5))),
+#'        n = 15)
+robustify_mvnorm <- function(prior, n, weights = c(0.5, 0.5)){
+  prior_checks(prior, "mvnorm")
   prior_param <- parameters(prior)
   robust_prior <- dist_mixture(prior,
-                               dist_normal(prior_param$mu, sqrt(prior_param$sigma^2*n)),
+                               dist_multivariate_normal(list(prior_param$mu),
+                                                        list(sqrt(prior_param$sigma[[1]]^2*n))),
                                weights = weights
   )
   robust_prior
