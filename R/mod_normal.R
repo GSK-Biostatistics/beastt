@@ -40,15 +40,19 @@ normalServer <- function(id, input_list) {
       }
     })
 
-    output$plots <- renderUI({
-      plotUI(ns("plot-select"))
-    })
-
     plot_select <- reactiveVal(list())
 
-    observeEvent(input$robustify, {
-      plot_list <- plotServer("plot-select", input_list, input$robustify)
-      plot_select(plot_list)
+    observeEvent(input_list()$purpose, {
+      if (input_list()$purpose == "Analysis") {
+        output$plots <- renderUI({
+          plotUI(ns("plot-select"))
+        })
+
+        observeEvent(input$robustify, {
+          plot_list <- plotServer("plot-select", input_list, input$robustify)
+          plot_select(plot_list)
+        })
+      }
     })
 
     normal_selections <- reactive({list(
