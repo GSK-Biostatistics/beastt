@@ -2,6 +2,7 @@
 #'
 #' @param id mod id
 #'
+#' @noRd
 #' @noMd
 #' @importFrom shiny NS tagList uiOutput
 analysisUI <- function(id) {
@@ -16,6 +17,7 @@ analysisUI <- function(id) {
 #' @param id mod ID
 #' @param input_list input from UI
 #'
+#' @noRd
 #' @noMd
 #' @importFrom shiny renderUI h3 reactive
 analysisServer <- function(id, input_list) {

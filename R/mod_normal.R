@@ -2,6 +2,7 @@
 #'
 #' @param id mod id
 #'
+#' @noRd
 #' @noMd
 #' @importFrom shiny NS tagList h4 hr selectInput checkboxInput radioButtons uiOutput
 normalanalysisUI <- function(id) {
@@ -27,6 +28,7 @@ normalanalysisUI <- function(id) {
 #' @param id mod id
 #' @param input_list input from UI
 #'
+#' @noRd
 #' @noMd
 #' @importFrom shiny renderUI reactive observeEvent reactiveVal
 normalServer <- function(id, input_list) {
