@@ -3,6 +3,7 @@
 #'
 #' @param id mod id
 #'
+#' @noRd
 #' @noMd
 #'
 #' @importFrom shiny h4 hr fluidRow column checkboxGroupInput
@@ -38,6 +39,7 @@ plotUI <- function(id) {
 #' @param input_list list of inputs
 #' @param robust robustify
 #'
+#' @noRd
 #' @noMd
 #' @importFrom shiny moduleServer moduleServer observeEvent updateCheckboxGroupInput
 plotServer <- function(id, input_list, robust) {

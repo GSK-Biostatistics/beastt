@@ -2,6 +2,7 @@
 #'
 #' @param id mod ID
 #'
+#' @noRd
 #' @noMd
 #' @importFrom shiny NS tagList h4 hr selectInput checkboxInput uiOutput
 binaryanalysisUI <- function(id) {
@@ -22,6 +23,8 @@ binaryanalysisUI <- function(id) {
 #'
 #' @param id mod id
 #' @param input_list input from UI
+#'
+#' @noRd
 #' @noMd
 #' @importFrom shiny renderUI reactive reactiveVal observeEvent
 binaryServer <- function(id, input_list) {
