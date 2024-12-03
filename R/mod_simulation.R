@@ -4,6 +4,7 @@
 #'
 #' @noMd
 #' @importFrom shiny NS tagList h4 radioButtons checkboxGroupInput checkboxInput
+#' @importFrom bslib tooltip
 simulationUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -16,10 +17,13 @@ simulationUI <- function(id) {
     radioButtons(ns("parallel"), "Parallelisation",
                  choices = c("by iteration", "by scenario"),
                  selected = "by iteration"),
-    checkboxGroupInput(ns("scenarioOptions"), "Options to vary",
-                       choices=c("Internal control sample size",
-                                 "Weight of informative component of RMP",
-                                 "Treatment effect", "Drift")),
+    tooltip(
+      checkboxGroupInput(ns("scenarioOptions"), "Options to vary",
+                         choices=c("Internal control sample size"="samplesize",
+                                   "Weight of informative component of RMP"="weight",
+                                   "Treatment effect"="trteffect", "Drift"="drift")),
+      "Information about options"
+    ),
     checkboxGroupInput(ns("opChar"), "Operating Characteristics",
                        choices = c("Iteration level results"))
   )
