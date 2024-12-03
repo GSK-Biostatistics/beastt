@@ -49,6 +49,9 @@ ps_obj <- calc_prop_scr(internal_df = filter(int_tte_df, trt == 0),
                         model = ps_model)
 
 ps_obj
+
+
+tidy(ps_obj)
 ```
 
 In order to check the suitability of the external data, we can create a variety of diagnostic plots. The first plot we might want is a histogram of the overlapping propensity score distributions from both datasets. To get this, we use the `prop_scr_hist` function. This function takes in the propensity score object made in the previous step, and we can optionally supply the variable we want to look at (either the propensity score or the IPW). By default, it will plot the propensity scores. Additionally, we can look at the densities rather than histograms by using the `prop_scr_dens` function. When looking at the IPWs with either the histogram or the density functions, it is important to note that only the IPWs for external control participants will be shown because the ATT IPWs of all internal control participants are equal to 1.
