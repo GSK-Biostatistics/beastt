@@ -324,29 +324,16 @@ calc_power_prior_weibull <- function(external_data,
       beta0_sd = intercept_parms$sigma,                        # SD of normal prior on the log-inverse-scale parameter
       alpha_scale = shape                   # scale of half-normal prior on the shape parameter
     )
-    if(length(list(...))> 0){
-      input_vals <- list(...)
-      defaults <- list(object = stanmodels$`weibullpp`,
+    stan_samp_pp <- sampling_optional_inputs(
+      list(object = stanmodels$`weibullpp`,
                        data = stan_data_pp,
                        warmup = 15000,       # number of burn-in iterations to discard
                        iter = 35000,         # total number of iterations (including burn-in)
                        chains = 1,           # number of chains
                        cores = 1,            # number of cores
-                       refresh = 0)          # suppress console output text
-      defaults[names(input_vals)] <- input_vals
-
-      # Sample log-shape and log-inverse-scale parameters from the IP-weighed power prior via MCMC
-      stan_samp_pp <- do.call(sampling, defaults)
-    } else {
-      # Sample log-shape and log-inverse-scale parameters from the IP-weighed power prior via MCMC
-      stan_samp_pp <- sampling(stanmodels$`weibullpp`,
-                               data = stan_data_pp,
-                               warmup = 15000,       # number of burn-in iterations to discard
-                               iter = 35000,         # total number of iterations (including burn-in)
-                               chains = 1,           # number of chains
-                               cores = 1,            # number of cores
-                               refresh = 0)          # suppress console output text
-    }
+                       refresh = 0),          # suppress console output text
+      ...
+    )
 
     samples_pp <- as.data.frame(extract(stan_samp_pp, pars = c("beta0", "alpha")))
     samples_pp_mat <- cbind(log_alpha = log(samples_pp$alpha),   # log-shape

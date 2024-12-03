@@ -226,6 +226,120 @@ calc_post_beta<- function(internal_data, response, prior){
 
 
 
+#' Calculate Weibull Posterior
+#'
+#' @description Calculate a posterior distribution for time to event data with a
+#'   Weibull Likelihood. Only the relevant treatment arms from the internal
+#'   dataset should be read in (e.g., only the control arm if constructing a
+#'   posterior distribution for the control response rate). To calcualate
+#'   treatment difference calculate posterior or both arms then subtract.
+#'
+#' @param internal_data This can either be a propensity score object or a tibble
+#'   of the internal data.
+#' @param response Name of response variable
+#' @param event Name of event/censoring variable
+#' @param prior A distributional object corresponding to a multivariate normal
+#'   distribution or a mixture of 2 multivariate normals
+#' @param analysis_time Vector of time(s) when survival probabilities will be
+#'   calculated
+#' @param ... rstan sampling option. This override any default options. Fro more
+#'   information see [rstan::sampling()]
+#'
+#' @return stan posterior object
+#' @export
+#' @importFrom rstan sampling
+#'
+#'
+calc_weibull_post <- function(internal_data,
+                              response, event,
+                              prior,
+                              analysis_time,
+                              ...){
+  # Checking internal data and response variable
+  if(is_prop_scr(internal_data)){
+    data <- internal_data$internal_df
+    nIC <- internal_data$internal_df |>
+      pull(!!internal_data$id_col) |>
+      unique() |>
+      length()
+  } else if(is.data.frame(internal_data)) {
+    data <- internal_data
+    nIC <- nrow(internal_data)
+  } else{
+    cli_abort("{.agr internal_data} either a dataset or `prop_scr` object type")
+  }
+
+  # Check response exists in the data
+  response <- enquo(response)
+  check <- safely(select)(data, !!response)
+  if(!is.null(check$error)){
+    cli_abort("{.agr response} was not found in {.agr internal_data}")
+  }
+
+  # Check response exists in the data
+  event <- enquo(event)
+  check <- safely(select)(data, !!event)
+  if(!is.null(check$error)){
+    cli_abort("{.agr event} was not found in {.agr internal_data}")
+  }
+
+  # Checking the distribution and getting the family
+  if(!is_distribution(prior)){
+    cli_abort("{.agr prior} must be a distributional object")
+  }
+  prior_fam <- family(prior)
+
+  if(prior_fam == "mvnorm"){
+    mean <- parameters(prior)$mu
+    cov <- parameters(prior)$sigma
+    stan_data_post_inputs <- list(
+      N = nIC,   # internal control sample size
+      y = pull(data, !!response),       # observed time (event or censored)
+      e = pull(data, !!event),   # event indicator (1: event; 0: censored)
+      K = length(analysis_time),              # number of times to compute survival probabilities
+      times = as.array(analysis_time),        # time(s) when survival probability should be calculated
+      mean_inf = mean,      # mean vector of informative prior component
+      mean_vague = mean,  # mean vector of vague prior component
+      cov_inf = cov,        # covariance matrix of informative prior component
+      cov_vague = cov,    # covariance matrix of vague prior component
+      w0 = 0                          # prior mixture weight associated with informative component
+    )
+
+  } else if(prior_fam == "mixture" &&  length(get_base_families(prior)[[1]]) == 2) {
+    means <- mix_means(prior)
+    covs <- mix_sigmas(prior)
+    weight <- parameters(prior)$w[[1]][1] # Weight of robust mixture prior (RMP) associated with informative component
+
+    stan_data_post_inputs <- list(
+      N = nIC,   # internal control sample size
+      y = pull(data, !!response),       # observed time (event or censored)
+      e = pull(data, !!event),   # event indicator (1: event; 0: censored)
+      K = length(analysis_time),              # number of times to compute survival probabilities
+      times = as.array(analysis_time),        # time(s) when survival probability should be calculated
+      mean_inf = means[[1]],      # mean vector of informative prior component
+      mean_vague = means[[2]],  # mean vector of vague prior component
+      cov_inf = covs[[1]],        # covariance matrix of informative prior component
+      cov_vague = covs[[2]],    # covariance matrix of vague prior component
+      w0 = weight                        # prior mixture weight associated with informative component
+    )
+
+
+
+  } else {
+    cli_abort("{.agr prior} must be a multivariate normal distributional object or a mixture of 2 multivariate normal objects")
+    }
+  post <- sampling_optional_inputs(list(stanmodels$weibullpost,
+                                        data = stan_data_post_inputs,
+                                        warmup = 15000,       # number of burn-in iterations to discard
+                                        iter = 45000,         # total number of iterations (including burn-in)
+                                        chains = 1,           # number of chains
+                                        cores = 1,            # number of cores
+                                        refresh = 0),
+                                   ...)
+  post
+
+}
+
 #' Internal function to approximate t distributions to a mixture of normals
 #'
 #' @param x A distributional object
@@ -349,6 +463,8 @@ calc_norm_post <- function(prior, internal_sd, n_ic, sum_resp){
 }
 
 
+
+
 #' Internal function to help determine the family of an object
 #'
 #' @param x Distributional object
@@ -408,13 +524,20 @@ calc_t_post <- function(prior, nIC, response){
 }
 
 mix_means <- function(x){
-  parameters(x)$dist[[1]]|>
-    map(\(dist) dist$mu) |>
-    unlist()
+  out <- parameters(x)$dist[[1]]|>
+    map(\(dist) dist$mu)
+  if(length(unlist(out)) == length(out)){
+    out <- out |> unlist()
+  }
+  out
+
 }
 
 mix_sigmas <- function(x){
-  parameters(x)$dist[[1]]|>
-    map(\(dist) dist$sigma) |>
-    unlist()
+  out <- parameters(x)$dist[[1]]|>
+    map(\(dist) dist$sigma)
+  if(length(unlist(out)) == length(out)){
+    out <- out |> unlist()
+  }
+  out
 }

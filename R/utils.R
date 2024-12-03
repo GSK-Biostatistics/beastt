@@ -89,7 +89,7 @@ correct_weights <- function(x){
 #' robustify_norm(dist_normal(0,1), n = 15)
 robustify_norm <- function(prior, n, weights = c(0.5, 0.5)){
   prior_fam <- family(prior)
-  if(prior_fam == "norm"){
+  if(prior_fam == "normal"){
     prior_param <- parameters(prior)
     robust_prior <- dist_mixture(prior,
                                  dist_normal(prior_param$mu, sqrt(prior_param$sigma^2*n)),
@@ -134,9 +134,22 @@ robustify_mvnorm <- function(prior, n, weights = c(0.5, 0.5)){
   prior_checks(prior, "mvnorm")
   prior_param <- parameters(prior)
   robust_prior <- dist_mixture(prior,
-                               dist_multivariate_normal(list(prior_param$mu),
+                               dist_multivariate_normal(prior_param$mu,
                                                         list(sqrt(prior_param$sigma[[1]]^2*n))),
                                weights = weights
   )
   robust_prior
+}
+
+#' Sampling with updated inputs
+#'
+#' @param defaults list of default options for the stan model
+#' @param ...
+#'
+#' @return stan sample
+#' @noRd
+sampling_optional_inputs <- function(defaults, ...){
+  input_vals <- list(...)
+  defaults[names(input_vals)] <- input_vals
+  stan_samp <- do.call(sampling, defaults)
 }
