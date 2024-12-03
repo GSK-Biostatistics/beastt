@@ -4,10 +4,12 @@
 \alias{binaryServer}
 \title{Binary Server UI}
 \usage{
-binaryServer(id)
+binaryServer(id, input_list)
 }
 \arguments{
-\item{id}{mod it}
+\item{id}{mod id}
+
+\item{input_list}{input from UI}
 }
 \description{
 Binary Server UI

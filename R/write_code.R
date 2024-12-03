@@ -2,12 +2,13 @@
 #'
 #' @param simulation A purpose, either "Simulation" or "Analysis"
 #' @param endpoint An endpoint type, one of "Binary", "Normal" or "Survival"
-#' @param selections input from UI
+#' @param input_list input from UI
 #'
 #' @importFrom rstudioapi documentNew
 #' @importFrom dplyr case_match
 #' @importFrom stringr str_glue
-write_code <- function(simulation, endpoint, selections){
+write_code <- function(simulation, endpoint, input_list){
+
   doc <- list(
     header = "########################################################
 #################  {beastt} Template  #################\n
@@ -21,7 +22,7 @@ library(beastt)\nlibrary(distributional)\nlibrary(dplyr)
   )
 
   if(simulation == "Simulation"){
-    doc <- write_simulation_sect(doc, endpoint, selections)
+    doc <- write_simulation_sect(doc, endpoint, input_list)
   } else {
     doc$data_setup <- "################# Read in Data ################# \n
 internal_df <- read.csv('DATA LOCATION')\nexternal_df <- read.csv('DATA LOCATION')\n
@@ -29,8 +30,8 @@ internal_df <- read.csv('DATA LOCATION')\nexternal_df <- read.csv('DATA LOCATION
   }
 
   out <- doc |>
-    write_prior_sect(endpoint, selections) |>
-    write_post_sect(endpoint, selections) |>
+    write_prior_sect(endpoint, input_list) |>
+    write_post_sect(endpoint, input_list) |>
     paste0(collapse = "\n")
 
   documentNew(out, type = "r")
@@ -39,18 +40,18 @@ internal_df <- read.csv('DATA LOCATION')\nexternal_df <- read.csv('DATA LOCATION
 }
 
 
-write_simulation_sect <- function(doc, endpoint, selections){
+write_simulation_sect <- function(doc, endpoint, input_list){
   doc
 }
 
-write_prior_sect <- function(doc, endpoint, selections){
-  if(selections$borrType == "On control arm"){
+write_prior_sect <- function(doc, endpoint, input_list){
+  if(input_list$analysis_inputs$borrType == "On control arm"){
     int_dat <- "filter(internal_df, trt == 0), #EDIT 'trt == 0' TO SELECT ONLY THE CONTROL ARM"
   } else {
     int_dat <- "internal_df"
   }
-  if(length(selections$plots$plotProp) > 0){
-    prop_plots <- case_match(selections$plots$plotProp,
+  if(length(input_list$analysis_inputs$plots$plotProp) > 0){
+    prop_plots <- case_match(input_list$analysis_inputs$plots$plotProp,
                              "Histogram" ~ 'prop_scr_hist(ps_obj)',
                              "Histogram - IPW" ~ 'prop_scr_hist(ps_obj, variable = "ipw")',
                              "Density" ~ 'prop_scr_dens(ps_obj)',
@@ -69,14 +70,14 @@ write_prior_sect <- function(doc, endpoint, selections){
                    "Normal" = "dist_normal(0, 10)"
   )
 
-  if(selections$robustify){
+  if(input_list$analysis_inputs$robustify){
     robust_prior <- str_glue("mix_prior <- dist_mixture(pwr_prior, {prior}, weights = c(0.5, 0.5))")
   } else {
     robust_prior <- ""
   }
 
-  if(length(selections$plots$plotPrior) > 0){
-    priors_to_plot <- case_match(selections$plots$plotPrior,
+  if(length(input_list$analysis_inputs$plots$plotPrior) > 0){
+    priors_to_plot <- case_match(input_list$analysis_inputs$plots$plotPrior,
                                  "Vague" ~ str_glue('"Vague Prior" = {prior}'),
                                  "Power Prior" ~ '"Power Prior" = pwr_prior',
                                  "Robust Mixture" ~ str_glue('"Robustified Power Prior" = mix_prior')
@@ -113,8 +114,8 @@ write_prior_sect <- function(doc, endpoint, selections){
 
 }
 
-write_post_sect <- function(doc, endpoint, selections){
-  if(selections$robustify){
+write_post_sect <- function(doc, endpoint, input_list){
+  if(input_list$analysis_inputs$robustify){
     post <- "post_mixed <- calc_post_beta(ps_obj, response = y, prior = mix_prior)"
     post_to_plot <- '"Robust Mixture Posterior" = post_mixed'
     prior_to_plot <- '"Robust Mixture Prior" = mix_prior'
@@ -124,8 +125,8 @@ write_post_sect <- function(doc, endpoint, selections){
     prior_to_plot <- '"Power Prior" = pwr_prior'
   }
 
-  if(length(selections$plots$plotPost) > 0){
-    posts_to_plot <- case_match(selections$plots$plotPost,
+  if(length(input_list$analysis_inputs$plots$plotPost) > 0){
+    posts_to_plot <- case_match(input_list$analysis_inputs$plots$plotPost,
                                 "Prior" ~ str_glue('plot_dist({prior_to_plot}, {post_to_plot})'),
                                 "Posterior" ~ str_glue('plot_dist({post_to_plot})')
     ) |>

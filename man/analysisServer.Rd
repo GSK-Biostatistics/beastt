@@ -4,12 +4,12 @@
 \alias{analysisServer}
 \title{Analysis Server}
 \usage{
-analysisServer(id, reactiveEndpoint)
+analysisServer(id, input_list)
 }
 \arguments{
 \item{id}{mod ID}
 
-\item{reactiveEndpoint}{reactive element with the type of endpoint}
+\item{input_list}{input from UI}
 }
 \description{
 Analysis Server

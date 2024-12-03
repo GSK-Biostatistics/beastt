@@ -4,12 +4,10 @@
 \alias{plotUI}
 \title{Inputs for plots}
 \usage{
-plotUI(id, robust)
+plotUI(id)
 }
 \arguments{
 \item{id}{mod id}
-
-\item{robust}{Boolean if the}
 }
 \description{
 Inputs for plots

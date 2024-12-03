@@ -4,10 +4,12 @@
 \alias{simulationServer}
 \title{Simulation Server}
 \usage{
-simulationServer(id)
+simulationServer(id, input_list)
 }
 \arguments{
 \item{id}{mod ID}
+
+\item{input_list}{input from UI}
 }
 \description{
 Simulation Server

@@ -7,7 +7,7 @@
 #'@import shiny
 #'@import miniUI
 #'@importFrom shinyjs useShinyjs
-#'@importFrom bslib bs_theme page_sidebar sidebar navset_card_pill nav_panel
+#'@importFrom bslib bs_theme page_sidebar sidebar navset_card_pill nav_panel nav_show nav_hide nav_select
 #'@importFrom rstudioapi documentNew
 bdb_code_template_maker <- function(){
   # Define UI for application
@@ -43,32 +43,45 @@ bdb_code_template_maker <- function(){
       nav_panel(title = "Simulation",
                 simulationUI("simulation")),
       nav_panel(title = "Analysis",
-                analysisUI("analysis")),
+                analysisUI("analysis"))
     )
   )
 
   # Define server logic
   server <- function(input, output, session) {
     bs_theme()
-    reactiveEndpoint <- reactive(input$endPoint)
+
     observeEvent(input$purpose, {
       if (input$purpose=="Simulation") {
-        bslib::nav_show("tabs", "Simulation", select=TRUE, session=session)
+        nav_show("tabs", "Simulation", select=TRUE, session=session)
       } else {
-        bslib::nav_hide("tabs", "Simulation", session=session)
-        bslib::nav_select("tabs", "Analysis", session=session)
+        nav_hide("tabs", "Simulation", session=session)
+        nav_select("tabs", "Analysis", session=session)
       }
     })
-    all_inputs <- c(analysisServer("analysis", reactiveEndpoint), simulationServer("simulation"))
-    observeEvent(input$submit,{
-      write_code(input$purpose, input$endPoint, all_inputs())
+
+    base_input <- reactive({
+      list(purpose=input$purpose, endPoint=input$endPoint)
+    })
+
+    simulation_out <- simulationServer("simulation", base_input)
+    analysis_out <- analysisServer("analysis", base_input)
+
+    observeEvent(input$submit, {
+      req(simulation_out)
+      req(analysis_out)
+
+      final_inputs <- list(simulation_inputs = simulation_out(),
+                           analysis_inputs = analysis_out())
+
+      write_code(input$purpose, input$endPoint, final_inputs)
       stopApp()
 
     })
 
   }
   # # Run the application
-  runGadget(ui, server
-            , viewer =dialogViewer("", width = 1000, height = 800),
+  runGadget(ui, server,
+            viewer =dialogViewer("", width = 1000, height = 800),
   )
 }

@@ -10,15 +10,17 @@ simulationUI <- function(id) {
     h4("Simulation"),
     hr(),
     radioButtons(ns("internal"), "Internal Data",
-                 choices = c("Bootstrap", "Simulate from scratch")),
+                 choices = c("Simulate from scratch", "Bootstrap"),
+                 selected = "Simulate from scratch"),
+    checkboxInput(ns("covImb"), "Covariate Imbalance", value = FALSE),
     radioButtons(ns("parallel"), "Parallelisation",
-                 choices = c("by iteration", "by scenario")),
-    checkboxGroupInput(ns("scenarioOptions"), "",
-                       choices=c("Vary internal control sample size",
+                 choices = c("by iteration", "by scenario"),
+                 selected = "by iteration"),
+    checkboxGroupInput(ns("scenarioOptions"), "Options to vary",
+                       choices=c("Internal control sample size",
                                  "Weight of informative component of RMP",
                                  "Treatment effect", "Drift")),
-    checkboxInput(ns("covImb"), "Covariate Imbalance"),
-    checkboxGroupInput(ns("opchar"), "Operating Characteristics",
+    checkboxGroupInput(ns("opChar"), "Operating Characteristics",
                        choices = c("Iteration level results"))
   )
 }
@@ -26,28 +28,37 @@ simulationUI <- function(id) {
 #' Simulation Server
 #'
 #' @param id mod ID
+#' @param input_list input from UI
 #'
 #' @noMd
 #'
 #' @importFrom shiny renderUI h3 reactive observeEvent
-#' @importFrom shinyjs hide
-simulationServer <- function(id) {
+simulationServer <- function(id, input_list) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     observeEvent(input$parallel, {
       if (input$parallel == "by iteration") {
-        hide("scenarioOptions")
+        shinyjs::hide("scenarioOptions")
       } else {
         shinyjs::show("scenarioOptions")
       }
     })
     observeEvent(input$internal, {
       if (input$internal == "Bootstrap") {
-        show("covImb")
+        shinyjs::show("covImb")
       } else {
-        hide("covImb")
+        shinyjs::hide("covImb")
       }
     })
 
+    simulation_selections <- reactive({
+      list(internal=input$internal,
+           parallel=input$parallel,
+           scenarioOptions=input$scenarioOptions,
+           covImb=input$covImb,
+           opChar=input$opChar)
+    })
+
+    return(simulation_selections)
   })
 }
