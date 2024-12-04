@@ -1,6 +1,6 @@
 #' The 'beastt' package.
 #'
-#' @description Inverse Probablity Weighted Baysian Dynamic Barrowing
+#' @description Inverse Probability Weighted Bayesian Dynamic Borrowing
 #'
 #' @docType _PACKAGE
 #' @name beastt-package
