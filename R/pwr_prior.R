@@ -217,7 +217,7 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
                    hyperparameter$mu/hyperparameter$sigma^2 ) * sd2_hat          # mean of IP-weighted power prior
     out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
   } else {
-    cli_abort("{.agr external_sd} must be a number if a prior is being supplied")
+    cli_abort("{.agr external_sd} must be a positive number if a prior is being supplied")
   }
   out_dist
 

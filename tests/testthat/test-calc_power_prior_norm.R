@@ -6,6 +6,7 @@ external_df <- data.frame(id_col = 21:40, cov1 = rnorm(10, 2), cov2 = rnorm(100,
                           trt = rep(0, 20), y = rnorm(20, 8, 0.7))
 model <- as.formula("~cov1 + cov2")
 initial_prior <- dist_normal(50, 10)
+sd_external_control <- 0.15
 
 # Test for valid inputs
 test_that("calc_power_prior_norm handles valid inputs", {
