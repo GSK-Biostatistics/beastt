@@ -76,7 +76,7 @@
 #' }
 "int_binary_df"
 
-#' External Time to Event Control Data for Propensity Score Balancing
+#' External Time-to-Event Control Data for Propensity Score Balancing
 #'
 #' This is a simulated dataset used to illustrate Bayesian dynamic borrowing in
 #' the case when borrowing from an external control arm with a time-to-event endpoint,
