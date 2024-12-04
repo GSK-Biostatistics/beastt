@@ -53,7 +53,7 @@ n_external <- nrow(ex_norm_df)
 
 With the covariate data from both the external and internal datasets, we can calculate the propensity scores and ATT inverse probability weights (IPWs) for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating an inverse probability weighted power prior in the next step.
 
-**Note: when reading external and internal datasets into `calc_prop_scr`, be sure to include only the treatment arms across which you want to balance the covariate distributions.** In this example, we want to balance the covariate distributions of the external control arm to be similar to those of the internal control arm, so we will exclude the internal active treatment arm data from this function.
+**Note: when reading external and internal datasets into `calc_prop_scr`, be sure to include only the arm in which you want to balance the covariate distributions (typically control).** In this example, we want to balance the covariate distributions of the external control arm to be similar to those of the internal control arm, so we will exclude the internal active treatment arm data from this function.
 
 ```{r}
 ps_model <- ~ cov1 + cov2 + cov3 + cov4
@@ -105,7 +105,7 @@ Now that we have a normal power prior, we can calculate the posterior distributi
 **Note: if reading internal data directly into `calc_post_norm` instead of a propensity score object, be sure to include only the treatment arm of interest (e.g., the internal control arm if creating a posterior distribution for $\theta_C$).**
 
 ```{r}
-post <- calc_post_norm(ps_obj,
+post <- calc_post_norm(filter(int_norm_df, trt == 0),
                        response = y, 
                        prior = pwr_prior,
                        internal_sd = sd_internal_control)
@@ -123,7 +123,7 @@ plot_dist("Robust Mixture Prior" = mixed_prior,
 The resulting posterior distribution will also be a mixture of normal components. 
 
 ```{r}
-post_mixed <- calc_post_norm(ps_obj,
+post_mixed <- calc_post_norm(filter(int_norm_df, trt==0),
                              response = y, 
                              prior= mixed_prior,
                              internal_sd = sd_internal_control)
