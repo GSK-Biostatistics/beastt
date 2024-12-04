@@ -87,7 +87,7 @@
 #' A data frame with 150 rows and 6 columns:
 #' \describe{
 #'   \item{subjid}{Unique subject ID}
-#'   \item{y}{Response, which is binary (0 vs. 1)}
+#'   \item{y}{Response (observed event/censored time)}
 #'   \item{enr_time}{Enrollment time}
 #'   \item{total_time}{Time from study start}
 #'   \item{event}{Response, which is binary (0 vs. 1)}
