@@ -193,7 +193,7 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
   weight_resp <- vars |> pull(.data$weight_resp)
   tot_ipw <- vars |> pull(.data$tot_ipw)
 
-  ec_sd_test <- !is.null(external_sd) && is.numeric(external_sd)
+  ec_sd_test <- !is.null(external_sd) && is.numeric(external_sd) && external_sd > 0
 
   if(is.null(prior)){
     if(ec_sd_test){
