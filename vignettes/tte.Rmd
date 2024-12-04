@@ -106,7 +106,7 @@ cont_post <- calc_weibull_post(filter(int_tte_df, trt == 0),
 
 vague_only <- dist_mixture(parameters(rpp)$dist, weights = c(0,1))
 
-trt_post <- calc_weibull_post(filter(int_tte_df, trt == 1),
+trt_post <- calc_post_weibull(filter(int_tte_df, trt == 1),
                   y, event, vague_only, c(10, 12))
 ```
 
