@@ -5,8 +5,7 @@
 #'   dataset should be read in (e.g., only the control arm if constructing a
 #'   posterior distribution for the control mean).
 #'
-#' @param internal_data This can either be a propensity score object or a tibble
-#'   of the internal data.
+#' @param internal_data A tibble of the internal data.
 #' @param response Name of response variable
 #' @param prior A distributional object corresponding to a normal distribution,
 #'   a t distribution, or a mixture distribution of normal and/or t components
@@ -65,17 +64,11 @@ calc_post_norm<- function(
     internal_sd = NULL
 ){
   # Checking internal data and response variable
-  if(is_prop_scr(internal_data)){
-    data <- internal_data$internal_df
-    nIC <- internal_data$internal_df |>
-      pull(!!internal_data$id_col) |>
-      unique() |>
-      length()
-  } else if(is.data.frame(internal_data)) {
+  if(is.data.frame(internal_data)) {
     data <- internal_data
     nIC <- nrow(internal_data)
   } else{
-    cli_abort("{.agr internal_data} either a dataset or `prop_scr` object type")
+    cli_abort("{.agr internal_data} a dataset")
   }
 
   # Check response exists in the data and calculate the sum
@@ -131,8 +124,7 @@ calc_post_norm<- function(
 #'   dataset should be read in (e.g., only the control arm if constructing a
 #'   posterior distribution for the control response rate).
 #'
-#' @param internal_data This can either be a propensity score object or a tibble
-#'   of the internal data.
+#' @param internal_data A tibble of the internal data.
 #' @param response Name of response variable
 #' @param prior A distributional object corresponding to a beta distribution
 #'   or a mixture distribution of beta components
@@ -165,17 +157,11 @@ calc_post_norm<- function(
 #'                               prior = dist_beta(0.5, 0.5))
 calc_post_beta<- function(internal_data, response, prior){
   # Checking internal data and response variable
-  if(is_prop_scr(internal_data)){
-    data <- internal_data$internal_df
-    nIC <- internal_data$internal_df |>
-      pull(!!internal_data$id_col) |>
-      unique() |>
-      length()
-  } else if(is.data.frame(internal_data)) {
+  if(is.data.frame(internal_data)) {
     data <- internal_data
     nIC <- nrow(internal_data)
   } else{
-    cli_abort("{.agr internal_data} either a dataset or `prop_scr` object type")
+    cli_abort("{.agr internal_data} a dataset")
   }
 
   # Check response exists in the data and calculate the sum

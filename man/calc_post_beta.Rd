@@ -7,8 +7,7 @@
 calc_post_beta(internal_data, response, prior)
 }
 \arguments{
-\item{internal_data}{This can either be a propensity score object or a tibble
-of the internal data.}
+\item{internal_data}{A tibble of the internal data.}
 
 \item{response}{Name of response variable}
 

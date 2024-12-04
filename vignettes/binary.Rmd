@@ -39,7 +39,7 @@ summary(ex_binary_df)
 
 With the covariate data from both the external and internal datasets, we can calculate the propensity scores and ATT inverse probability weights (IPWs) for the internal and external controls using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating a inverse probability weighted power prior in the next step.
 
-**Note: when reading external and internal datasets into `calc_prop_scr`, be sure to include only the treatment arms across which you want to balance the covariate distributions.** In this example, we want to balance the covariate distributions of the external control arm to be similar to those of the internal control arm, so we will exclude the internal active treatment arm data from this function.
+**Note: when reading external and internal datasets into `calc_prop_scr`, be sure to include only the arm in which you want to balance the covariate distributions (typically control).** In this example, we want to balance the covariate distributions of the external control arm to be similar to those of the internal control arm, so we will exclude the internal active treatment arm data from this function.
 
 ```{r}
 ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
@@ -81,10 +81,10 @@ plot_dist(pwr_prior)
 
 Now that we have a beta power prior, we can calculate the posterior distribution for $\theta_C$ using the `calc_post_beta` function. By defining our prior to be a beta distribution, the resulting posterior distribution will also be beta.
 
-**Note: if reading internal data directly into `calc_post_beta` instead of a propensity score object, be sure to include only the treatment arm of interest (e.g., the internal control arm if creating a posterior distribution for $\theta_C$).**
+**Note: if reading internal data directly into `calc_post_beta` instead of a propensity score object, be sure to include only the arm of interest (e.g., the internal control arm if creating a posterior distribution for $\theta_C$).**
 
 ```{r}
-post <- calc_post_beta(ps_obj,
+post <- calc_post_beta(filter(int_binary_df, trt==0),
                        response = y,
                        prior = pwr_prior)
 plot_dist(post)
@@ -105,7 +105,7 @@ plot_dist("Vague Prior" = vague,
 We can pass the resulting robust mixture prior to `calc_post_beta`, and see that the resulting posterior distribution will also be a mixture of beta components.
 
 ```{r}
-post_mixed <- calc_post_beta(ps_obj,
+post_mixed <- calc_post_beta(filter(int_binary_df, trt==0),
                              response = y,
                              prior = mix_prior)
 plot_dist(post_mixed)
