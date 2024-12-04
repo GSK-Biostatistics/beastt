@@ -79,7 +79,7 @@
 #' External Time to Event Control Data for Propensity Score Balancing
 #'
 #' This is a simulated dataset used to illustrate Bayesian dynamic borrowing in
-#' the case when borrowing from an external control arm with a time to event endpoint,
+#' the case when borrowing from an external control arm with a time-to-event endpoint,
 #' where the baseline covariate distributions of the internal and external data
 #' are balanced via inverse probability weighting.
 #'
