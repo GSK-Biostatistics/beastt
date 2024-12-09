@@ -84,7 +84,7 @@
 #' are balanced via inverse probability weighting.
 #'
 #' @format ## `ex_tte_df`
-#' A data frame with 150 rows and 6 columns:
+#' A data frame with 150 rows and 9 columns:
 #' \describe{
 #'   \item{subjid}{Unique subject ID}
 #'   \item{y}{Response (observed event/censored time)}
