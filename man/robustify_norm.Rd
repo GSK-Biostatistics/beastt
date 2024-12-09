@@ -7,7 +7,7 @@
 robustify_norm(prior, n, weights = c(0.5, 0.5))
 }
 \arguments{
-\item{prior}{Normal distributional object}
+\item{prior}{Normal or Multivariate Normal distributional object}
 
 \item{n}{Number of theoretical participants}
 

@@ -8,4 +8,3 @@ generics::glance
 #' @importFrom generics tidy
 #' @export
 generics::tidy
-
