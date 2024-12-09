@@ -316,7 +316,7 @@ calc_power_prior_weibull <- function(external_data,
 
     # Create list with inputs for the Stan power prior model
     stan_data_pp <- list(
-      N = nrow(ex_tte_df),                        # external control sample size
+      N = nrow(data),                        # external control sample size
       y = pull(data, !!response),                            # observed time (event or censored)
       e = pull(data, !!event),                        # event indicator (1: event; 0: censored)
       wgt = weights,    # inverse probability weight
@@ -366,8 +366,8 @@ calc_power_prior_weibull <- function(external_data,
 #' @param alpha_scale scale of the half-normal prior for alpha
 #'
 #' @noRd
+#' @importFrom stats dweibull dnorm optim cov
 calc_neg_log_dens <- function(x, y_vec, event_vec, ipw_vec, beta0_mean, beta0_sd, alpha_scale){
-
   # Extract elements of x and save as parameters log(alpha) and beta0
   log_alpha <- x[1]
   beta0 <- x[2]
