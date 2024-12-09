@@ -3,14 +3,14 @@
 \docType{data}
 \name{int_tte_df}
 \alias{int_tte_df}
-\title{Internal Time to Event Control Data for Propensity Score Balancing}
+\title{Internal Time-to-Event Control Data for Propensity Score Balancing}
 \format{
 \subsection{\code{int_tte_df}}{
 
 A data frame with 150 rows and 6 columns:
 \describe{
 \item{subjid}{Unique subject ID}
-\item{y}{Response, which is binary (0 vs. 1)}
+\item{y}{Response (observed event/censored time)}
 \item{enr_time}{Enrollment time}
 \item{total_time}{Time from study start}
 \item{event}{Response, which is binary (0 vs. 1)}
@@ -27,7 +27,7 @@ int_tte_df
 }
 \description{
 This is a simulated dataset used to illustrate Bayesian dynamic borrowing in
-the case when borrowing from an external control arm with a time to event endpoint,
+the case when borrowing from an external control arm with a time-to-event endpoint,
 where the baseline covariate distributions of the internal and external data
 are balanced via inverse probability weighting.
 }

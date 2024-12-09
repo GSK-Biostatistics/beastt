@@ -250,7 +250,7 @@ calc_post_beta<- function(internal_data, response, prior){
 #' @importFrom rstan sampling
 #'
 #'
-calc_weibull_post <- function(internal_data,
+calc_post_weibull <- function(internal_data,
                               response, event,
                               prior,
                               analysis_time,

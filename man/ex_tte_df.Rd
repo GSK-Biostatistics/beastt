@@ -3,14 +3,14 @@
 \docType{data}
 \name{ex_tte_df}
 \alias{ex_tte_df}
-\title{External Time to Event Control Data for Propensity Score Balancing}
+\title{External Time-to-Event Control Data for Propensity Score Balancing}
 \format{
 \subsection{\code{ex_tte_df}}{
 
-A data frame with 150 rows and 6 columns:
+A data frame with 150 rows and 9 columns:
 \describe{
 \item{subjid}{Unique subject ID}
-\item{y}{Response, which is binary (0 vs. 1)}
+\item{y}{Response (observed event/censored time)}
 \item{enr_time}{Enrollment time}
 \item{total_time}{Time from study start}
 \item{event}{Response, which is binary (0 vs. 1)}
@@ -26,7 +26,7 @@ ex_tte_df
 }
 \description{
 This is a simulated dataset used to illustrate Bayesian dynamic borrowing in
-the case when borrowing from an external control arm with a time to event endpoint,
+the case when borrowing from an external control arm with a time-to-event endpoint,
 where the baseline covariate distributions of the internal and external data
 are balanced via inverse probability weighting.
 }
