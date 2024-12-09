@@ -30,6 +30,7 @@ library(tibble)
 library(distributional)
 library(dplyr)
 library(ggplot2)
+library(rstan)
 set.seed(1234)
 
 summary(int_tte_df)
@@ -75,10 +76,9 @@ pwr_prior <- calc_power_prior_weibull(
   ps_obj,
   y, event, 
   dist_normal(0, 10),
-  50,
-  approximation = "MCMC"
+  50
 )
-plot_dist(pwr_prior)
+# plot_dist(pwr_prior)
 ```
 
 Now that we have a normal power prior, we can calculate the posterior distribution for $\theta_C$ using the `calc_post_norm` function. By defining our prior to be a normal distribution and by assuming the SD of the internal response data to be known, the resulting posterior distribution will also be normal (the case when the SD is unknown is not covered in this vignette).
@@ -86,28 +86,27 @@ Now that we have a normal power prior, we can calculate the posterior distributi
 **Note: if reading internal data directly into `calc_post_norm` instead of a propensity score object, be sure to include only the treatment arm of interest (e.g., the internal control arm if creating a posterior distribution for $\theta_C$).**
 
 ```{r}
-post <- calc_post_norm(ps_obj,
-                       response = y, 
+post <- calc_post_weibull(filter(int_tte_df, trt == 0),
+                       response = y, event = event,
                        prior = pwr_prior,
-                       internal_sd = sd_internal_control)
-plot_dist(post)
+                       analysis_time = c(10, 12))
 ```
 
 If we want to robustify our power prior for $\theta_C$, we can add a vague component to the power prior distribution we previously created to construct a robust mixture prior which we can then pass to `calc_post_norm`. In general, we can define our prior to be a mixture distribution with an arbitrary number of normal and/or $t$ components. If any component of the prior is a $t$ distribution, the prior will be approximated with the mixture of two normal distributions.
 
 ```{r}
 mixed_prior <- robustify_norm(pwr_prior, n_external)
-plot_dist("Robust Mixture Prior" = mixed_prior,
-          "Power Prior" = pwr_prior)
+# plot_dist("Robust Mixture Prior" = mixed_prior,
+#           "Power Prior" = pwr_prior)
 ```
 
 
 
 ```{r}
 cont_post <- calc_post_weibull(filter(int_tte_df, trt == 0),
-                  y, event, rpp, c(10, 12))
+                  y, event, mixed_prior, c(10, 12))
 
-vague_only <- dist_mixture(parameters(rpp)$dist, weights = c(0,1))
+vague_only <- dist_mixture(parameters(mixed_prior)$dist, weights = c(0,1))
 
 trt_post <- calc_post_weibull(filter(int_tte_df, trt == 1),
                   y, event, vague_only, c(10, 12))
@@ -119,7 +118,7 @@ ctl_post_ap2 <- as.data.frame(extract(cont_post, pars = c("survProb")))[,1]
 trt_post_ap2 <- as.data.frame(extract(trt_post, pars = c("survProb")))[,1]
 # Distribution of differences between treatment and control survival probabilities at prespecified time
 diff_post_ap2 <- trt_post_ap2 - ctl_post_ap2
-mean(diff_post_ap2 > gamma0)    # post prob that diff in surv probs is greater than gamma0
+mean(diff_post_ap2 > 0)    # post prob that diff in surv probs is greater than 0
 ```
 
 
