@@ -169,12 +169,12 @@ weights (IPWs) for the internal and external controls using the
 object which we can use for calculating a inverse probability weighted
 power prior in the next step.</p>
 <p><strong>Note: when reading external and internal datasets into
-<code>calc_prop_scr</code>, be sure to include only the treatment arms
-across which you want to balance the covariate distributions.</strong>
-In this example, we want to balance the covariate distributions of the
-external control arm to be similar to those of the internal control arm,
-so we will exclude the internal active treatment arm data from this
-function.</p>
+<code>calc_prop_scr</code>, be sure to include only the arm in which you
+want to balance the covariate distributions (typically
+control).</strong> In this example, we want to balance the covariate
+distributions of the external control arm to be similar to those of the
+internal control arm, so we will exclude the internal active treatment
+arm data from this function.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ps_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_prop_scr.html">calc_prop_scr</a></span><span class="op">(</span>internal_df <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_binary_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                        external_df <span class="op">=</span> <span class="va">ex_binary_df</span>,</span>
@@ -265,11 +265,11 @@ be a beta distribution, the resulting posterior distribution will also
 be beta.</p>
 <p><strong>Note: if reading internal data directly into
 <code>calc_post_beta</code> instead of a propensity score object, be
-sure to include only the treatment arm of interest (e.g., the internal
-control arm if creating a posterior distribution for
+sure to include only the arm of interest (e.g., the internal control arm
+if creating a posterior distribution for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>).</strong></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
+<code class="sourceCode R"><span><span class="va">post</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_binary_df</span>, <span class="va">trt</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>                       response <span class="op">=</span> <span class="va">y</span>,</span>
 <span>                       prior <span class="op">=</span> <span class="va">pwr_prior</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post</span><span class="op">)</span></span></code></pre></div>
@@ -294,7 +294,7 @@ to the components.</p>
 <code>calc_post_beta</code>, and see that the resulting posterior
 distribution will also be a mixture of beta components.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">post_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="va">ps_obj</span>,</span>
+<code class="sourceCode R"><span><span class="va">post_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_binary_df</span>, <span class="va">trt</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>                             response <span class="op">=</span> <span class="va">y</span>,</span>
 <span>                             prior <span class="op">=</span> <span class="va">mix_prior</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_mixed</span><span class="op">)</span></span></code></pre></div>
