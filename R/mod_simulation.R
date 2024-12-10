@@ -2,6 +2,7 @@
 #'
 #' @param id mod ID
 #'
+#' @noRd
 #' @noMd
 #' @importFrom shiny NS tagList h4 radioButtons checkboxGroupInput checkboxInput
 #' @importFrom bslib tooltip
@@ -34,6 +35,7 @@ simulationUI <- function(id) {
 #' @param id mod ID
 #' @param input_list input from UI
 #'
+#' @noRd
 #' @noMd
 #'
 #' @importFrom shiny renderUI h3 reactive observeEvent
