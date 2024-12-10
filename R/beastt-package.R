@@ -2,7 +2,6 @@
 #'
 #' @description Inverse Probability Weighted Bayesian Dynamic Borrowing
 #'
-#' @docType _PACKAGE
 #' @name beastt-package
 #' @aliases beastt
 #' @useDynLib beastt, .registration = TRUE
