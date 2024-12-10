@@ -87,10 +87,10 @@
 #' A data frame with 150 rows and 9 columns:
 #' \describe{
 #'   \item{subjid}{Unique subject ID}
-#'   \item{y}{Response (observed event/censored time)}
+#'   \item{y}{Response (observed time at which the participant either had an event or was censored)}
 #'   \item{enr_time}{Enrollment time}
 #'   \item{total_time}{Time from study start}
-#'   \item{event}{Response, which is binary (0 vs. 1)}
+#'   \item{event}{Event indicator (1: event; 0: censored)}
 #'   \item{cov1}{Covariate 1, which is normally distributed around 65 with a SD of 10}
 #'   \item{cov2}{Covariate 2, which is binary (0 vs. 1) with about 30% of participants having level 1}
 #'   \item{cov3}{Covariate 3, which is binary (0 vs. 1) with about 40% of participants having level 1}
@@ -106,17 +106,17 @@
 #' are balanced via inverse probability weighting.
 #'
 #' @format ## `int_tte_df`
-#' A data frame with 150 rows and 6 columns:
+#' A data frame with 160 rows and 10 columns:
 #' \describe{
 #'   \item{subjid}{Unique subject ID}
-#'   \item{y}{Response (observed event/censored time)}
+#'   \item{y}{Response (observed time at which the participant either had an event or was censored)}
 #'   \item{enr_time}{Enrollment time}
 #'   \item{total_time}{Time from study start}
-#'   \item{event}{Response, which is binary (0 vs. 1)}
+#'   \item{event}{Event indicator (1: event; 0: censored)}
 #'   \item{trt}{Treatment indicator, where 0 = control and 1 = active treatment}
-#'   \item{cov1}{Covariate 1, which is normally distributed around 65 with a SD of 10}
-#'   \item{cov2}{Covariate 2, which is binary (0 vs. 1) with about 30% of participants having level 1}
+#'   \item{cov1}{Covariate 1, which is normally distributed around 62 with a SD of 8}
+#'   \item{cov2}{Covariate 2, which is binary (0 vs. 1) with about 40% of participants having level 1}
 #'   \item{cov3}{Covariate 3, which is binary (0 vs. 1) with about 40% of participants having level 1}
-#'   \item{cov4}{Covariate 4, which is binary (0 vs. 1) with about 50% of participants having level 1}
+#'   \item{cov4}{Covariate 4, which is binary (0 vs. 1) with about 60% of participants having level 1}
 #' }
 "int_tte_df"
