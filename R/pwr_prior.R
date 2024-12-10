@@ -11,18 +11,18 @@
 #' @param prior A beta distributional object that is the initial prior for the
 #'   control response rate before the external control data are observed
 #'
-#' @details Weighted participant-level response data from an external study are
-#'   incorporated into an inverse probability weighted (IPW) power prior for the
-#'   control response rate \eqn{\theta_C}. When borrowing information from an
-#'   external control arm of size \eqn{N_{EC}}, the components of the IPW power
-#'   prior for \eqn{\theta_C} are defined as follows:
+#' @details Weighted participant-level response data from the control arm of an
+#'   external study are incorporated into an inverse probability weighted (IPW)
+#'   power prior for the control response rate \eqn{\theta_C}. When borrowing
+#'   information from an external control arm of size \eqn{N_{EC}}, the components
+#'   of the IPW power prior for \eqn{\theta_C} are defined as follows:
 #'   \describe{
-#'   \item{Initial prior:}{\eqn{\theta_C \sim \mbox{Beta}(\nu_0, \phi_0)}}
+#'   \item{Initial prior:}{\deqn{\theta_C \sim \mbox{Beta}(\nu_0, \phi_0)}}
 #'   \item{IPW likelihood of the external response data \eqn{\boldsymbol{y}_E} with
-#'     weights \eqn{\hat{\boldsymbol{a}}_0}:}{\eqn{\mathcal{L}_E(\theta_C \mid
+#'     weights \eqn{\hat{\boldsymbol{a}}_0}:}{\deqn{\mathcal{L}_E(\theta_C \mid
 #'     \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0) \propto \exp \left( \sum_{i=1}^{N_{EC}}
 #'     \hat{a}_{0i} \left[ y_i \log(\theta_C) + (1 - y_i) \log(1 - \theta_C) \right] \right)}}
-#'   \item{IPW power prior:}{\eqn{\theta_C \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0
+#'   \item{IPW power prior:}{\deqn{\theta_C \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0
 #'     \sim \mbox{Beta} \left( \sum_{i=1}^{N_{EC}} \hat{a}_{0i} y_i + \nu_0,
 #'     \sum_{i=1}^{N_{EC}} \hat{a}_{0i} (1 - y_i) + \phi_0 \right)}}
 #'   }
@@ -110,7 +110,7 @@ calc_power_prior_beta <- function(external_data, response, prior){
 #'   parameter of interest \eqn{\theta} (e.g., the control mean if borrowing
 #'   from an external control arm). When borrowing information from an external
 #'   dataset of size \eqn{N_{E}}, the IPW likelihood of the external response
-#'   data \eqn{y_E} with weights \eqn{\hat{\boldsymbol{a}}_0} is defined as
+#'   data \eqn{\boldsymbol{y}_E} with weights \eqn{\hat{\boldsymbol{a}}_0} is defined as
 #'
 #'   \deqn{\mathcal{L}_E(\theta \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0,
 #'   \sigma_{E}^2) \propto \exp \left( -\frac{1}{2 \sigma_{E}^2}
@@ -227,29 +227,66 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
 
 #' Calculate Power Prior Weibull
 #'
-#' @description Calculate a (potentially inverse probability weighted) normal
-#'   power prior using external data.
+#' @description Calculate an approximate (potentially inverse probability weighted)
+#'   multivariate normal power prior for the log-shape and log-inverse-scale parameters
+#'   of a Weibull likelihood for external time-to-event control data.
 #'
 #' @param external_data This can either be a `prop_scr_obj` created by calling
 #'   `create_prop_scr()` or a tibble of the external data. If it is just a
 #'   tibble the weights will be assumed to be 1. Only the external data for the
 #'   arm(s) of interest should be included in this object (e.g., external
-#'   control data if creating a power prior for the control mean)
+#'   control data if creating a power prior for the control Weibull shape and
+#'   intercept parameters)
 #' @param response Name of response variable
-#' @param event Name of event variable
+#' @param event Name of event indicator variable (1: event; 0: censored)
 #' @param intercept Normal distributional object that is the initial prior for the
-#'   log-inverse-scale parameter
+#'   intercept (i.e., log-inverse-scale) parameter
 #' @param shape Integer value that is the scale of the half-normal prior
 #'   for the shape parameter
-#' @param approximation Type of approximation to be used. Either La Place or
-#'   MCMC, La Place is used by default because it is faster than MCMC.
+#' @param approximation Type of approximation to be used. Either `Laplace` or
+#'   `MCMC`. `Laplace` is used by default because it is faster than `MCMC`.
 #' @param ... Arguments passed to `rstan::sampling` (e.g. iter, chains).
+#'
+#' @details Weighted participant-level response data from the control arm of an
+#'   external study are incorporated into an approximated inverse probability
+#'   weighted (IPW) power prior for the parameter vector
+#'   \eqn{\boldsymbol{\theta}_C = \{\log(\alpha), \beta\}}, where \eqn{\beta = -\log(\sigma)}
+#'   is the "intercept" parameter of a Weibull proportional hazards regression model
+#'   and \eqn{\alpha} and \eqn{\sigma} are the Weibull shape and scale parameters,
+#'   respectively. When borrowing information from an external dataset of size \eqn{N_{E}},
+#'   the IPW likelihood of the external response data \eqn{\boldsymbol{y}_E} with
+#'   event indicators \eqn{\boldsymbol{\nu}_E} and weights \eqn{\hat{\boldsymbol{a}}_0}
+#'   is defined as
+#'
+#'   \deqn{\mathcal{L}_E(\alpha, \sigma \mid \boldsymbol{y}_E, \boldsymbol{\nu}_E,
+#'   \hat{\boldsymbol{a}}_0) \propto \prod_{i=1}^{N_E} \left\{ \left( \frac{\alpha}{\sigma} \right)
+#'   \left( \frac{y_i}{\sigma} \right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
+#'   \right) \right\}^{\hat{a}_{0i} \nu_i} \left\{ \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
+#'   \right) \right\}^{\hat{a}_{0i}(1 - \nu_i)}.}
+#'
+#'   The initial priors for the intercept parameter \eqn{\beta} and the shape parameter
+#'   \eqn{\alpha} are assumed to be normal and half-normal, respectively, which can
+#'   be defined using the `intercept` and `shape` arguments.
+#'
+#'   The power prior for \eqn{\boldsymbol{\theta}_C} does not have a closed form, and
+#'   thus we approximate it via a bivariate normal distribution; i.e.,
+#'   \eqn{\boldsymbol{\theta}_C \mid \boldsymbol{y}_E, \boldsymbol{\nu}_E, \hat{\boldsymbol{a}}_0
+#'   \dot\sim \mbox{MVN} \left( \tilde{\boldsymbol{\mu}}_0, \tilde{\boldsymbol{\Sigma}}_0 \right)}}.
+#'   If `approximation = Laplace`, then \eqn{\tilde{\boldsymbol{\mu}}_0} is the mode vector
+#'   of the IPW power prior and \eqn{\tilde{\boldsymbol{\Sigma}}_0} is the negative
+#'   inverse of the Hessian of the log IPW power prior evaluated at the mode. If
+#'   `approximation = MCMC`, then MCMC samples are obtained from the IPW power prior, and
+#'   \eqn{\tilde{\boldsymbol{\mu}}_0} and \eqn{\tilde{\boldsymbol{\Sigma}}_0} are the
+#'   estimated mean vector and covariance matrix of these MCMC samples. Note that the
+#'   Laplace approximation method is faster due to its use of optimization instead of
+#'   MCMC sampling.
 #'
 #' @return Multivariate Normal Distributional Object
 #' @export
 #'
 #' @importFrom distributional dist_multivariate_normal
 #' @importFrom rstan sampling extract
+#' @family power prior
 calc_power_prior_weibull <- function(external_data,
                                      response, event,
                                      intercept, shape,
@@ -291,27 +328,23 @@ calc_power_prior_weibull <- function(external_data,
     # Calculate mode and Hessian matrix of log(alpha) and beta0 via optimization
     inits <- c(0, 0)   # initial parameters for log(alpha) and beta0, respectively
 
-    optim_pp_ctrl_ap1 <- optim(par = inits,
-                               fn = calc_neg_log_dens,
-                               method = "Nelder-Mead",
-                               y_vec = pull(data, !!response),
-                               event_vec = pull(data, !!event),
-                               ipw_vec = weights,
-                               beta0_mean = intercept_parms$mu,
-                               beta0_sd = intercept_parms$sigma,
-                               alpha_scale = shape,
-                               hessian = TRUE)
+    optim_pp_ctrl <- optim(par = inits,
+                           fn = calc_neg_log_dens,
+                           method = "Nelder-Mead",
+                           y_vec = pull(data, !!response),
+                           event_vec = pull(data, !!event),
+                           ipw_vec = weights,
+                           beta0_mean = intercept_parms$mu,
+                           beta0_sd = intercept_parms$sigma,
+                           alpha_scale = shape,
+                           hessian = TRUE)
 
     # Calculate mean vector and covariance matrix of the approximated IP-weighted power prior
     # used as the informative component of the RMP (i.e., mode vector and inverse Hessian matrix,
     # respectively, from the optimization)
-    inf_prior_mean_ap2 <- optim_pp_ctrl_ap1$par              # mean vector
-    inf_prior_cov_ap2 <- solve(optim_pp_ctrl_ap1$hessian)    # covariance matrix
-
-    # Calculate mean vector and covariance matrix of the vague component of the RMP
-    vague_prior_mean_ap2 <- inf_prior_mean_ap2
-    vague_prior_cov_ap2 <- inf_prior_cov_ap2*sum(pull(data, !!event))
-    out_dist <- dist_multivariate_normal(list(vague_prior_mean_ap2), list(vague_prior_cov_ap2))
+    inf_prior_mean <- optim_pp_ctrl$par              # mean vector
+    inf_prior_cov <- solve(optim_pp_ctrl$hessian)    # covariance matrix
+    out_dist <- dist_multivariate_normal(list(inf_prior_mean), list(inf_prior_cov))
   } else if(approximation == "MCMC"){
 
     # Create list with inputs for the Stan power prior model
@@ -341,9 +374,9 @@ calc_power_prior_weibull <- function(external_data,
     # Calculate mean vector and covariance matrix of the approximated IP-weighted power prior
     # used as the informative component of the RMP (i.e., mean vector and covariance matrix of
     # the MCMC samples)
-    inf_prior_mean_ap1 <- colMeans(samples_pp_mat)   # mean vector
-    inf_prior_cov_ap1 <- cov(samples_pp_mat)         # covariance matrix
-    out_dist <- dist_multivariate_normal(list(inf_prior_mean_ap1), list(inf_prior_cov_ap1))
+    inf_prior_mean <- colMeans(samples_pp_mat)   # mean vector
+    inf_prior_cov <- cov(samples_pp_mat)         # covariance matrix
+    out_dist <- dist_multivariate_normal(list(inf_prior_mean), list(inf_prior_cov))
 
   }
 
@@ -359,7 +392,7 @@ calc_power_prior_weibull <- function(external_data,
 #'
 #' @param x bivariate vector with the log-shape (alpha) and log-inverse-scale (beta0) of a Weibull distribution
 #' @param y_vec vector of observed times, the response variable (events or censored)
-#' @param event_vec vector of event indicators (1: event; 0: censored
+#' @param event_vec vector of event indicators (1: event; 0: censored)
 #' @param ipw_vec vector of inverse probability weights
 #' @param beta0_mean mean of the normal prior for beta0
 #' @param beta0_sd SD of the normal prior for beta0
