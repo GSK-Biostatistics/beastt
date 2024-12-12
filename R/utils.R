@@ -134,7 +134,7 @@ robustify_mvnorm <- function(prior, n, weights = c(0.5, 0.5)){
   prior_param <- parameters(prior)
   robust_prior <- dist_mixture(informative = prior,
                                vague = dist_multivariate_normal(prior_param$mu,
-                                                        list(sqrt(prior_param$sigma[[1]]^2*n))),
+                                                        list(prior_param$sigma[[1]]*n)),
                                weights = weights
   )
   robust_prior
