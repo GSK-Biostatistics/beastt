@@ -315,8 +315,8 @@ calc_post_weibull <- function(internal_data,
   prior_fam <- family(prior)
 
   if(prior_fam == "mvnorm"){
-    mean <- parameters(prior)$mu
-    cov <- parameters(prior)$sigma
+    mean <- parameters(prior)$mu[[1]]
+    cov <- parameters(prior)$sigma[[1]]
     stan_data_post_inputs <- list(
       N = nIC,   # internal sample size of given arm
       y = pull(data, !!response),       # observed time (event or censored)
