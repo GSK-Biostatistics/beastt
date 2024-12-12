@@ -1,5 +1,5 @@
 ---
-title: "Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm"
+title: "Normal Endpoint Case (Known SD)"
 package: beastt
 output: 
   rmarkdown::html_vignette:
@@ -72,17 +72,17 @@ prop_scr_hist(ps_obj)
 prop_scr_dens(ps_obj, variable = "ipw")
 ```
 
-The final plot we might want to look at is a love plot to visualize the absolute standard mean differences (both unadjusted and adjusted by the IPWs) of the covariates between the internal and external data. To do this, we use the `prop_scr_love` function. Like the previous function, the only required parameter for this function is the propensity score object, but we can also provide a location along the x-axis for a vertical reference line.
+The final plot we might want to look at is a love plot to visualize the absolute standardized mean differences (both unadjusted and adjusted by the IPWs) of the covariates between the internal and external data. To do this, we use the `prop_scr_love` function. Like the previous function, the only required parameter for this function is the propensity score object, but we can also provide a location along the x-axis for a vertical reference line.
 
 ```{r}
 prop_scr_love(ps_obj, reference_line = 0.1)
 ```
 
-Now that we are happy with our propensity score object, we can use it to calculate a normal inverse probability weighted power prior for $\theta_C$. To calculate the power prior, we need to supply:
+Now that we have created and assessed our propensity score object, we can use it to calculate a normal inverse probability weighted power prior for $\theta_C$. To calculate the power prior, we need to supply:
 
--   weighted object, the propensity score we created above
+-   weighted object (the propensity score object we created above)
 
--   response variable, in this case $y$
+-   response variable name (in this case $y$)
 
 -   initial prior, in the form of a normal distributional object
 
@@ -123,11 +123,11 @@ plot_dist("Robust Mixture Prior" = mixed_prior,
 The resulting posterior distribution will also be a mixture of normal components. 
 
 ```{r}
-post_mixed <- calc_post_norm(filter(int_norm_df, trt==0),
-                             response = y, 
-                             prior= mixed_prior,
-                             internal_sd = sd_internal_control)
-plot_dist(post_mixed)
+post_control <- calc_post_norm(filter(int_norm_df, trt == 0),
+                               response = y, 
+                               prior = mixed_prior,
+                               internal_sd = sd_internal_control)
+plot_dist(post_control)
 ```
 
 Lastly, we can also create a posterior distribution for the mean of the active treatment arm by reading the internal data directly into the `calc_post_norm` function and assuming the SD of the internal active treatment arm to be equal to 0.15. In this case, we assume a vague normal prior with mean 50 and SD 10.
@@ -141,7 +141,7 @@ post_treated <- calc_post_norm(internal_data = filter(int_norm_df, trt == 1),
                                prior = dist_normal(50, 10),
                                internal_sd = sd_internal_treated)
 
-plot_dist("Control Robust Mixture Posterior" = post_mixed,
+plot_dist("Control Posterior" = post_control,
           "Treatment Posterior" = post_treated)
 ```
 

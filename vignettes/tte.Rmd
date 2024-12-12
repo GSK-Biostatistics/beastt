@@ -1,5 +1,5 @@
 ---
-title: "Weibull Endpoint with Borrowing from an External Control Arm"
+title: "Time-to-Event Endpoint Case"
 package: beastt
 output: 
   rmarkdown::html_vignette:
@@ -62,7 +62,7 @@ prop_scr_hist(ps_obj)
 prop_scr_dens(ps_obj, variable = "ipw")
 ```
 
-The final plot we might want to look at is a love plot to visualize the absolute standard mean differences (both unadjusted and adjusted by the IPWs) of the covariates between the internal and external data. To do this, we use the `prop_scr_love` function. Like the previous function, the only required parameter for this function is the propensity score object, but we can also provide a location along the x-axis for a vertical reference line.
+The final plot we might want to look at is a love plot to visualize the absolute standardized mean differences (both unadjusted and adjusted by the IPWs) of the covariates between the internal and external data. To do this, we use the `prop_scr_love` function. Like the previous function, the only required parameter for this function is the propensity score object, but we can also provide a location along the x-axis for a vertical reference line.
 
 ```{r}
 prop_scr_love(ps_obj, reference_line = 0.1)
