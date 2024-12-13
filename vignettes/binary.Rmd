@@ -70,7 +70,7 @@ prop_scr_love(ps_obj, reference_line = 0.1)
 
 ## Inverse Probability Weighted Power Prior
 
-Now that we have created and assessed our propensity score object, we can use it to calculate a beta inverse probability weighted power prior for $\theta_C$. To calculate the power prior, we need to supply:
+Now that we have created and assessed our propensity score object, we can read it into the `calc_power_prior_beta` function to calculate a beta inverse probability weighted power prior for $\theta_C$. To calculate the power prior, we need to supply the following information:
 
 -   weighted object (the propensity score object we created above)
 
@@ -89,7 +89,7 @@ plot_dist(pwr_prior)
 
 ## Inverse Probability Weighted Robust Mixture Prior
 
-Now that we have a beta power prior for $\theta_C$, we can robustify this informative prior by adding a vague component to create a robust mixture prior (RMP). We define the vague component to be a $\mbox{Beta}(0.5, 0.5)$ prior, and we use the `dist_mixture` function from the `distributional` package to construct the RMP with 0.5 weight on each component. With this function, we can name the different components of our RMP (e.g., "informative" and "vague"). In general, we can define our prior to be a mixture distribution with an arbitrary number of beta components.
+We can robustify the beta power prior for $\theta_C$ by adding a vague component to create a robust mixture prior (RMP). We define the vague component to be a $\mbox{Beta}(0.5, 0.5)$ prior, and we use the `dist_mixture` function from the `distributional` package to construct the RMP with 0.5 weight on each component. With this function, we can name the different components of our RMP (e.g., "informative" and "vague"). In general, we can define our prior to be a mixture distribution with an arbitrary number of beta components.
 
 ```{r}
 vague_prior <- dist_beta(0.5, 0.5)
@@ -172,8 +172,8 @@ In addition to calculating posterior summary statistics, we can sample from post
 samp_control <- generate(x = post_control, times = 100000)[[1]]
 ggplot(data.frame(samp = samp_control), aes(x = samp)) +
   labs(y = "Density", x = expression(theta[C])) +
-  ggtitle(expression(paste("Histogram of Posterior Samples of ", theta[C]))) +
-  geom_histogram(aes(y = ..density..), color = "#5398BE", fill = "#5398BE",
+  ggtitle(expression(paste("Posterior Samples of ", theta[C]))) +
+  geom_histogram(aes(y = after_stat(density)), color = "#5398BE", fill = "#5398BE",
                  position = "identity", binwidth = .01, alpha = 0.5) +
   geom_density(color = "black") +
   theme_bw()
@@ -185,27 +185,27 @@ Similarly, we sample from the posterior distribution for $\theta_T$.
 samp_treated <- generate(x = post_treated, times = 100000)[[1]]
 ggplot(data.frame(samp = samp_treated), aes(x = samp)) +
   labs(y = "Density", x = expression(theta[T])) +
-  ggtitle(expression(paste("Histogram of Posterior Samples of ", theta[T]))) +
-  geom_histogram(aes(y = ..density..), color = "#FFA21F", fill = "#FFA21F",
+  ggtitle(expression(paste("Posterior Samples of ", theta[T]))) +
+  geom_histogram(aes(y = after_stat(density)), color = "#FFA21F", fill = "#FFA21F",
                  position = "identity", binwidth = .01, alpha = 0.5) +
   geom_density(color = "black") +
   theme_bw()
 ```
 
-We define our marginal treatment effect to be the difference between the active treatment response rate and the control response rate (i.e., $\theta_T - \theta_E$). We can obtain a sample from the posterior distribution for $\theta_T - \theta_E$ by subtracting the posterior sample of $\theta_C$ from the posterior sample of $\theta_T$.
+We define our marginal treatment effect to be the difference between the active treatment response rate and the control response rate (i.e., $\theta_T - \theta_C$). We can obtain a sample from the posterior distribution for $\theta_T - \theta_C$ by subtracting the posterior sample of $\theta_C$ from the posterior sample of $\theta_T$.
 
 ```{r}
 samp_trt_diff <- samp_treated - samp_control
 ggplot(data.frame(samp = samp_trt_diff), aes(x = samp)) +
   labs(y = "Density", x = expression(paste(theta[T], " - ", theta[C]))) +
-  ggtitle(expression(paste("Histogram of Posterior Samples of ", theta[T], " - ", theta[C]))) +
-  geom_histogram(aes(y = ..density..), color = "#FF0000", fill = "#FF0000",
+  ggtitle(expression(paste("Posterior Samples of ", theta[T], " - ", theta[C]))) +
+  geom_histogram(aes(y = after_stat(density)), color = "#FF0000", fill = "#FF0000",
                  position = "identity", binwidth = .01, alpha = 0.5) +
   geom_density(color = "black") +
   theme_bw()
 ```
 
-Suppose we want to test the hypotheses $H_0: \theta_T - \theta_E \le 0$ versus $H_1: \theta_T - \theta_E > 0$. We can use our posterior sample for $\theta_T - \theta_E$ to calculate the posterior probability $Pr(\theta_T - \theta_E > 0 \mid D)$ (i.e., the probability in favor of $H_1$), and we conclude that we have sufficient evidence in favor of the alternative hypothesis if $Pr(\theta_T - \theta_E > 0 \mid D) > 0.975$.
+Suppose we want to test the hypotheses $H_0: \theta_T - \theta_C \le 0$ versus $H_1: \theta_T - \theta_C > 0$. We can use our posterior sample for $\theta_T - \theta_C$ to calculate the posterior probability $Pr(\theta_T - \theta_C > 0 \mid D)$ (i.e., the probability in favor of $H_1$), and we conclude that we have sufficient evidence in favor of the alternative hypothesis if $Pr(\theta_T - \theta_C > 0 \mid D) > 0.975$.
 
 ```{r}
 mean(samp_trt_diff > 0)

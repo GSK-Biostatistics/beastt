@@ -24,7 +24,15 @@ library(beastt)
 
 ## Introduction and Data Description
 
-In this example, we illustrate how to use Bayesian dynamic borrowing (BDB) with the inclusion of inverse probability weighting to balance baseline covariate distributions between external and internal datasets. This particular example considers a hypothetical trial with a time-to-event outcome which we assume to follow a Weibull distribution, and our objective is to use BDB with IPWs to construct a posterior distribution for the probability of surviving past time $t$ in the control arm, $S_C(t)$. We will use simulated internal and external datasets from the package where each dataset has a time-to-event response variable (the observed time at which a participant either had an event or was censored), an event indicator (1: event; 0: censored), and four baseline covariates which we will balance.
+In this example, we illustrate how to use Bayesian dynamic borrowing (BDB) with the inclusion of inverse probability weighting to balance baseline covariate distributions between external and internal datasets. This particular example considers a hypothetical trial with a time-to-event outcome which we assume to follow a Weibull distribution; i.e., $Y_i \sim \mbox{Weibull}(\alpha, \sigma)$ where
+$$f(y_i \mid \alpha, \sigma) = \left( \frac{\alpha}{\sigma} \right) \left( \frac{y_i}{\sigma}
+\right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
+\right).$$
+Define $\boldsymbol{\theta} = \{\log(\alpha), \beta\}$ where $\beta = -\log(\sigma)$ is the intercept (i.e., log-inverse-scale) parameter of a Weibull proportional hazards regression model and $\alpha$ is the shape parameter.
+
+Our objective is to use BDB with IPWs to construct a posterior distribution for the probability of surviving past time $t$ in the control arm, $S_C(t)$. For each treatment arm, we will define our prior distributions with respect to $\boldsymbol{\theta}$ before eventually obtaining MCMC samples from the posterior distributions of $S_C(t)$ and $S_T(t)$ (i.e., the survival probability at time $t$ for the active treatment arm). In this example, suppose we are interested in survival probabilities at $t=12$ months.
+
+We will use simulated internal and external datasets from the package where each dataset has a time-to-event response variable (the observed time at which a participant either had an event or was censored), an event indicator (1: event; 0: censored), the enrollment time in the study, the total time since the start of the study, and four baseline covariates which we will balance.
 
 The external control dataset has a sample size of 150 participants, and the distributions of the four covariates are as follows:
 - Covariate 1: normal with a mean and standard deviation of approximately 65 and 10, respectively
@@ -49,18 +57,17 @@ set.seed(1234)
 
 summary(int_tte_df)
 summary(ex_tte_df)
-n_external <- nrow(ex_tte_df)
 ```
 
 ## Propensity Scores and Inverse Probability Weights
 
-With the covariate data from both the external and internal datasets, we can calculate the propensity scores and ATT inverse probability weights (IPWs) for the internal and external control participants using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating an inverse probability weighted power prior in the next step.
+With the covariate data from both the external and internal datasets, we can calculate the propensity scores and ATT inverse probability weights (IPWs) for the internal and external control participants using the `calc_prop_scr` function. This creates a propensity score object which we can use for calculating an approximate inverse probability weighted power prior in the next step.
 
 **Note: when reading external and internal datasets into `calc_prop_scr`, be sure to include only the arms in which you want to balance the covariate distributions (typically the internal and external control arms).** In this example, we want to balance the covariate distributions of the external control arm to be similar to those of the internal control arm, so we will exclude the internal active treatment arm data from this function.
 
 ```{r}
-ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
-                        external_df = ex_binary_df,
+ps_obj <- calc_prop_scr(internal_df = filter(int_tte_df, trt == 0),
+                        external_df = ex_tte_df,
                         id_col = subjid,
                         model = ~ cov1 + cov2 + cov3 + cov4)
 ps_obj
@@ -81,58 +88,156 @@ prop_scr_love(ps_obj, reference_line = 0.1)
 
 ## Approximate Inverse Probability Weighted Power Prior
 
+Now that we have created and assessed our propensity score object, we can read it into the `calc_power_prior_weibull` function to calculate an approximate inverse probability weighted power prior for $\boldsymbol{\theta}$ under the control arm, which we denote as $\boldsymbol{\theta}_C = \{\log(\alpha_C), \beta_C\}$. Specifically, we approximate the power prior with a bivariate normal distribution using one of two approximation methods: (1) Laplace approximation or (2) estimation of the mean vector and covariance matrix using MCMC samples from the unnormalized power prior (see the details section of the `calc_power_prior_weibull` documentation for more information). In this example, we use the Laplace approximation which is considerably faster than the MCMC approach.
+
+To approximate the power prior, we need to supply the following information:
+
+-   weighted object (the propensity score object we created above)
+
+-   response variable name (in this case $y$)
+
+-   event indicator variable name (in this case $event$)
+
+-   initial prior for the intercept parameter, in the form of a normal distributional object (e.g., $\mbox{N}(0, \mbox{sd} = 10)$)
+
+-   scale hyperparameter for the half-normal initial prior for the shape parameter
+
+-   approximation method (either "Laplace" or "MCMC")
 
 ```{r}
-pwr_prior <- calc_power_prior_weibull(
-  ps_obj,
-  y, event, 
-  dist_normal(0, 10),
-  50
-)
-# plot_dist(pwr_prior)
+pwr_prior <- calc_power_prior_weibull(ps_obj,
+                                      response = y,
+                                      event = event,
+                                      intercept = dist_normal(0, 10),
+                                      shape = 50,
+                                      approximation = "Laplace")
+#plot_dist(pwr_prior)
 ```
 
 ## Inverse Probability Weighted Robust Mixture Prior
 
-Now that we have a normal power prior, we can calculate the posterior distribution for $\theta_C$ using the `calc_post_norm` function. By defining our prior to be a normal distribution and by assuming the SD of the internal response data to be known, the resulting posterior distribution will also be normal (the case when the SD is unknown is not covered in this vignette).
+We can robustify the approximate multivariate normal (MVN) power prior for $\boldsymbol{\theta}_C$ by adding a vague component to create a robust mixture prior (RMP). We define the vague component to be a MVN distribution with the same mean vector as the approximate power prior and a covariance matrix that is equal to the covariance matrix of the approximate power prior multiplied by $r_{ex}$, where $r_{ex}$ denotes the number of observed events in the external control arm. To construct this RMP, we can use either the `robustify_norm` or `robustify_mvnorm` functions, and we place 0.5 weight on each component. The two components of the resulting RMP are labeled as "informative" and "vague".
 
-**Note: if reading internal data directly into `calc_post_norm` instead of a propensity score object, be sure to include only the treatment arm of interest (e.g., the internal control arm if creating a posterior distribution for $\theta_C$).**
-
-```{r}
-post <- calc_post_weibull(filter(int_tte_df, trt == 0),
-                       response = y, event = event,
-                       prior = pwr_prior,
-                       analysis_time = c(10, 12))
-```
-
-If we want to robustify our power prior for $\theta_C$, we can add a vague component to the power prior distribution we previously created to construct a robust mixture prior which we can then pass to `calc_post_norm`. In general, we can define our prior to be a mixture distribution with an arbitrary number of normal and/or $t$ components. If any component of the prior is a $t$ distribution, the prior will be approximated with the mixture of two normal distributions.
+We can print the mean vectors and covariance matrices of each MVN component using the functions `mix_means` and `mix_sigmas`, respectively.
 
 ```{r}
-mix_prior <- robustify_norm(pwr_prior, n_external)
-# plot_dist("Robust Mixture Prior" = mix_prior,
-#           "Power Prior" = pwr_prior)
+r_external <- sum(ex_tte_df$event)   # number of observed events
+mix_prior <- robustify_mvnorm(pwr_prior, r_external)   # RMP
+mix_means(mix_prior)     # mean vectors
+mix_sigmas(mix_prior)    # mean covariance matrices
+#plot_dist(mix_prior)
 ```
 
 ## Posterior Distributions
 
+To create a posterior distribution for $\boldsymbol{\theta}_C$, we can pass the resulting RMP and the internal control data to the `calc_post_weibull` function which returns a stanfit object from which we can extract the MCMC samples for the control parameters. In addition to returning posterior samples for $\log(\alpha_C)$ and $\beta_C$, the function returns posterior samples for the marginal survival probability $S_C(t)$ where the time(s) $t$ can be specified as either a scalar or vector of numbers using the `analysis_time` argument.
+
+**Note: when reading internal data directly into `calc_post_weibull`, be sure to include only the arm of interest (e.g., the internal control arm if creating a posterior distribution for $\boldsymbol{\theta}_C$).**
+
 ```{r}
-cont_post <- calc_post_weibull(filter(int_tte_df, trt == 0),
-                  y, event, mixed_prior, c(10, 12))
-
-vague_only <- dist_mixture(parameters(mix_prior)$dist, weights = c(0,1))
-
-trt_post <- calc_post_weibull(filter(int_tte_df, trt == 1),
-                  y, event, vague_only, c(10, 12))
+post_control <- calc_post_weibull(filter(int_tte_df, trt == 0),
+                                  response = y,
+                                  event = event,
+                                  prior = mix_prior,
+                                  analysis_time = 12)
+summary(post_control)$summary
+#plot_dist(post_control)
 ```
 
-## Posterior Summary Statistics and Samples
+We can extract and plot the posterior samples of $S_C(t)$. Here, we plot the samples using a histogram, however, additional posterior plots (e.g., density curves, trace plots) can easily be obtained using the `bayesplot` package.
 
 ```{r}
-ctl_post_ap2 <- as.data.frame(extract(cont_post, pars = c("survProb")))[,1]
-trt_post_ap2 <- as.data.frame(extract(trt_post, pars = c("survProb")))[,1]
-# Distribution of differences between treatment and control survival probabilities at prespecified time
-diff_post_ap2 <- trt_post_ap2 - ctl_post_ap2
-mean(diff_post_ap2 > 0)    # post prob that diff in surv probs is greater than 0
+surv_prob_control <- as.data.frame(extract(post_control, pars = c("survProb")))[,1]
+ggplot(data.frame(samp = surv_prob_control), aes(x = samp)) +
+  labs(y = "Density", x = expression(paste(S[C], "(t=12)"))) +
+  ggtitle(expression(paste("Posterior Samples of ", S[C], "(t=12)"))) +
+  geom_histogram(aes(y = after_stat(density)), color = "#5398BE", fill = "#5398BE",
+                 position = "identity", binwidth = .01, alpha = 0.5) +
+  geom_density(color = "black") +
+  theme_bw()
+```
+
+Next, we create a posterior distribution for the survival probability $S_T(t)$ for the active treatment arm at time $t=12$ by reading the internal data for the corresponding arm into the `calc_post_weibull` function. In this case, we use the vague component of the RMP as our MVN prior.
+
+**As noted earlier, be sure to read in only the data for the internal active treatment arm while excluding the internal control data.**
+
+```{r}
+vague_prior <- dist_multivariate_normal(mu = list(mix_means(mix_prior)[[2]]),
+                                        sigma = list(mix_sigmas(mix_prior)[[2]]))
+post_treated <- calc_post_weibull(filter(int_tte_df, trt == 1),
+                                  response = y,
+                                  event = event,
+                                  prior = vague_prior,
+                                  analysis_time = 12)
+summary(post_treated)$summary
+#plot_dist(post_treated)
+```
+
+As was previously done, we can extract and plot the posterior samples of $S_T(t)$.
+
+```{r}
+surv_prob_treated <- as.data.frame(extract(post_treated, pars = c("survProb")))[,1]
+ggplot(data.frame(samp = surv_prob_treated), aes(x = samp)) +
+  labs(y = "Density", x = expression(paste(S[T], "(t=12)"))) +
+  ggtitle(expression(paste("Posterior Samples of ", S[T], "(t=12)"))) +
+  geom_histogram(aes(y = after_stat(density)), color = "#FFA21F", fill = "#FFA21F",
+                 position = "identity", binwidth = .01, alpha = 0.5) +
+  geom_density(color = "black") +
+  theme_bw()
+```
+
+We define our marginal treatment effect to be the difference in survival probabilities at 12 months between the active treatment and control arms (i.e., $S_T(t=12) - S_C(t=12)$). We can obtain a sample from the posterior distribution for $S_T(t=12) - S_C(t=12)$ by subtracting the posterior sample of $S_C(t=12)$ from the posterior sample of $S_T(t=12)$.
+
+```{r}
+samp_trt_diff <- surv_prob_treated - surv_prob_control
+ggplot(data.frame(samp = samp_trt_diff), aes(x = samp)) +
+  labs(y = "Density", x = expression(paste(S[T], "(t=12) - ", S[C], "(t=12)"))) +
+  ggtitle(expression(paste("Posterior Samples of ", S[T],
+                           "(t=12) - ", S[C], "(t=12)"))) +
+  geom_histogram(aes(y = after_stat(density)), color = "#FF0000", fill = "#FF0000",
+                 position = "identity", binwidth = .01, alpha = 0.5) +
+  geom_density(color = "black") +
+  theme_bw()
+```
+
+## Posterior Summary Statistics
+
+Suppose we want to test the hypotheses $H_0: S_T(t=12) - S_C(t=12) \le 0$ versus $H_1: S_T(t=12) - S_C(t=12) > 0$. We can use our posterior sample for $S_T(t=12) - S_C(t=12)$ to calculate the posterior probability $Pr(S_T(t=12) - S_C(t=12) > 0 \mid D)$ (i.e., the probability in favor of $H_1$), and we conclude that we have sufficient evidence in favor of the alternative hypothesis if $Pr(S_T(t=12) - S_C(t=12) > 0 \mid D) > 0.975$.
+
+```{r}
+mean(samp_trt_diff > 0)
+```
+
+We see that this posterior probability is less than 0.975, and hence we do not have sufficient evidence in support of the alternative hypothesis.
+
+With MCMC samples from our posterior distributions, we can calculate posterior summary statistics such as the mean, median, and standard deviation. As an example, we calculate these statistics using the posterior distribution for $S_T(t=12) - S_C(t=12)$.
+
+```{r}
+c(mean = mean(samp_trt_diff),
+  median = median(samp_trt_diff),
+  SD = sd(samp_trt_diff))
+```
+
+We can also calculate credible intervals using the `quantile` function.
+
+```{r}
+quantile(samp_trt_diff, c(.025, .975))    # 95% CrI
+```
+
+Lastly, we calculate the effective sample size of the posterior distribution for $S_C(t=12)$ using the method by Pennello and Thompson (2008). To do so, we first must construct the posterior distribution of $S_C(t=12)$ *without borrowing from the external control data* (e.g., using a vague prior).
+
+```{r}
+post_ctrl_no_brrw <- calc_post_weibull(filter(int_tte_df, trt == 0),
+                                       response = y,
+                                       event = event,
+                                       prior = vague_prior,
+                                       analysis_time = 12)
+surv_prob_ctrl_nb <- as.data.frame(extract(post_ctrl_no_brrw, pars = c("survProb")))[,1]
+n_int_ctrl <- nrow(filter(int_tte_df, trt == 0))  # sample size of internal control arm
+var_no_brrw <- var(surv_prob_ctrl_nb)             # post variance of S_C(t) without borrowing
+var_brrw <- var(surv_prob_control)                # post variance of S_C(t) with borrowing
+ess <- n_int_ctrl * var_no_brrw / var_brrw        # effective sample size
+ess
 ```
 
 
