@@ -9,7 +9,7 @@ robustify_norm(prior, n, weights = c(0.5, 0.5))
 \arguments{
 \item{prior}{Normal or Multivariate Normal distributional object}
 
-\item{n}{Number of theoretical participants}
+\item{n}{Number of theoretical participants (or events, for time-to-event data)}
 
 \item{weights}{Vector of weights, where the first number corresponds to the
 informative component and the second is the vague}

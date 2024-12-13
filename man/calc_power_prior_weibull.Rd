@@ -19,20 +19,21 @@ calc_power_prior_weibull(
 \code{create_prop_scr()} or a tibble of the external data. If it is just a
 tibble the weights will be assumed to be 1. Only the external data for the
 arm(s) of interest should be included in this object (e.g., external
-control data if creating a power prior for the control mean)}
+control data if creating a power prior for the control Weibull shape and
+intercept parameters)}
 
 \item{response}{Name of response variable}
 
-\item{event}{Name of event variable}
+\item{event}{Name of event indicator variable (1: event; 0: censored)}
 
 \item{intercept}{Normal distributional object that is the initial prior for the
-log-inverse-scale parameter}
+intercept (i.e., log-inverse-scale) parameter}
 
 \item{shape}{Integer value that is the scale of the half-normal prior
 for the shape parameter}
 
-\item{approximation}{Type of approximation to be used. Either La Place or
-MCMC, La Place is used by default because it is faster than MCMC.}
+\item{approximation}{Type of approximation to be used. Either \code{Laplace} or
+\code{MCMC}. \code{Laplace} is used by default because it is faster than \code{MCMC}.}
 
 \item{...}{Arguments passed to \code{rstan::sampling} (e.g. iter, chains).}
 }
@@ -40,6 +41,77 @@ MCMC, La Place is used by default because it is faster than MCMC.}
 Multivariate Normal Distributional Object
 }
 \description{
-Calculate a (potentially inverse probability weighted) normal
-power prior using external data.
+Calculate an approximate (potentially inverse probability weighted)
+multivariate normal power prior for the log-shape and log-inverse-scale parameters
+of a Weibull likelihood for external time-to-event control data.
 }
+\details{
+Weighted participant-level response data from the control arm of an
+external study are incorporated into an approximated inverse probability
+weighted (IPW) power prior for the parameter vector
+\eqn{\boldsymbol{\theta}_C = \{\log(\alpha), \beta\}}, where \eqn{\beta = -\log(\sigma)}
+is the intercept parameter of a Weibull proportional hazards regression model
+and \eqn{\alpha} and \eqn{\sigma} are the Weibull shape and scale parameters,
+respectively. When borrowing information from an external dataset of size \eqn{N_{E}},
+the IPW likelihood of the external response data \eqn{\boldsymbol{y}_E} with
+event indicators \eqn{\boldsymbol{\nu}_E} and weights \eqn{\hat{\boldsymbol{a}}_0}
+is defined as
+
+\deqn{\mathcal{L}_E(\alpha, \sigma \mid \boldsymbol{y}_E, \boldsymbol{\nu}_E,
+  \hat{\boldsymbol{a}}_0) \propto \prod_{i=1}^{N_E} \left\{ \left( \frac{\alpha}{\sigma} \right)
+  \left( \frac{y_i}{\sigma} \right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
+  \right) \right\}^{\hat{a}_{0i} \nu_i} \left\{ \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
+  \right) \right\}^{\hat{a}_{0i}(1 - \nu_i)}.}
+
+The initial priors for the intercept parameter \eqn{\beta} and the shape parameter
+\eqn{\alpha} are assumed to be normal and half-normal, respectively, which can
+be defined using the \code{intercept} and \code{shape} arguments.
+
+The power prior for \eqn{\boldsymbol{\theta}_C} does not have a closed form, and
+thus we approximate it via a bivariate normal distribution; i.e.,
+\deqn{\boldsymbol{\theta}_C \mid \boldsymbol{y}_E, \boldsymbol{\nu}_E, \hat{\boldsymbol{a}}_0
+  \dot\sim \mbox{MVN} \left( \tilde{\boldsymbol{\mu}}_0, \tilde{\boldsymbol{\Sigma}}_0 \right)}.
+If \code{approximation = Laplace}, then \eqn{\tilde{\boldsymbol{\mu}}_0} is the mode vector
+of the IPW power prior and \eqn{\tilde{\boldsymbol{\Sigma}}_0} is the negative
+inverse of the Hessian of the log IPW power prior evaluated at the mode. If
+\code{approximation = MCMC}, then MCMC samples are obtained from the IPW power prior,
+and \eqn{\tilde{\boldsymbol{\mu}}_0} and \eqn{\tilde{\boldsymbol{\Sigma}}_0}
+are the estimated mean vector and covariance matrix of these MCMC samples.
+Note that the Laplace approximation method is faster due to its use of
+optimization instead of MCMC sampling.
+
+The first element of the mean vector and the first row/column of covariance
+matrix correspond to the log-shape parameter (\eqn{\log(\alpha)}), and the
+second element corresponds to the intercept (\eqn{\beta}, the log-inverse-scale)
+parameter.
+}
+\examples{
+library(distributional)
+library(dplyr)
+# This function can be used directly on the data
+calc_power_prior_weibull(ex_tte_df,
+                         response = y,
+                         event = event,
+                         intercept = dist_normal(0, 10),
+                         shape = 50,
+                         approximation = "Laplace")
+
+# Or this function can be used with a propensity score object
+ps_obj <- calc_prop_scr(internal_df = filter(int_tte_df, trt == 0),
+                        external_df = ex_tte_df,
+                        id_col = subjid,
+                        model = ~ cov1 + cov2 + cov3 + cov4)
+calc_power_prior_weibull(ps_obj,
+                         response = y,
+                         event = event,
+                         intercept = dist_normal(0, 10),
+                         shape = 50,
+                         approximation = "Laplace")
+
+}
+\seealso{
+Other power prior: 
+\code{\link{calc_power_prior_beta}()},
+\code{\link{calc_power_prior_norm}()}
+}
+\concept{power prior}

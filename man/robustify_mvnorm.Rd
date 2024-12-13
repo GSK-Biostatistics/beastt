@@ -9,7 +9,7 @@ robustify_mvnorm(prior, n, weights = c(0.5, 0.5))
 \arguments{
 \item{prior}{Multivariate Normal distributional object}
 
-\item{n}{Number of theoretical participants}
+\item{n}{Number of theoretical participants (or events, for time-to-event data)}
 
 \item{weights}{Vector of weights, where the first number corresponds to the
 informative component and the second is the vague}
@@ -22,14 +22,13 @@ Adds vague normal component, where the level of vagueness is controlled by
 the \code{n} parameter
 }
 \details{
-In cases with a normal endpoint, a robust mixture prior can be created by
-adding a vague normal component to any normal prior with mean \eqn{\theta}
-and variance \eqn{\sigma^2}.The vague component is calculated to have the
-same mean \eqn{\theta} and variance equal to \eqn{\sigma^2 \times n}, where
-\code{n} is the specified number of theoretical participants. If robustifying a normal
-power prior that was calculated from external control data and \code{n} is defined as
-the number of external control participants, and the vague component would
-then correspond to one external control participant's worth of data.
+In cases with a time-to-event endpoint, a robust mixture prior can be
+created by adding a vague multivariate normal component to any multivariate
+normal prior with mean vector \eqn{\boldsymbol{\mu}} and covariance matrix
+\eqn{\boldsymbol{\Sigma}}. The vague component is calculated to have the
+same mean vector \eqn{\boldsymbol{\mu}} and covariance matrix equal to
+\eqn{\boldsymbol{\Sigma} \times n}, where \code{n} is the specified number of
+theoretical events.
 }
 \examples{
 library(distributional)
