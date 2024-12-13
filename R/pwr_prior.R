@@ -247,45 +247,6 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
 #'   `MCMC`. `Laplace` is used by default because it is faster than `MCMC`.
 #' @param ... Arguments passed to `rstan::sampling` (e.g. iter, chains).
 #'
-#' @details Weighted participant-level response data from the control arm of an
-#'   external study are incorporated into an approximated inverse probability
-#'   weighted (IPW) power prior for the parameter vector
-#'   \eqn{\boldsymbol{\theta}_C = \{\log(\alpha), \beta\}}, where \eqn{\beta = -\log(\sigma)}
-#'   is the intercept parameter of a Weibull proportional hazards regression model
-#'   and \eqn{\alpha} and \eqn{\sigma} are the Weibull shape and scale parameters,
-#'   respectively. When borrowing information from an external dataset of size \eqn{N_{E}},
-#'   the IPW likelihood of the external response data \eqn{\boldsymbol{y}_E} with
-#'   event indicators \eqn{\boldsymbol{\nu}_E} and weights \eqn{\hat{\boldsymbol{a}}_0}
-#'   is defined as
-#'
-#'   \deqn{\mathcal{L}_E(\alpha, \sigma \mid \boldsymbol{y}_E, \boldsymbol{\nu}_E,
-#'   \hat{\boldsymbol{a}}_0) \propto \prod_{i=1}^{N_E} \left\{ \left( \frac{\alpha}{\sigma} \right)
-#'   \left( \frac{y_i}{\sigma} \right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
-#'   \right) \right\}^{\hat{a}_{0i} \nu_i} \left\{ \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
-#'   \right) \right\}^{\hat{a}_{0i}(1 - \nu_i)}.}
-#'
-#'   The initial priors for the intercept parameter \eqn{\beta} and the shape parameter
-#'   \eqn{\alpha} are assumed to be normal and half-normal, respectively, which can
-#'   be defined using the `intercept` and `shape` arguments.
-#'
-#'   The power prior for \eqn{\boldsymbol{\theta}_C} does not have a closed form, and
-#'   thus we approximate it via a bivariate normal distribution; i.e.,
-#'   \eqn{\boldsymbol{\theta}_C \mid \boldsymbol{y}_E, \boldsymbol{\nu}_E, \hat{\boldsymbol{a}}_0
-#'   \dot\sim \mbox{MVN} \left( \tilde{\boldsymbol{\mu}}_0, \tilde{\boldsymbol{\Sigma}}_0 \right)}}.
-#'   If `approximation = Laplace`, then \eqn{\tilde{\boldsymbol{\mu}}_0} is the mode vector
-#'   of the IPW power prior and \eqn{\tilde{\boldsymbol{\Sigma}}_0} is the negative
-#'   inverse of the Hessian of the log IPW power prior evaluated at the mode. If
-#'   `approximation = MCMC`, then MCMC samples are obtained from the IPW power prior,
-#'   and \eqn{\tilde{\boldsymbol{\mu}}_0} and \eqn{\tilde{\boldsymbol{\Sigma}}_0}
-#'   are the estimated mean vector and covariance matrix of these MCMC samples.
-#'   Note that the Laplace approximation method is faster due to its use of
-#'   optimization instead of MCMC sampling.
-#'
-#'   The first element of the mean vector and the first row/column of covariance
-#'   matrix correspond to the log-shape parameter (\eqn{\log(\alpha)}), and the
-#'   second element corresponds to the intercept (\eqn{\beta}, the log-inverse-scale)
-#'   parameter.
-#'
 #' @return Multivariate Normal Distributional Object
 #' @export
 #'
