@@ -43,18 +43,18 @@
 #' library(dplyr)
 #' # This function can be used directly on the data
 #' calc_power_prior_beta(external_data = ex_binary_df,
-#'   response = y,
-#'   prior = dist_beta(0.5, 0.5))
+#'                       response = y,
+#'                       prior = dist_beta(0.5, 0.5))
 #'
 #' # Or this function can be used with a propensity score object
 #' ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
-#'   external_df = ex_binary_df,
-#'   id_col = subjid,
-#'   model = ~ cov1 + cov2 + cov3 + cov4)
+#'                         external_df = ex_binary_df,
+#'                         id_col = subjid,
+#'                         model = ~ cov1 + cov2 + cov3 + cov4)
 #'
 #' calc_power_prior_beta(ps_obj,
-#'   response = y,
-#'   prior = dist_beta(0.5, 0.5))
+#'                       response = y,
+#'                       prior = dist_beta(0.5, 0.5))
 calc_power_prior_beta <- function(external_data, response, prior){
   if(is_prop_scr(external_data)){
     data <- external_data$external_df
@@ -153,19 +153,19 @@ calc_power_prior_beta <- function(external_data, response, prior){
 #' library(dplyr)
 #' # This function can be used directly on the data
 #' calc_power_prior_norm(ex_norm_df,
-#'   response = y,
-#'   prior = dist_normal(50, 10),
-#'   external_sd = 0.15)
+#'                       response = y,
+#'                       prior = dist_normal(50, 10),
+#'                       external_sd = 0.15)
 #'
 #' # Or this function can be used with a propensity score object
 #' ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
-#'                        external_df = ex_norm_df,
-#'                        id_col = subjid,
-#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#'                         external_df = ex_norm_df,
+#'                         id_col = subjid,
+#'                         model = ~ cov1 + cov2 + cov3 + cov4)
 #' calc_power_prior_norm(ps_obj,
-#'                      response = y,
-#'                      prior = dist_normal(50, 10),
-#'                      external_sd = 0.15)
+#'                       response = y,
+#'                       prior = dist_normal(50, 10),
+#'                       external_sd = 0.15)
 #'
 calc_power_prior_norm <- function(external_data, response, prior = NULL, external_sd = NULL){
   if(is_prop_scr(external_data)){

@@ -153,8 +153,8 @@ calc_post_norm<- function(
 #' library(dplyr)
 #' library(distributional)
 #' calc_post_beta(internal_data = filter(int_binary_df, trt == 1),
-#'                               response = y,
-#'                               prior = dist_beta(0.5, 0.5))
+#'                response = y,
+#'                prior = dist_beta(0.5, 0.5))
 calc_post_beta<- function(internal_data, response, prior){
   # Checking internal data and response variable
   if(is.data.frame(internal_data)) {
@@ -548,6 +548,28 @@ calc_t_post <- function(prior, nIC, response){
 
 }
 
+
+
+#' Extract Means of Mixture Components
+#'
+#' @param x A mixture distributional object
+#'
+#' @details If a distributional object that is a mixture of two or more normal
+#'   distributions is read in, the function will return a numeric object with
+#'   the means of each normal component. If the distributional object is a
+#'   mixture of two or more multivariate normal distributions, the function
+#'   will return a list with the mean vectors of each multivariate normal
+#'   component.
+#'
+#' @return numeric or list object
+#' @export
+#'
+#' @examples
+#' library(distributional)
+#' mix_norm <- dist_mixture(comp1 = dist_normal(1, 10),
+#'                          comp2 = dist_normal(1.5, 12),
+#'                          weights = c(.5, .5))
+#' mix_means(mix_norm)
 mix_means <- function(x){
   out <- parameters(x)$dist[[1]]|>
     map(\(dist) dist$mu)
@@ -558,6 +580,28 @@ mix_means <- function(x){
 
 }
 
+
+
+#' Extract Standard Deviations of Mixture Components
+#'
+#' @param x A mixture distributional object
+#'
+#' @details If a distributional object that is a mixture of two or more normal
+#'   distributions is read in, the function will return a numeric object with
+#'   the standard deviations of each normal component. If the distributional
+#'   object is a mixture of two or more multivariate normal distributions, the
+#'   function will return a list with the covariance matrices of each multivariate
+#'   normal component.
+#'
+#' @return numeric or list object
+#' @export
+#'
+#' @examples
+#' library(distributional)
+#' mix_norm <- dist_mixture(comp1 = dist_normal(1, 10),
+#'                          comp2 = dist_normal(1.5, 12),
+#'                          weights = c(.5, .5))
+#' mix_sigmas(mix_norm)
 mix_sigmas <- function(x){
   out <- parameters(x)$dist[[1]]|>
     map(\(dist) dist$sigma)
