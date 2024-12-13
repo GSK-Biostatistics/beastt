@@ -75,6 +75,7 @@ samples.
 }
 \examples{
 library(distributional)
+library(dplyr)
 mvn_prior <- dist_multivariate_normal(
    mu = list(c(0.3, -2.6)),
    sigma = list(matrix(c(1.5, 0.3, 0.3, 1.1), nrow = 2)))
