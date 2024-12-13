@@ -273,8 +273,20 @@ calc_post_beta<- function(internal_data, response, prior){
 #' @return stan posterior object
 #' @export
 #' @importFrom rstan sampling
-#'
-#'
+#' @examples
+#' mvn_prior <- dist_multivariate_normal(
+#'    mu = list(c(0.3, -2.6)),
+#'    sigma = list(matrix(c(1.5, 0.3, 0.3, 1.1), nrow = 2)))
+#' post_treated <- calc_post_weibull(filter(int_tte_df, trt == 1),
+#'                                   response = y,
+#'                                   event = event,
+#'                                   prior = mvn_prior,
+#'                                   analysis_time = 12,
+#'                                   warmup = 5000,
+#'                                   iter = 15000)
+#' # Extract MCMC samples of survival probabilities at time t=12
+#' surv_prob_treated <- as.data.frame(extract(post_treated,
+#'                                    pars = c("survProb")))[,1]
 calc_post_weibull <- function(internal_data,
                               response, event,
                               prior,
