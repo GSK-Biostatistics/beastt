@@ -271,7 +271,7 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
 #'   The power prior for \eqn{\boldsymbol{\theta}_C} does not have a closed form, and
 #'   thus we approximate it via a bivariate normal distribution; i.e.,
 #'   \deqn{\boldsymbol{\theta}_C \mid \boldsymbol{y}_E, \boldsymbol{\nu}_E, \hat{\boldsymbol{a}}_0
-#'   \dot\sim \mbox{MVN} \left( \tilde{\boldsymbol{\mu}}_0, \tilde{\boldsymbol{\Sigma}}_0 \right)}.
+#'   \; \dot\sim \; \mbox{MVN} \left( \tilde{\boldsymbol{\mu}}_0, \tilde{\boldsymbol{\Sigma}}_0 \right)}.
 #'   If `approximation = Laplace`, then \eqn{\tilde{\boldsymbol{\mu}}_0} is the mode vector
 #'   of the IPW power prior and \eqn{\tilde{\boldsymbol{\Sigma}}_0} is the negative
 #'   inverse of the Hessian of the log IPW power prior evaluated at the mode. If
