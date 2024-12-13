@@ -274,6 +274,7 @@ calc_post_beta<- function(internal_data, response, prior){
 #' @export
 #' @importFrom rstan sampling
 #' @examples
+#' library(distributional)
 #' mvn_prior <- dist_multivariate_normal(
 #'    mu = list(c(0.3, -2.6)),
 #'    sigma = list(matrix(c(1.5, 0.3, 0.3, 1.1), nrow = 2)))
