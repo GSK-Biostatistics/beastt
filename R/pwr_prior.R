@@ -292,6 +292,29 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
 #' @importFrom distributional dist_multivariate_normal
 #' @importFrom rstan sampling extract
 #' @family power prior
+#' @examples
+#' library(distributional)
+#' library(dplyr)
+#' # This function can be used directly on the data
+#' calc_power_prior_weibull(ex_tte_df,
+#'                          response = y,
+#'                          event = event,
+#'                          intercept = dist_normal(0, 10),
+#'                          shape = 50,
+#'                          approximation = "Laplace")
+#'
+#' # Or this function can be used with a propensity score object
+#' ps_obj <- calc_prop_scr(internal_df = filter(int_tte_df, trt == 0),
+#'                         external_df = ex_tte_df,
+#'                         id_col = subjid,
+#'                         model = ~ cov1 + cov2 + cov3 + cov4)
+#' calc_power_prior_weibull(ps_obj,
+#'                          response = y,
+#'                          event = event,
+#'                          intercept = dist_normal(0, 10),
+#'                          shape = 50,
+#'                          approximation = "Laplace")
+#'
 calc_power_prior_weibull <- function(external_data,
                                      response, event,
                                      intercept, shape,
