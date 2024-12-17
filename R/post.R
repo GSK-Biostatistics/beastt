@@ -14,7 +14,7 @@
 #'
 #' @details For a given arm of an internal trial (e.g., the control arm or an
 #'   active treatment arm) of size \eqn{N_I}, suppose the response data are normally
-#'   distributed such that \eqn{y_i \sim N(\theta, \sigma_I^2)}, \eqn{i=1,\ldots,N_I}.
+#'   distributed such that \eqn{Y_i \sim N(\theta, \sigma_I^2)}, \eqn{i=1,\ldots,N_I}.
 #'   If \eqn{\sigma_I^2} is assumed known, the posterior distribution for \eqn{\theta}
 #'   is written as
 #'
@@ -131,7 +131,7 @@ calc_post_norm<- function(
 #'
 #' @details For a given arm of an internal trial (e.g., the control arm or an
 #' active treatment arm) of size \eqn{N_I}, suppose the response data are binary
-#' such that \eqn{y_i \sim \mbox{Bernoulli}(\theta)}, \eqn{i=1,\ldots,N_I}. The
+#' such that \eqn{Y_i \sim \mbox{Bernoulli}(\theta)}, \eqn{i=1,\ldots,N_I}. The
 #' posterior distribution for \eqn{\theta} is written as
 #'
 #' \deqn{\pi( \theta \mid \boldsymbol{y} ) \propto \mathcal{L}(\theta \mid \boldsymbol{y}) \; \pi(\theta),}
@@ -153,8 +153,8 @@ calc_post_norm<- function(
 #' library(dplyr)
 #' library(distributional)
 #' calc_post_beta(internal_data = filter(int_binary_df, trt == 1),
-#'                               response = y,
-#'                               prior = dist_beta(0.5, 0.5))
+#'                response = y,
+#'                prior = dist_beta(0.5, 0.5))
 calc_post_beta<- function(internal_data, response, prior){
   # Checking internal data and response variable
   if(is.data.frame(internal_data)) {
@@ -212,30 +212,84 @@ calc_post_beta<- function(internal_data, response, prior){
 
 
 
-#' Calculate Weibull Posterior
+#' Calculate Posterior Weibull
 #'
-#' @description Calculate a posterior distribution for time to event data with a
-#'   Weibull Likelihood. Only the relevant treatment arms from the internal
+#' @description Calculate a posterior distribution for the probability of
+#'   surviving past a given analysis time(s) for time-to-event data with a
+#'   Weibull likelihood. Only the relevant treatment arms from the internal
 #'   dataset should be read in (e.g., only the control arm if constructing a
-#'   posterior distribution for the control response rate). To calcualate
-#'   treatment difference calculate posterior or both arms then subtract.
+#'   posterior distribution for the control survival probability).
 #'
 #' @param internal_data This can either be a propensity score object or a tibble
 #'   of the internal data.
 #' @param response Name of response variable
-#' @param event Name of event/censoring variable
+#' @param event Name of event indicator variable (1: event; 0: censored)
 #' @param prior A distributional object corresponding to a multivariate normal
-#'   distribution or a mixture of 2 multivariate normals
+#'   distribution or a mixture of 2 multivariate normals. The first element
+#'   of the mean vector and the first row/column of covariance matrix correspond
+#'   to the log-shape parameter, and the second element corresponds to the intercept
+#'   (i.e., log-inverse-scale) parameter.
 #' @param analysis_time Vector of time(s) when survival probabilities will be
 #'   calculated
-#' @param ... rstan sampling option. This override any default options. Fro more
-#'   information see [rstan::sampling()]
+#' @param ... rstan sampling option. This overrides any default options. For more
+#'   information, see [rstan::sampling()]
+#'
+#' @details For a given arm of an internal trial (e.g., the control arm or an
+#'   active treatment arm) of size \eqn{N_I}, suppose the response data are time to event
+#'   such that \eqn{Y_i \sim \mbox{Weibull}(\alpha, \sigma)}, where
+#'
+#'   \deqn{f(y_i \mid \alpha, \sigma) = \left( \frac{\alpha}{\sigma} \right) \left( \frac{y_i}{\sigma}
+#'   \right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
+#'   \right),}
+#'
+#'   \eqn{i=1,\ldots,N_I}. Define \eqn{\boldsymbol{\theta} = \{\log(\alpha), \beta\}}
+#'   where \eqn{\beta = -\log(\sigma)} is the intercept parameter of a Weibull
+#'   proportional hazards regression model. The posterior distribution for
+#'   \eqn{\boldsymbol{\theta}} is written as
+#'
+#'   \deqn{\pi( \boldsymbol{\theta} \mid \boldsymbol{y}, \boldsymbol{\nu} ) \propto
+#'   \mathcal{L}(\boldsymbol{\theta} \mid \boldsymbol{y}, \boldsymbol{\nu}) \;
+#'   \pi(\boldsymbol{\theta}),}
+#'
+#'   where \eqn{\mathcal{L}(\boldsymbol{\theta} \mid \boldsymbol{y}, \boldsymbol{\nu}) =
+#'   \prod_{i=1}^{N_I} f(y_i \mid \boldsymbol{\theta})^{\nu_i} S(y_i \mid \boldsymbol{\theta})^{1 - \nu_i}}
+#'   is the likelihood of the response data from the internal arm with event indicator
+#'   \eqn{\boldsymbol{\nu}} and survival function \eqn{S(y_i \mid \boldsymbol{\theta}) =
+#'   1 - F(y_i \mid \boldsymbol{\theta})}, and \eqn{\pi(\boldsymbol{\theta})} is a prior
+#'   distribution on \eqn{\boldsymbol{\theta}} (either a multivariate normal distribution or a
+#'   mixture of two multivariate normal distributions). Note that the posterior distribution
+#'   for \eqn{\boldsymbol{\theta}} does not have a closed form, and thus MCMC samples
+#'   for \eqn{\log(\alpha)} and \eqn{\beta} are drawn from the posterior. These MCMC
+#'   samples are used to construct samples from the posterior distribution
+#'   for the probability of surviving past the specified analysis time(s) for the
+#'   given arm.
+#'
+#'   To construct a posterior distribution for the treatment difference (i.e., the
+#'   difference in survival probabilities at the specified analysis time), obtain MCMC
+#'   samples from the posterior distributions for the survival probabilities under
+#'   each arm and then subtract the control-arm samples from the treatment-arm
+#'   samples.
 #'
 #' @return stan posterior object
 #' @export
 #' @importFrom rstan sampling
-#'
-#'
+#' @examples
+#' library(distributional)
+#' library(dplyr)
+#' library(rstan)
+#' mvn_prior <- dist_multivariate_normal(
+#'    mu = list(c(0.3, -2.6)),
+#'    sigma = list(matrix(c(1.5, 0.3, 0.3, 1.1), nrow = 2)))
+#' post_treated <- calc_post_weibull(filter(int_tte_df, trt == 1),
+#'                                   response = y,
+#'                                   event = event,
+#'                                   prior = mvn_prior,
+#'                                   analysis_time = 12,
+#'                                   warmup = 5000,
+#'                                   iter = 15000)
+#' # Extract MCMC samples of survival probabilities at time t=12
+#' surv_prob_treated <- as.data.frame(extract(post_treated,
+#'                                    pars = c("survProb")))[,1]
 calc_post_weibull <- function(internal_data,
                               response, event,
                               prior,
@@ -262,7 +316,7 @@ calc_post_weibull <- function(internal_data,
     cli_abort("{.agr response} was not found in {.agr internal_data}")
   }
 
-  # Check response exists in the data
+  # Check event indicator exists in the data
   event <- enquo(event)
   check <- safely(select)(data, !!event)
   if(!is.null(check$error)){
@@ -276,10 +330,10 @@ calc_post_weibull <- function(internal_data,
   prior_fam <- family(prior)
 
   if(prior_fam == "mvnorm"){
-    mean <- parameters(prior)$mu
-    cov <- parameters(prior)$sigma
+    mean <- parameters(prior)$mu[[1]]
+    cov <- parameters(prior)$sigma[[1]]
     stan_data_post_inputs <- list(
-      N = nIC,   # internal control sample size
+      N = nIC,   # internal sample size of given arm
       y = pull(data, !!response),       # observed time (event or censored)
       e = pull(data, !!event),   # event indicator (1: event; 0: censored)
       K = length(analysis_time),              # number of times to compute survival probabilities
@@ -297,7 +351,7 @@ calc_post_weibull <- function(internal_data,
     weight <- parameters(prior)$w[[1]][1] # Weight of robust mixture prior (RMP) associated with informative component
 
     stan_data_post_inputs <- list(
-      N = nIC,   # internal control sample size
+      N = nIC,   # internal sample size of given arm
       y = pull(data, !!response),       # observed time (event or censored)
       e = pull(data, !!event),   # event indicator (1: event; 0: censored)
       K = length(analysis_time),              # number of times to compute survival probabilities
@@ -509,6 +563,28 @@ calc_t_post <- function(prior, nIC, response){
 
 }
 
+
+
+#' Extract Means of Mixture Components
+#'
+#' @param x A mixture distributional object
+#'
+#' @details If a distributional object that is a mixture of two or more normal
+#'   distributions is read in, the function will return a numeric object with
+#'   the means of each normal component. If the distributional object is a
+#'   mixture of two or more multivariate normal distributions, the function
+#'   will return a list with the mean vectors of each multivariate normal
+#'   component.
+#'
+#' @return numeric or list object
+#' @export
+#'
+#' @examples
+#' library(distributional)
+#' mix_norm <- dist_mixture(comp1 = dist_normal(1, 10),
+#'                          comp2 = dist_normal(1.5, 12),
+#'                          weights = c(.5, .5))
+#' mix_means(mix_norm)
 mix_means <- function(x){
   out <- parameters(x)$dist[[1]]|>
     map(\(dist) dist$mu)
@@ -519,6 +595,28 @@ mix_means <- function(x){
 
 }
 
+
+
+#' Extract Standard Deviations of Mixture Components
+#'
+#' @param x A mixture distributional object
+#'
+#' @details If a distributional object that is a mixture of two or more normal
+#'   distributions is read in, the function will return a numeric object with
+#'   the standard deviations of each normal component. If the distributional
+#'   object is a mixture of two or more multivariate normal distributions, the
+#'   function will return a list with the covariance matrices of each multivariate
+#'   normal component.
+#'
+#' @return numeric or list object
+#' @export
+#'
+#' @examples
+#' library(distributional)
+#' mix_norm <- dist_mixture(comp1 = dist_normal(1, 10),
+#'                          comp2 = dist_normal(1.5, 12),
+#'                          weights = c(.5, .5))
+#' mix_sigmas(mix_norm)
 mix_sigmas <- function(x){
   out <- parameters(x)$dist[[1]]|>
     map(\(dist) dist$sigma)

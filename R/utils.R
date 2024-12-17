@@ -68,7 +68,7 @@ correct_weights <- function(x){
 #' @description Adds vague normal component, where the level of vagueness is controlled by
 #' the `n` parameter
 #' @param prior Normal or Multivariate Normal distributional object
-#' @param n Number of theoretical participants
+#' @param n Number of theoretical participants (or events, for time-to-event data)
 #' @param weights Vector of weights, where the first number corresponds to the
 #'   informative component and the second is the vague
 #'
@@ -109,18 +109,17 @@ robustify_norm <- function(prior, n, weights = c(0.5, 0.5)){
 #' @description Adds vague normal component, where the level of vagueness is controlled by
 #' the `n` parameter
 #' @param prior Multivariate Normal distributional object
-#' @param n Number of theoretical participants
+#' @param n Number of theoretical participants (or events, for time-to-event data)
 #' @param weights Vector of weights, where the first number corresponds to the
 #'   informative component and the second is the vague
 #'
-#' @details In cases with a normal endpoint, a robust mixture prior can be created by
-#'    adding a vague normal component to any normal prior with mean \eqn{\theta}
-#'    and variance \eqn{\sigma^2}.The vague component is calculated to have the
-#'    same mean \eqn{\theta} and variance equal to \eqn{\sigma^2 \times n}, where
-#'    `n` is the specified number of theoretical participants. If robustifying a normal
-#'    power prior that was calculated from external control data and `n` is defined as
-#'    the number of external control participants, and the vague component would
-#'    then correspond to one external control participant's worth of data.
+#' @details In cases with a time-to-event endpoint, a robust mixture prior can be
+#'    created by adding a vague multivariate normal component to any multivariate
+#'    normal prior with mean vector \eqn{\boldsymbol{\mu}} and covariance matrix
+#'    \eqn{\boldsymbol{\Sigma}}. The vague component is calculated to have the
+#'    same mean vector \eqn{\boldsymbol{\mu}} and covariance matrix equal to
+#'    \eqn{\boldsymbol{\Sigma} \times n}, where `n` is the specified number of
+#'    theoretical events.
 #'
 #' @return mixture distribution
 #' @export
@@ -135,7 +134,7 @@ robustify_mvnorm <- function(prior, n, weights = c(0.5, 0.5)){
   prior_param <- parameters(prior)
   robust_prior <- dist_mixture(informative = prior,
                                vague = dist_multivariate_normal(prior_param$mu,
-                                                        list(sqrt(prior_param$sigma[[1]]^2*n))),
+                                                        list(prior_param$sigma[[1]]*n)),
                                weights = weights
   )
   robust_prior

@@ -40,7 +40,7 @@ incorporated into an inverse probability weighted (IPW) power prior for the
 parameter of interest \eqn{\theta} (e.g., the control mean if borrowing
 from an external control arm). When borrowing information from an external
 dataset of size \eqn{N_{E}}, the IPW likelihood of the external response
-data \eqn{y_E} with weights \eqn{\hat{\boldsymbol{a}}_0} is defined as
+data \eqn{\boldsymbol{y}_E} with weights \eqn{\hat{\boldsymbol{a}}_0} is defined as
 
 \deqn{\mathcal{L}_E(\theta \mid \boldsymbol{y}_E, \hat{\boldsymbol{a}}_0,
   \sigma_{E}^2) \propto \exp \left( -\frac{1}{2 \sigma_{E}^2}
@@ -76,23 +76,24 @@ library(distributional)
 library(dplyr)
 # This function can be used directly on the data
 calc_power_prior_norm(ex_norm_df,
-  response = y,
-  prior = dist_normal(50, 10),
-  external_sd = 0.15)
+                      response = y,
+                      prior = dist_normal(50, 10),
+                      external_sd = 0.15)
 
 # Or this function can be used with a propensity score object
 ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
-                       external_df = ex_norm_df,
-                       id_col = subjid,
-                       model = ~ cov1 + cov2 + cov3 + cov4)
+                        external_df = ex_norm_df,
+                        id_col = subjid,
+                        model = ~ cov1 + cov2 + cov3 + cov4)
 calc_power_prior_norm(ps_obj,
-                     response = y,
-                     prior = dist_normal(50, 10),
-                     external_sd = 0.15)
+                      response = y,
+                      prior = dist_normal(50, 10),
+                      external_sd = 0.15)
 
 }
 \seealso{
 Other power prior: 
-\code{\link{calc_power_prior_beta}()}
+\code{\link{calc_power_prior_beta}()},
+\code{\link{calc_power_prior_weibull}()}
 }
 \concept{power prior}
