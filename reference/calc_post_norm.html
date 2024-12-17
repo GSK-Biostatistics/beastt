@@ -35,13 +35,13 @@ posterior distribution for the control mean)."><!-- mathjax --><script src="http
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/binary.html">Binary Endpoint Case - Borrowing from an External Control Arm</a>
+      <a href="../articles/binary.html">Binary Outcome</a>
     </li>
     <li>
-      <a href="../articles/continuous.html">Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm</a>
+      <a href="../articles/continuous.html">Normal Outcome (Known SD)</a>
     </li>
     <li>
-      <a href="../articles/tte.html">Weibull Endpoint with Borrowing from an External Control Arm</a>
+      <a href="../articles/tte.html">Time-to-Event Outcome</a>
     </li>
   </ul></li>
 <li>
@@ -108,7 +108,7 @@ assumed known. It can be left as <code>NULL</code> if assumed unknown</p></dd>
     <h2>Details</h2>
     <p>For a given arm of an internal trial (e.g., the control arm or an
 active treatment arm) of size \(N_I\), suppose the response data are normally
-distributed such that \(y_i \sim N(\theta, \sigma_I^2)\), \(i=1,\ldots,N_I\).
+distributed such that \(Y_i \sim N(\theta, \sigma_I^2)\), \(i=1,\ldots,N_I\).
 If \(\sigma_I^2\) is assumed known, the posterior distribution for \(\theta\)
 is written as</p>
 <p>$$\pi( \theta \mid \boldsymbol{y}, \sigma_{I}^2 ) \propto \mathcal{L}(\theta \mid \boldsymbol{y}, \sigma_{I}^2) \; \pi(\theta),$$</p>

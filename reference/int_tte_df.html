@@ -35,13 +35,13 @@ are balanced via inverse probability weighting."><!-- mathjax --><script src="ht
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/binary.html">Binary Endpoint Case - Borrowing from an External Control Arm</a>
+      <a href="../articles/binary.html">Binary Outcome</a>
     </li>
     <li>
-      <a href="../articles/continuous.html">Normal Endpoint Case with Assumed Known SD - Borrowing from an External Control Arm</a>
+      <a href="../articles/continuous.html">Normal Outcome (Known SD)</a>
     </li>
     <li>
-      <a href="../articles/tte.html">Weibull Endpoint with Borrowing from an External Control Arm</a>
+      <a href="../articles/tte.html">Time-to-Event Outcome</a>
     </li>
   </ul></li>
 <li>
@@ -85,11 +85,11 @@ are balanced via inverse probability weighting.</p>
 <h3 id="int-tte-df"><code>int_tte_df</code><a class="anchor" aria-label="anchor" href="#int-tte-df"></a></h3>
 
 
-<p>A data frame with 150 rows and 6 columns:</p><dl><dt>subjid</dt>
+<p>A data frame with 160 rows and 10 columns:</p><dl><dt>subjid</dt>
 <dd><p>Unique subject ID</p></dd>
 
 <dt>y</dt>
-<dd><p>Response (observed event/censored time)</p></dd>
+<dd><p>Response (observed time at which the participant either had an event or was censored)</p></dd>
 
 <dt>enr_time</dt>
 <dd><p>Enrollment time</p></dd>
@@ -98,22 +98,22 @@ are balanced via inverse probability weighting.</p>
 <dd><p>Time from study start</p></dd>
 
 <dt>event</dt>
-<dd><p>Response, which is binary (0 vs. 1)</p></dd>
+<dd><p>Event indicator (1: event; 0: censored)</p></dd>
 
 <dt>trt</dt>
 <dd><p>Treatment indicator, where 0 = control and 1 = active treatment</p></dd>
 
 <dt>cov1</dt>
-<dd><p>Covariate 1, which is normally distributed around 65 with a SD of 10</p></dd>
+<dd><p>Covariate 1, which is normally distributed around 62 with a SD of 8</p></dd>
 
 <dt>cov2</dt>
-<dd><p>Covariate 2, which is binary (0 vs. 1) with about 30% of participants having level 1</p></dd>
+<dd><p>Covariate 2, which is binary (0 vs. 1) with about 40% of participants having level 1</p></dd>
 
 <dt>cov3</dt>
 <dd><p>Covariate 3, which is binary (0 vs. 1) with about 40% of participants having level 1</p></dd>
 
 <dt>cov4</dt>
-<dd><p>Covariate 4, which is binary (0 vs. 1) with about 50% of participants having level 1</p></dd>
+<dd><p>Covariate 4, which is binary (0 vs. 1) with about 60% of participants having level 1</p></dd>
 
 
 </dl></div>
