@@ -78,7 +78,7 @@ pwr_prior <- calc_power_prior_weibull(
   dist_normal(0, 10),
   50
 )
-# plot_dist(pwr_prior)
+plot_dist(pwr_prior)
 ```
 
 Now that we have a normal power prior, we can calculate the posterior distribution for $\theta_C$ using the `calc_post_norm` function. By defining our prior to be a normal distribution and by assuming the SD of the internal response data to be known, the resulting posterior distribution will also be normal (the case when the SD is unknown is not covered in this vignette).
