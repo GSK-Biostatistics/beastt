@@ -14,6 +14,17 @@ test_that("calc_post_norm handles valid inputs", {
   expect_s3_class(post_norm_result, "distribution")
 })
 
+# Test for values
+test_that("calc_post_norm returns the correct value", {
+  post_norm_result <- calc_post_norm(filter(internal_df, trt == 0),
+                                     response = y,
+                                     prior = pwr_prior,
+                                     internal_sd = sd_internal_control)
+  expect_equal(round(parameters(post_norm_result)$mu, digits=5), 0.71303)
+  expect_equal(round(parameters(post_norm_result)$sigma, digits=7), 0.0003499)
+  expect_equal(family(post_norm_result), "normal")
+})
+
 # Test for invalid internal data
 test_that("calc_post_norm handles invalid internal data", {
   expect_error(calc_post_norm(c(5, 6),

@@ -12,6 +12,16 @@ test_that("calc_post_beta handles valid inputs", {
   expect_s3_class(post_beta_result, "distribution")
 })
 
+# Test for values
+test_that("calc_post_beta returns the correct value", {
+  post_beta_result <- calc_post_beta(filter(internal_df, trt==0),
+                                     response = y,
+                                     prior = pwr_prior)
+  expect_equal(parameters(post_beta_result)$shape1, 48)
+  expect_equal(parameters(post_beta_result)$shape2, 94)
+  expect_equal(family(post_beta_result), "beta")
+})
+
 # Test for invalid external data
 test_that("calc_post_beta handles invalid internal data", {
   expect_error(calc_post_beta(c(4, 8, 12), response = y, prior = pwr_prior))

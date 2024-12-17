@@ -20,6 +20,16 @@ test_that("calc_power_prior_beta handles valid inputs", {
   expect_s3_class(pwr_prior_beta_df_result, "distribution")
 })
 
+# Test for values
+test_that("calc_power_prior_beta returns the correct value", {
+  pwr_prior_beta_result <- calc_power_prior_beta(external_df,
+                                                 response = y,
+                                                 prior = initial_prior)
+  expect_equal(parameters(pwr_prior_beta_result)$shape1, 65.5)
+  expect_equal(parameters(pwr_prior_beta_result)$shape2, 35.5)
+  expect_equal(family(pwr_prior_beta_result), "beta")
+})
+
 # Test for invalid external data
 test_that("calc_power_prior_beta handles invalid external data", {
   expect_error(calc_power_prior_beta(c(1, 2, 3), response=y, prior=initial_prior))
