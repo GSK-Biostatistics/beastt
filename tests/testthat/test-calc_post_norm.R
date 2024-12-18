@@ -47,6 +47,10 @@ test_that("calc_post_norm handles invalid prior", {
                               response = y,
                               prior = "a",
                               internal_sd = sd_internal_control))
+  expect_error(calc_post_norm(filter(internal_df, trt == 0),
+                              response = y,
+                              prior = dist_beta(10, 15),
+                              internal_sd = sd_internal_control))
 })
 
 # Test for invalid response variable

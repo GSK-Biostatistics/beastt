@@ -40,6 +40,7 @@ test_that("calc_power_prior_beta handles invalid external data", {
 test_that("calc_power_prior_beta handles invalid prior", {
   expect_error(calc_power_prior_beta(external_df, response=y, prior=5))
   expect_error(calc_power_prior_beta(external_df, response=y, prior="a"))
+  expect_error(calc_power_prior_beta(external_df, response=y, prior=dist_norm(5, 1)))
 })
 
 # Test for invalid response variable

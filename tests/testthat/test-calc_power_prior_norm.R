@@ -56,6 +56,10 @@ test_that("calc_power_prior_norm handles invalid prior", {
                                      response=y,
                                      prior="a",
                                      external_sd = sd_external_control))
+  expect_error(calc_power_prior_norm(external_df,
+                                     response=y,
+                                     prior=dist_beta(5, 6),
+                                     external_sd = sd_external_control))
 })
 
 # Test for invalid response variable
