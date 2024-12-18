@@ -11,6 +11,12 @@ test_that("prop_scr_love handles valid inputs", {
   expect_s3_class(prop_scr_love_result, "ggplot")
 })
 
+# Test for correct output
+test_that("prop_scr_love produces correct output", {
+  prop_scr_love_test <- prop_scr_love(ps_obj)
+  vdiffr::expect_doppelganger("prop-scr-love-test", prop_scr_love_test)
+})
+
 # Test for invalid inputs
 test_that("prop_scr_love handles invalid inputs", {
   expect_error(prop_scr_love("love"))

@@ -11,6 +11,12 @@ test_that("prop_scr_dens handles valid inputs", {
   expect_s3_class(prop_scr_dens_result, "ggplot")
 })
 
+# Test for correct output
+test_that("prop_scr_dens produces correct output", {
+  prop_scr_dens_test <- prop_scr_dens(ps_obj)
+  vdiffr::expect_doppelganger("prop-scr-dens-test", prop_scr_dens_test)
+})
+
 # Test for invalid inputs
 test_that("prop_scr_dens handles invalid inputs", {
   expect_error(prop_scr_dens(25))

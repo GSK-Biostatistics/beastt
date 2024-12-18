@@ -11,6 +11,12 @@ test_that("prop_scr_hist handles valid inputs", {
   expect_s3_class(prop_scr_hist_result, "ggplot")
 })
 
+# Test for correct output
+test_that("prop_scr_hist produces correct output", {
+  prop_scr_hist_test <- prop_scr_hist(ps_obj)
+  vdiffr::expect_doppelganger("prop-scr-hist-test", prop_scr_hist_test)
+})
+
 # Test for invalid inputs
 test_that("prop_scr_hist handles invalid inputs", {
   expect_error(prop_scr_hist(6))
