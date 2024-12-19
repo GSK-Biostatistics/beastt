@@ -86,20 +86,25 @@ calc_post_norm<- function(
 
   # With known internal SD
   if(!is.null(internal_sd)) {
-    # Sum of responses in internal arm
-    sum_resp <- pull(data, !!response) |>
-      sum()
-    if(prior_fam == "normal"){
-      out_dist <- calc_norm_post(prior, internal_sd, nIC, sum_resp)
-    } else if (prior_fam == "student_t") {
-      out_dist <- t_to_mixnorm(prior) |>
-        calc_mixnorm_post(internal_sd, nIC, sum_resp)
-    } else if(prior_fam == "mixture") {
-      out_dist <- mix_t_to_mix(prior) |>
-        calc_mixnorm_post(internal_sd, nIC, sum_resp)
+    if(is.numeric(internal_sd) && internal_sd > 0){
+      # Sum of responses in internal arm
+      sum_resp <- pull(data, !!response) |>
+        sum()
+      if(prior_fam == "normal"){
+        out_dist <- calc_norm_post(prior, internal_sd, nIC, sum_resp)
+      } else if (prior_fam == "student_t") {
+        out_dist <- t_to_mixnorm(prior) |>
+          calc_mixnorm_post(internal_sd, nIC, sum_resp)
+      } else if(prior_fam == "mixture") {
+        out_dist <- mix_t_to_mix(prior) |>
+          calc_mixnorm_post(internal_sd, nIC, sum_resp)
+      } else {
+        cli_abort("{.agr prior} must be either normal, t, or a mixture of normals and t")
+      }
     } else {
-      cli_abort("{.agr prior} must be either normal, t, or a mixture of normals and t")
+      cli_abort("{.agr internal_sd} must be a positive number if a prior is being supplied")
     }
+
   } else {
     if(prior_fam == "student_t") {
       out_dist <- t_to_mixnorm(prior) |>
