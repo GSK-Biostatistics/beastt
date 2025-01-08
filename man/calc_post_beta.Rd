@@ -26,7 +26,7 @@ posterior distribution for the control response rate).
 \details{
 For a given arm of an internal trial (e.g., the control arm or an
 active treatment arm) of size \eqn{N_I}, suppose the response data are binary
-such that \eqn{y_i \sim \mbox{Bernoulli}(\theta)}, \eqn{i=1,\ldots,N_I}. The
+such that \eqn{Y_i \sim \mbox{Bernoulli}(\theta)}, \eqn{i=1,\ldots,N_I}. The
 posterior distribution for \eqn{\theta} is written as
 
 \deqn{\pi( \theta \mid \boldsymbol{y} ) \propto \mathcal{L}(\theta \mid \boldsymbol{y}) \; \pi(\theta),}
@@ -43,6 +43,6 @@ distribution or a mixture distribution.
 library(dplyr)
 library(distributional)
 calc_post_beta(internal_data = filter(int_binary_df, trt == 1),
-                              response = y,
-                              prior = dist_beta(0.5, 0.5))
+               response = y,
+               prior = dist_beta(0.5, 0.5))
 }
