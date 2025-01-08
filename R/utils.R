@@ -57,6 +57,8 @@ plot_dist <- function(...){
 #' @importFrom dplyr rowwise mutate
 #' @importFrom tidyr crossing
 #' @importFrom stats density
+#' @importFrom purrr map_lgl
+#' @importFrom grDevices rainbow
 plot_dist_mvnorm <- function(dist_list){
 
   if(!all(map_lgl(dist_list, is_mvnorm))){
