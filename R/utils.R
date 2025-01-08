@@ -29,11 +29,7 @@ plot_dist <- function(...){
   } else {
     Distributions <- names(input)
     n <- length(input)
-    if(n > 2) {
-      colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
-    } else {
-      colors <- c("#5398BE", "#FFA21F")
-    }
+    colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
 
     fill_alpha <- ifelse(n > 1, 0.5, 1)
     if(is.null(Distributions) & n > 0){
@@ -56,6 +52,11 @@ plot_dist <- function(...){
 #'
 #' @noRd
 #' @return ggplot
+#'
+#' @importFrom ggplot2 geom_contour scale_color_manual
+#' @importFrom dplyr rowwise mutate
+#' @importFrom tidyr crossing
+#' @importFrom stats density
 plot_dist_mvnorm <- function(dist_list){
 
   if(!all(map_lgl(dist_list, is_mvnorm))){
@@ -70,32 +71,25 @@ plot_dist_mvnorm <- function(dist_list){
       mu2 <- mean(dist)[2]
       sigma2 <- sqrt(variance(dist)[2])
       x2 <- seq(from=mu2-2.5*sigma2, to=mu2+2.5*sigma2, length.out=100)
-      temp <- tidyr::crossing(x1, x2) %>%
-        rowwise() %>%
+      temp <- crossing(x1, x2) |>
+        rowwise() |>
         mutate(z = unlist(density(dist, c(x1, x2))), id=as.factor(i))
       tib <- rbind(tib, temp)
     }
 
     n <- length(dist_list)
     if(n == 1){
-      ggplot(tib, aes(x=x1, y=x2, z=z)) +
+      ggplot(tib, aes(x=x1, y=x2, z=.data$z)) +
         geom_contour(colour = "black") +
         labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
         theme_bw()
     }
-    else if(n == 2){
-      colors <- c("#5398BE", "#FFA21F")
-      ggplot(tib, aes(x=x1, y=x2, z=z, colour=id)) +
-        geom_contour() +
-        labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
-        theme_bw() + scale_colour_manual(values = colors)
-    }
     else {
       colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
-      ggplot(tib, aes(x=x1, y=x2, z=z, colour=id)) +
+      ggplot(tib, aes(x=x1, y=x2, z=.data$z, colour=.data$id)) +
         geom_contour() +
         labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
-        theme_bw() + scale_colour_manual(values = colors)
+        theme_bw() + scale_color_manual(values = colors)
     }
   }
 }
