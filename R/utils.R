@@ -24,27 +24,23 @@ plot_dist <- function(...){
     cli_abort("Must be given distributional objects")
   }
 
-  Distributions <- names(input)
-  n <- length(input)
-  if(n > 2) {
-    colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
-
-  } else {
-    colors <- c("#5398BE", "#FFA21F")
-  }
-
-  fill_alpha <- ifelse(n > 1, 0.5, 1)
-  if(is.null(Distributions) & n > 0){
-    Distributions <- map_chr(input, format, width = 2)
-    if(length(unique(Distributions)) != n)
-      Distributions <- paste0(1:n,": ", Distributions)
-
-  }
-
-  fam <- map(input, family)
-  if(fam=="mvnorm"){
+  if(any(map_lgl(input, is_mvnorm))){
     plot_dist_mvnorm(input)
   } else {
+    Distributions <- names(input)
+    n <- length(input)
+    if(n > 2) {
+      colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
+    } else {
+      colors <- c("#5398BE", "#FFA21F")
+    }
+
+    fill_alpha <- ifelse(n > 1, 0.5, 1)
+    if(is.null(Distributions) & n > 0){
+      Distributions <- map_chr(input, format, width = 2)
+      if(length(unique(Distributions)) != n)
+        Distributions <- paste0(1:n,": ", Distributions)
+    }
     ggplot(data.frame(), aes(xdist = input)) +
       stat_slab(aes(fill = Distributions), alpha=fill_alpha) +
       stat_slab(fill = NA, slab_color="black", show.legend = FALSE) +
@@ -54,42 +50,64 @@ plot_dist <- function(...){
   }
 }
 
-#' Plot multivariate normal distribution contour plot
+#' Plot multivariate normal distribution contours
 #'
-#' @param input
+#' @param dist_list list of distributional objects
 #'
 #' @noRd
 #' @return ggplot
-plot_dist_mvnorm <- function(mvnorm, type=c("fill", "bw")){
-  dist <- mvnorm[[1]]
-  if(family(dist)=="mvnorm"){
-    mu1 <- mean(dist)[1]
-    sigma1 <- variance(dist)[1]
-    x1 <- seq(from=mu1 - 2.5*sigma1, to=mu1 + 2.5*sigma1, length.out=100)
-    mu2 <- mean(dist)[2]
-    sigma2 <- variance(dist)[2]
-    x2 <- seq(from=mu2 - 2.5*sigma2, to=mu2 + 2.5*sigma2, length.out=100)
+plot_dist_mvnorm <- function(dist_list){
 
-    tib <- tidyr::crossing(x1, x2) %>%
-      rowwise() %>%
-      mutate(z = unlist(density(input[[1]], c(x1, x2))))
+  if(!all(map_lgl(dist_list, is_mvnorm))){
+    cli_abort("Must be given multivariate normal objects")
+  } else {
+    tib <- data.frame(x1=numeric(), x2=numeric(), z=numeric(), id=factor())
+    for (i in 1:length(dist_list)){
+      dist <- dist_list[[i]]
+      mu1 <- mean(dist)[1]
+      sigma1 <- sqrt(variance(dist)[1])
+      x1 <- seq(from=mu1-2.5*sigma1, to=mu1+2.5*sigma1, length.out=100)
+      mu2 <- mean(dist)[2]
+      sigma2 <- sqrt(variance(dist)[2])
+      x2 <- seq(from=mu2-2.5*sigma2, to=mu2+2.5*sigma2, length.out=100)
+      temp <- tidyr::crossing(x1, x2) %>%
+        rowwise() %>%
+        mutate(z = unlist(density(dist, c(x1, x2))), id=as.factor(i))
+      tib <- rbind(tib, temp)
+    }
 
-    if(type=="fill"){
-      colors <- c("#5398BE", "#FFA21F", rainbow(11))
-      ggplot(tib) +
-        geom_contour_filled(aes(x=x1, y=x2, z=z)) +
-        labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
-        scale_fill_manual(values = colors) +
-        theme_bw()
-    } else if(type=="bw"){
+    n <- length(dist_list)
+    if(n == 1){
       ggplot(tib, aes(x=x1, y=x2, z=z)) +
         geom_contour(colour = "black") +
         labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
         theme_bw()
     }
-  } else {
-    cli_abort("{.agr mvnorm} must be a multivariate normal")
+    else if(n == 2){
+      colors <- c("#5398BE", "#FFA21F")
+      ggplot(tib, aes(x=x1, y=x2, z=z, colour=id)) +
+        geom_contour() +
+        labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
+        theme_bw() + scale_colour_manual(values = colors)
+    }
+    else {
+      colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
+      ggplot(tib, aes(x=x1, y=x2, z=z, colour=id)) +
+        geom_contour() +
+        labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
+        theme_bw() + scale_colour_manual(values = colors)
+    }
   }
+}
+
+#' Check if a distributional object belongs to mvnorm family
+#'
+#' @param dist a distributional object
+#'
+#' @noRd
+#' @return logical value
+is_mvnorm <- function(dist){
+  ifelse(family(dist)=="mvnorm", TRUE, FALSE)
 }
 
 
