@@ -11,21 +11,25 @@ simulationUI <- function(id) {
   tagList(
     h4("Simulation"),
     hr(),
-    radioButtons(ns("internal"), "Internal Covariate Data",
-                 choices = c("Simulate from scratch", "Bootstrap"),
-                 selected = "Simulate from scratch"),
-    checkboxInput(ns("covImb"), "Covariate Imbalance", value = FALSE),
-    radioButtons(ns("parallel"), "Parallelisation",
-                 choices = c("by scenario", "by iteration"),
-                 selected = "by scenario"),
+    fluidRow(
+      column(6,
+             radioButtons(ns("internal"), strong("Internal Covariate Data"),
+                          choices = c("Simulate from scratch", "Bootstrap"),
+                          selected = "Simulate from scratch"),
+             checkboxInput(ns("covImb"), strong("Covariate Imbalance"), value = FALSE)),
+      column(6,
+             radioButtons(ns("parallel"), strong("Parallelisation"),
+                          choices = c("by scenario", "by iteration"),
+                          selected = "by scenario"))
+    ),
     tooltip(
-      checkboxGroupInput(ns("scenarioOptions"), "Options to vary",
+      checkboxGroupInput(ns("scenarioOptions"), strong("Options to vary"),
                          choices=c("Internal control sample size"="samplesize",
                                    "Weight of informative component of RMP"="weight",
                                    "Treatment effect"="trteffect", "Drift"="drift")),
       "Information about options"
     ),
-    checkboxGroupInput(ns("opChar"), "Operating Characteristics",
+    checkboxGroupInput(ns("opChar"), strong("Operating Characteristics"),
                        choices = c("Iteration level results"))
   )
 }

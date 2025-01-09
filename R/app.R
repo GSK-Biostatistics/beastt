@@ -16,7 +16,7 @@ bdb_code_template_maker <- function(){
     id = "bdb_template_app",
     theme = bs_theme(bootswatch = "united",
                      primary = "#F36633",
-                     secondary = "#f39633",
+                     secondary = "#F36633",
                      "navbar-bg" = "#F36633"
     ),
     tags$style(HTML("
@@ -31,9 +31,9 @@ bdb_code_template_maker <- function(){
     title ="BDB Code Template Maker",
     sidebar=sidebar(
       h3("Study Design"),
-      radioButtons("purpose", "Purpose",
+      radioButtons("purpose", strong("Purpose"),
                    choices = c("Simulation", "Analysis")),
-      selectInput("endPoint", "Endpoint Type",
+      selectInput("endPoint", strong("Endpoint Type"),
                   choices=c("Binary", "Normal", "Survival")),
       actionButton(inputId="submit", label= "Submit")
     ),

@@ -15,7 +15,7 @@ plotUI <- function(id) {
     fluidRow(
       column(4,
              shiny::checkboxGroupInput(ns("plotProp"),
-                                       "Propensity Score Plot(s)",
+                                       strong("Propensity Score Plot(s)"),
                                        choices =
                                          c("Histogram", "Histogram - IPW",
                                            "Density", "Density - IPW",
@@ -23,11 +23,11 @@ plotUI <- function(id) {
 
       column(3,
              shiny::checkboxGroupInput(ns("plotPrior"),
-                                       "Prior Plot",
+                                       strong("Prior Plot"),
                                        choices = c("Vague", "Power Prior"))),
       column(3,
              shiny::checkboxGroupInput(ns("plotPost"),
-                                       "Posterior Plot",
+                                       strong("Posterior Plot"),
                                        choices = c("Prior", "Posterior")))
     )
   )

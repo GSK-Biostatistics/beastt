@@ -10,12 +10,12 @@ normalanalysisUI <- function(id) {
   tagList(
     h4("Normal Analysis"),
     hr(),
-    selectInput(ns("borrType"), "Type of Borrowing",
+    selectInput(ns("borrType"), strong("Type of Borrowing"),
                 choices=c("On control arm",
                           "On treatment arm",
                           "No borrowing"), selected="On control arm"),
     checkboxInput(ns("robustify"), "Robustify Power Prior", value=FALSE),
-    radioButtons(ns("stddev"), "Standard Deviation",
+    radioButtons(ns("stddev"), strong("Standard Deviation"),
                  width = '100%',
                  choices = c("Known", "Unknown (Student's t approximation)")
     ),
