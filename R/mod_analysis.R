@@ -36,6 +36,7 @@ analysisServer <- function(id, input_list) {
           h3("bad")
         }
       })
+      outputOptions(output, "analysisUI", suspendWhenHidden = FALSE)
     })
 
     selected_inputs <- reactive({
