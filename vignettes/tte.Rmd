@@ -111,7 +111,7 @@ pwr_prior <- calc_power_prior_weibull(ps_obj,
                                       intercept = dist_normal(0, 10),
                                       shape = 50,
                                       approximation = "Laplace")
-#plot_dist(pwr_prior)
+plot_dist(pwr_prior)
 ```
 
 ## Inverse Probability Weighted Robust Mixture Prior
