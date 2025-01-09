@@ -11,13 +11,13 @@ simulationUI <- function(id) {
   tagList(
     h4("Simulation"),
     hr(),
-    radioButtons(ns("internal"), "Internal Data",
+    radioButtons(ns("internal"), "Internal Covariate Data",
                  choices = c("Simulate from scratch", "Bootstrap"),
                  selected = "Simulate from scratch"),
     checkboxInput(ns("covImb"), "Covariate Imbalance", value = FALSE),
     radioButtons(ns("parallel"), "Parallelisation",
-                 choices = c("by iteration", "by scenario"),
-                 selected = "by iteration"),
+                 choices = c("by scenario", "by iteration"),
+                 selected = "by scenario"),
     tooltip(
       checkboxGroupInput(ns("scenarioOptions"), "Options to vary",
                          choices=c("Internal control sample size"="samplesize",
