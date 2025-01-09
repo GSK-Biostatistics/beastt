@@ -34,7 +34,7 @@ bdb_code_template_maker <- function(){
       radioButtons("purpose", "Purpose",
                    choices = c("Simulation", "Analysis")),
       selectInput("endPoint", "Endpoint Type",
-                  choices=c("Binary", "Normal", "Survival")),
+                  choices=c("Binary", "Normal", "Time to Event")),
       actionButton(inputId="submit", label= "Submit")
     ),
     navset_card_pill(
@@ -82,6 +82,6 @@ bdb_code_template_maker <- function(){
   }
   # # Run the application
   runGadget(ui, server,
-            viewer =dialogViewer("", width = 1000, height = 800),
+            viewer = dialogViewer("", width = 1000, height = 800),
   )
 }
