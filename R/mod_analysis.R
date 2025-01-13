@@ -25,6 +25,7 @@ analysisServer <- function(id, input_list) {
     ns <- session$ns
     bin_svr <- binaryServer("bin", input_list)
     norm_svr <- normalServer("norm", input_list)
+    tte_svr <- tteServer("tte", input_list)
 
     observeEvent(input_list()$endPoint, {
       output$analysisUI <- renderUI({
@@ -33,7 +34,7 @@ analysisServer <- function(id, input_list) {
         } else if (input_list()$endPoint=="Normal") {
           normalanalysisUI(ns("norm"))
         } else {
-          h3("bad")
+          tteanalysisUI(ns("tte"))
         }
       })
       outputOptions(output, "analysisUI", suspendWhenHidden = FALSE)
@@ -44,6 +45,8 @@ analysisServer <- function(id, input_list) {
         bin_svr()
       } else if (input_list()$endPoint == "Normal") {
         norm_svr()
+      } else {
+        tte_svr()
       }
     })
 

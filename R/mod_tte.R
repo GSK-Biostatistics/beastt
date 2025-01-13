@@ -1,0 +1,65 @@
+#' TTE Input UI
+#'
+#' @param id mod ID
+#'
+#' @noRd
+#' @noMd
+#' @importFrom shiny NS tagList h4 hr selectInput checkboxInput uiOutput
+tteanalysisUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    h4("TTE Analysis"),
+    hr(),
+    selectInput(ns("borrType"), "Type of Borrowing",
+                choices=c("On control arm",
+                          "On treatment arm",
+                          "No borrowing"), selected="On control arm"),
+    checkboxInput(ns("robustify"), "Robustify Power Prior", value=FALSE),
+    uiOutput(ns("plots"))
+  )
+}
+
+#' TTE Server UI
+#'
+#' @param id mod id
+#' @param input_list input from UI
+#'
+#' @noRd
+#' @noMd
+#' @importFrom shiny renderUI reactive reactiveVal observeEvent
+tteServer <- function(id, input_list) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+
+    observeEvent(input$borrType, {
+      if (input$borrType == "No borrowing") {
+        shinyjs::hide("robustify")
+      } else {
+        shinyjs::show("robustify")
+      }
+    })
+
+    plot_select <- reactiveVal(list())
+
+    observeEvent(input_list()$purpose, {
+      if (input_list()$purpose == "Analysis") {
+        output$plots <- renderUI({
+          plotUI(ns("plot-select"))
+        })
+
+        observeEvent(input$robustify, {
+          plot_list <- plotServer("plot-select", input_list, input$robustify)
+          plot_select(plot_list)
+        })
+      }
+    })
+
+    tte_selections <- reactive({list(
+      borrType = input$borrType,
+      robustify = input$robustify,
+      plots = plot_select()
+    )})
+
+    return(tte_selections)
+  })
+}
