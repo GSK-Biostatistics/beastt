@@ -10,7 +10,7 @@ binaryanalysisUI <- function(id) {
   tagList(
     h4("Binary Analysis"),
     hr(),
-    selectInput(ns("borrType"), "Type of Borrowing",
+    selectInput(ns("borrType"), strong("Type of Borrowing"),
                 choices=c("On control arm",
                           "On treatment arm",
                           "No borrowing"), selected="On control arm"),
