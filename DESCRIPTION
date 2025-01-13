@@ -34,7 +34,6 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
-    bslib,
     cli,
     cobalt,
     distributional,
@@ -43,18 +42,13 @@ Imports:
     ggdist,
     ggplot2,
     methods,
-    miniUI,
     mixtools,
-    mvtnorm,
     purrr,
     Rcpp (>= 0.12.0),
     RcppParallel (>= 5.0.1),
     rlang,
     rstan (>= 2.18.1),
     rstantools (>= 2.4.0),
-    rstudioapi,
-    shiny,
-    shinyjs,
     stringr,
     tidyr
 VignetteBuilder: knitr
