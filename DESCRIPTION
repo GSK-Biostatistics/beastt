@@ -16,7 +16,7 @@ Authors@R:
       person(given = "Abi", 
                     family = "Terry", 
                     role = "aut", 
-                    email = "abigail.h.terry@gsk.com")
+                    email = "abigail.h.terry@gsk.com"),
       person("GlaxoSmithKline Research & Development Limited", role = c("cph", "fnd"))
                     )
 Description: Bayesian dynamic borrowing with covariate adjustment via inverse probability 
