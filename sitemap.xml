@@ -8,7 +8,6 @@
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
-<url><loc>/reference/bdb_code_template_maker.html</loc></url>
 <url><loc>/reference/beastt-package.html</loc></url>
 <url><loc>/reference/calc_post_beta.html</loc></url>
 <url><loc>/reference/calc_post_norm.html</loc></url>
@@ -34,6 +33,5 @@
 <url><loc>/reference/reexports.html</loc></url>
 <url><loc>/reference/robustify_mvnorm.html</loc></url>
 <url><loc>/reference/robustify_norm.html</loc></url>
-<url><loc>/reference/write_code.html</loc></url>
 </urlset>
 
