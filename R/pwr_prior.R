@@ -61,7 +61,7 @@ calc_power_prior_beta <- function(external_data, response, prior){
     weights <- data$`___weight___`
   } else if(is.data.frame(external_data)){
     data <- external_data
-    weights <- 1
+    weights <- rep(1, nrow(data))
   } else {
     cli_abort("{.agr external_data} either a dataset or `prop_scr` object type")
   }
@@ -173,7 +173,7 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
     weights <- data$`___weight___`
   } else if(is.data.frame(external_data)){
     data <- external_data
-    weights <- 1
+    weights <- rep(1, nrow(data))
   } else {
     cli_abort("{.agr external_data} either a dataset or `prop_scr` object type")
   }
@@ -327,7 +327,7 @@ calc_power_prior_weibull <- function(external_data,
     weights <- data$`___weight___`
   } else if(is.data.frame(external_data)){
     data <- external_data
-    weights <- 1
+    weights <- rep(1, nrow(data))
   } else {
     cli_abort("{.agr external_data} either a dataset or `prop_scr` object type")
   }
