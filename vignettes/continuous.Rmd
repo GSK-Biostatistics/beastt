@@ -114,7 +114,7 @@ As an alternative to using `robustify_norm`, we can instead use the `dist_mixtur
 
 ```{r}
 n_external <- nrow(ex_norm_df)
-mix_prior <- robustify_norm(pwr_prior, n_external)
+mix_prior <- robustify_norm(pwr_prior, n_external, weights = c(0.5, 0.5))
 plot_dist("Power Prior" = pwr_prior,
           "Vague Prior" = dist_normal(mean = mix_means(mix_prior)["vague"],
                                       sd = mix_sigmas(mix_prior)["vague"]),
