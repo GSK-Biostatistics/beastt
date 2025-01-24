@@ -122,7 +122,7 @@ We can print the mean vectors and covariance matrices of each MVN component usin
 
 ```{r}
 r_external <- sum(ex_tte_df$event)   # number of observed events
-mix_prior <- robustify_mvnorm(pwr_prior, r_external)   # RMP
+mix_prior <- robustify_mvnorm(pwr_prior, r_external, weights = c(0.5, 0.5))   # RMP
 mix_means(mix_prior)     # mean vectors
 mix_sigmas(mix_prior)    # mean covariance matrices
 #plot_dist(mix_prior)

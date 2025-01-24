@@ -106,9 +106,11 @@ calc_post_norm<- function(
     }
 
   } else {
-    if(prior_fam == "student_t") {
+    if(prior_fam == "normal"){
+      out_dist <- calc_t_post(prior, nIC, pull(data, !!response))
+    } else if(prior_fam == "student_t") {
       out_dist <- t_to_mixnorm(prior) |>
-        calc_t_post(nIC, pull(data, !!response))
+      calc_t_post(nIC, pull(data, !!response))
     } else if(prior_fam == "mixture") {
       out_dist <- mix_t_to_mix(prior) |>
         calc_t_post(nIC, pull(data, !!response))
