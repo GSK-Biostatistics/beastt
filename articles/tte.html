@@ -373,7 +373,7 @@ component using the functions <code>mix_means</code> and
 <code>mix_sigmas</code>, respectively.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">r_external</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ex_tte_df</span><span class="op">$</span><span class="va">event</span><span class="op">)</span>   <span class="co"># number of observed events</span></span>
-<span><span class="va">mix_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/robustify_mvnorm.html">robustify_mvnorm</a></span><span class="op">(</span><span class="va">pwr_prior</span>, <span class="va">r_external</span><span class="op">)</span>   <span class="co"># RMP</span></span>
+<span><span class="va">mix_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/robustify_mvnorm.html">robustify_mvnorm</a></span><span class="op">(</span><span class="va">pwr_prior</span>, <span class="va">r_external</span>, weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>   <span class="co"># RMP</span></span>
 <span><span class="fu"><a href="../reference/mix_means.html">mix_means</a></span><span class="op">(</span><span class="va">mix_prior</span><span class="op">)</span>     <span class="co"># mean vectors</span></span>
 <span><span class="co">#&gt; $informative</span></span>
 <span><span class="co">#&gt; [1]  0.2940907 -2.5655689</span></span>
