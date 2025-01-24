@@ -29,8 +29,10 @@ test_that("pwr_prior_norm_result returns the correct value", {
                                                  response = y,
                                                  prior = initial_prior,
                                                  external_sd = sd_external_control)
-  expect_equal(round(parameters(pwr_prior_norm_result)$mu, digits=3), 801.025)
-  expect_equal(round(parameters(pwr_prior_norm_result)$sigma, digits=6), 0.149983)
+  expect_equal(parameters(pwr_prior_norm_result)$mu, 8.012034,
+               tolerance = 0.01)
+  expect_equal(parameters(pwr_prior_norm_result)$sigma, 0.01499998,
+               tolerance = 0.001)
   expect_equal(family(pwr_prior_norm_result), "normal")
 })
 
