@@ -10,6 +10,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![CRAN
 status](https://www.r-pkg.org/badges/version/beastt)](https://CRAN.R-project.org/package=beastt)
 [![R-CMD-check](https://github.com/GSK-Biostatistics/beastt/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/GSK-Biostatistics/beastt/actions/workflows/R-CMD-check.yaml)
+[![codecov](https://codecov.io/gh/GSK-Biostatistics/beastt/graph/badge.svg?token=UVH8SF4OXT)](https://codecov.io/gh/GSK-Biostatistics/beastt)
 
 <!-- badges: end -->
 
