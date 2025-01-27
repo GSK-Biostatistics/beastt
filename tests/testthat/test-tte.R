@@ -121,8 +121,8 @@ test_that("calc_power_prior_weibull returns correct values for second case", {
   dimnames(pp_cov_comp)[[1]] <- dimnames(pp_cov_comp)[[2]] <- c("log_alpha", "beta0")
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(pp_mean_beastt, pp_mean_comp, tolerance=0.001)
-  expect_equal(pp_cov_beastt, pp_cov_comp, tolerance=0.001)
+  expect_equal(all(abs(pp_mean_beastt-pp_mean_comp) < 0.001), TRUE)
+  expect_equal(all(abs(pp_cov_beastt-pp_cov_comp) < 0.001), TRUE)
 
   ## Check that a distribution is returned
   expect_s3_class(pwr_prior, "distribution")
@@ -226,8 +226,8 @@ test_that("calc_power_prior_weibull returns correct values for fourth case", {
   dimnames(pp_cov_comp)[[1]] <- dimnames(pp_cov_comp)[[2]] <- c("log_alpha", "beta0")
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(pp_mean_beastt, pp_mean_comp, tolerance=0.001)
-  expect_equal(pp_cov_beastt, pp_cov_comp, tolerance=0.001)
+  expect_equal(all(abs(pp_mean_beastt-pp_mean_comp) < 0.002), TRUE)
+  expect_equal(all(abs(pp_cov_beastt-pp_cov_comp) < 0.001), TRUE)
 
   ## Check that a distribution is returned
   expect_s3_class(pwr_prior, "distribution")
@@ -304,13 +304,13 @@ test_that("calc_power_prior_weibull handles invalid approximation method", {
 })
 
 ################################################################################
-# calc_posterior_weibull
+# calc_post_weibull
 ################################################################################
 
 ##### Test for calc_post_weibull() with:
 #####    (1) MVN prior (not a mixture of two MVN priors)
 #####    (2) one analysis time
-test_that("calc_posterior_weibull returns correct values for first case", {
+test_that("calc_post_weibull returns correct values for first case", {
   ## Define values to be used for both beastt code and comparison code
   MVN_prior <- dist_multivariate_normal(mu = list(c(0.5, 0.6)),
                                         sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2)))   # normal prior
@@ -349,17 +349,17 @@ test_that("calc_posterior_weibull returns correct values for first case", {
   post_var_comp <- var(post_draws[,"survProb[1]"])
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(post_mean_beastt, post_mean_comp, tolerance=0.001)
-  expect_equal(post_var_beastt, post_var_comp, tolerance=0.0001)
+  expect_equal(abs(post_mean_beastt-post_mean_comp) < 0.001, TRUE)
+  expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
 
   ## Check that a stanfit is returned
-  expect_s3_class(post_dist, "stanfit")
+  expect_s4_class(post_dist, "stanfit")
 })
 
 ##### Test for calc_post_weibull() with:
 #####    (1) MVN prior (not a mixture of two MVN priors)
 #####    (2) two analysis times
-test_that("calc_posterior_weibull returns correct values for second case", {
+test_that("calc_post_weibull returns correct values for second case", {
   ## Define values to be used for both beastt code and comparison code
   MVN_prior <- dist_multivariate_normal(mu = list(c(0.5, 0.6)),
                                         sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2)))   # normal prior
@@ -397,17 +397,17 @@ test_that("calc_posterior_weibull returns correct values for second case", {
   post_vars_comp <- apply(post_draws[,c("survProb[1]", "survProb[2]")], 2, var)
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(post_means_beastt, post_means_comp, tolerance=c(0.001, 0.002))
-  expect_equal(post_covs_beastt, post_covs_comp, tolerance=c(0.0001, 0.001))
+  expect_equal(abs(post_means_beastt-post_means_comp) < 0.001, TRUE)
+  expect_equal(abs(post_vars_beastt-post_vars_comp) < 0.0001, TRUE)
 
   ## Check that a stanfit is returned
-  expect_s3_class(pwr_prior, "stanfit")
+  expect_s4_class(post_dist, "stanfit")
 })
 
 ##### Test for calc_post_weibull() with:
 #####    (1) mixture prior (two MVN prior components)
 #####    (2) one analysis time
-test_that("calc_posterior_weibull returns correct values for third case", {
+test_that("calc_post_weibull returns correct values for third case", {
   ## Define values to be used for both beastt code and comparison code
   MVN_prior <- dist_multivariate_normal(mu = list(c(0.5, 0.6)),
                                         sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2)))   # normal prior
@@ -457,7 +457,7 @@ test_that("calc_posterior_weibull returns correct values for third case", {
 ##### Test for calc_post_weibull() with:
 #####    (1) mixture prior (two MVN prior components)
 #####    (2) two analysis times
-test_that("calc_posterior_weibull returns correct values for fourth case", {
+test_that("calc_post_weibull returns correct values for fourth case", {
   ## Define values to be used for both beastt code and comparison code
   MVN_prior <- dist_multivariate_normal(mu = list(c(0.5, 0.6)),
                                         sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2)))   # normal prior
