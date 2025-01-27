@@ -535,9 +535,15 @@ calc_t_post <- function(prior, nIC, response){
   like_sds <- mix_sigmas(int_like)
   like_ws <- parameters(int_like)$w[[1]]
 
-  prior_means <- mix_means(prior)
-  prior_sds <- mix_sigmas(prior)
-  prior_ws <- parameters(prior)$w[[1]]
+  if( family(prior) == "mixture" ){
+    prior_means <- mix_means(prior)
+    prior_sds <- mix_sigmas(prior)
+    prior_ws <- parameters(prior)$w[[1]]
+  } else if( family(prior) == "normal" ){
+    prior_means <- parameters(prior)$mu
+    prior_sds <- parameters(prior)$sigma
+    prior_ws <- 1
+  }
 
   # 2*K x 1 vectors of means and SDs of each normal component of posterior distribution for theta
   K <- length(prior_means)
