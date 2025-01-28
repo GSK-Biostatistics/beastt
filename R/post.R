@@ -330,6 +330,11 @@ calc_post_weibull <- function(internal_data,
     cli_abort("{.agr event} was not found in {.agr internal_data}")
   }
 
+  # Check analysis time is valid
+  if(!all(is.numeric(analysis_time))){
+    cli_abort("{.agr analysis_time} must be a numeric vector")
+  }
+
   # Checking the distribution and getting the family
   if(!is_distribution(prior)){
     cli_abort("{.agr prior} must be a distributional object")
@@ -535,9 +540,15 @@ calc_t_post <- function(prior, nIC, response){
   like_sds <- mix_sigmas(int_like)
   like_ws <- parameters(int_like)$w[[1]]
 
-  prior_means <- mix_means(prior)
-  prior_sds <- mix_sigmas(prior)
-  prior_ws <- parameters(prior)$w[[1]]
+  if( family(prior) == "mixture" ){
+    prior_means <- mix_means(prior)
+    prior_sds <- mix_sigmas(prior)
+    prior_ws <- parameters(prior)$w[[1]]
+  } else if( family(prior) == "normal" ){
+    prior_means <- parameters(prior)$mu
+    prior_sds <- parameters(prior)$sigma
+    prior_ws <- 1
+  }
 
   # 2*K x 1 vectors of means and SDs of each normal component of posterior distribution for theta
   K <- length(prior_means)
