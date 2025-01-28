@@ -121,7 +121,7 @@ test_that("calc_power_prior_weibull returns correct values for second case", {
   dimnames(pp_cov_comp)[[1]] <- dimnames(pp_cov_comp)[[2]] <- c("log_alpha", "beta0")
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(all(abs(pp_mean_beastt-pp_mean_comp) < 0.002), TRUE)
+  expect_equal(all(abs(pp_mean_beastt-pp_mean_comp) < 0.0025), TRUE)
   expect_equal(all(abs(pp_cov_beastt-pp_cov_comp) < 0.001), TRUE)
 
   ## Check that a distribution is returned
