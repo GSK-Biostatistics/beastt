@@ -195,7 +195,7 @@ print.prop_scr <- function(x, ..., n = 10){
 #' @export
 tidy.prop_scr <- function(x, ...){
   x$external_df |>
-    select(!!x$id_col,.data$`___internal___`, .data$`___ps___`, .data$`___weight___`)
+    select(!!x$id_col,internal = .data$`___internal___`, ps = .data$`___ps___`, weight = .data$`___weight___`)
 }
 
 #' @export
