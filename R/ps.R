@@ -192,16 +192,29 @@ print.prop_scr <- function(x, ..., n = 10){
   print(x$abs_std_mean_diff)
 }
 
+
+#' Tidy a(n) prop_scr object
+#'
+#' @param x a `prop_scr` obj
+#'
+#' @param ... Unused, included for generic consistency only.
+#' @return A tidy [tibble::tibble()] summarizing the results of the propensity
+#'   score weighting. The tibble will have the id column of the external data,
+#'   an `internal` column to indicate all the data is external, a `ps` column
+#'   with the propensity scores and a `weight` column with the inverse
+#'   probability weights
+#'
 #' @export
+#' @examples
+#' ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+#'                        external_df = ex_binary_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#' tidy(ps_obj)
+#'
 tidy.prop_scr <- function(x, ...){
   x$external_df |>
     select(!!x$id_col,internal = .data$`___internal___`, ps = .data$`___ps___`, weight = .data$`___weight___`)
-}
-
-#' @export
-glance.prop_scr <- function(x, ...){
-  x$external_df |>
-    bind_rows(x$internal_df)
 }
 
 
