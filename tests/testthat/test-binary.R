@@ -126,24 +126,27 @@ test_that("calc_posterior_beta returns correct values with mixture prior with tw
   post_var_beastt <- variance(post_dist)
 
   ## Comparison code
-  mix_prior_rbest <- RBesT::mixbeta(beta1 = c(w_beta1, beta1_shape1, beta1_shape2),
-                             beta2 = c(1 - w_beta1, beta2_shape1, beta2_shape2))
-  post_beta_mix <- RBesT::postmix(mix_prior_rbest, n = nrow(filter(int_binary_df, trt == 0)),
-                           r = sum(filter(int_binary_df, trt == 0)$y))
-  post_beta1_w_comp <- post_beta_mix["w", "beta1"]
-  post_beta1_shape1_comp <- post_beta_mix["a", "beta1"]
-  post_beta1_shape2_comp <- post_beta_mix["b", "beta1"]
-  post_beta2_w_comp <- post_beta_mix["w", "beta2"]
-  post_beta2_shape1_comp <- post_beta_mix["a", "beta2"]
-  post_beta2_shape2_comp <- post_beta_mix["b", "beta2"]
+  sum_y_IC <- sum(filter(int_binary_df, trt == 0)$y)
+  N_IC <- length(filter(int_binary_df, trt == 0)$y)
+  post_beta1_shape1_comp <- beta1_shape1 + sum_y_IC
+  post_beta1_shape2_comp <- beta1_shape2 + N_IC - sum_y_IC
+  post_beta2_shape1_comp <- beta2_shape1 + sum_y_IC
+  post_beta2_shape2_comp <- beta2_shape2 + N_IC - sum_y_IC
+  post_w_propto <- c( beta(post_beta1_shape1_comp, post_beta1_shape2_comp) /
+                        beta(beta1_shape1, beta1_shape2) *
+                        w_beta1,            # proportional posterior weight corresponding to w
+                      beta(post_beta2_shape1_comp, post_beta2_shape2_comp) /
+                        beta(beta2_shape1, beta2_shape2) *
+                        (1 - w_beta1) )     # proportional posterior weight corresponding to (1 - w)
+  post_w <- post_w_propto / sum(post_w_propto)      # normalized posterior weights
   post_mean1_comp <- post_beta1_shape1_comp / (post_beta1_shape1_comp + post_beta1_shape2_comp)
   post_var1_comp <- post_beta1_shape1_comp * post_beta1_shape2_comp /
     ((post_beta1_shape1_comp + post_beta1_shape2_comp)^2 * (post_beta1_shape1_comp + post_beta1_shape2_comp + 1))
   post_mean2_comp <- post_beta2_shape1_comp / (post_beta2_shape1_comp + post_beta2_shape2_comp)
   post_var2_comp <- post_beta2_shape1_comp * post_beta2_shape2_comp /
     ((post_beta2_shape1_comp + post_beta2_shape2_comp)^2 * (post_beta2_shape1_comp + post_beta2_shape2_comp + 1))
-  post_mean_comp <- post_beta1_w_comp * post_mean1_comp + post_beta2_w_comp * post_mean2_comp
-  post_var_comp <- post_beta1_w_comp * post_var1_comp + post_beta2_w_comp * post_var2_comp
+  post_mean_comp <- post_w[1] * post_mean1_comp + post_w[2] * post_mean2_comp
+  post_var_comp <- post_w[1] * post_var1_comp + post_w[2] * post_var2_comp
 
   ## Check that the means and variances of the beta posteriors are equal using both methods
   expect_equal(abs(post_mean_beastt - post_mean_comp) < 0.000001, TRUE)

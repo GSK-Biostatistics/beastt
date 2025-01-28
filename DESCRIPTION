@@ -29,7 +29,6 @@ URL: https://gsk-biostatistics.github.io/beastt/, https://github.com/GSK-Biostat
 BugReports: https://github.com/GSK-Biostatistics/beastt/issues
 Suggests: 
     knitr,
-    RBesT,
     rmarkdown,
     spelling,
     testthat (>= 3.0.0),
