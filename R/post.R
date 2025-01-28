@@ -330,6 +330,11 @@ calc_post_weibull <- function(internal_data,
     cli_abort("{.agr event} was not found in {.agr internal_data}")
   }
 
+  # Check analysis time is valid
+  if(!all(is.numeric(analysis_time))){
+    cli_abort("{.agr analysis_time} must be a numeric vector")
+  }
+
   # Checking the distribution and getting the family
   if(!is_distribution(prior)){
     cli_abort("{.agr prior} must be a distributional object")
