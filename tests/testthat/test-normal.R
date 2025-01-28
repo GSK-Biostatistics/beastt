@@ -332,8 +332,7 @@ test_that("calc_post_norm returns the correct values for second case", {
   post_var_comp <- var(post_draws[,"muC"])
 
   ## Check that means and SDs of the normal posteriors are equal using both methods
-  expect_equal(post_mean_beastt, post_mean_comp, tolerance=0.0001)
-  # SDs very small so tolerance within expect_equal doesn't work
+  expect_equal(abs(post_mean_beastt-post_mean_comp) < 0.0001, TRUE)
   expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
 
   ## Check that a distribution is returned
@@ -420,10 +419,10 @@ test_that("calc_post_norm returns the correct values for fourth case", {
   post_var_comp <- var(post_draws[,"muC"])
 
   ## Check that means and SDs of the normal posteriors are equal using both methods
-  #expect_equal(post_mean_beastt, post_mean_comp, tolerance=0.0001)
-  # means and SDs very small so tolerance within expect_equal doesn't work
-  expect_equal(abs(post_mean_beastt-post_mean_comp) < 0.0001, TRUE)
-  expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
+  #expect_equal(abs(post_mean_beastt-post_mean_comp) < 0.0001, TRUE)
+  #expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
+  expect_equal(post_mean_beastt, post_mean_comp)
+  expect_equal(post_var_beastt, post_var_comp)
 
   ## Check that a distribution is returned
   expect_s3_class(post_dist, "distribution")
@@ -507,9 +506,10 @@ test_that("calc_post_norm returns the correct values for sixth case", {
   post_var_comp <- var(post_draws[,"muC"])
 
   ## Check that means and SDs of the normal posteriors are equal using both methods
-  # means and SDs very small so tolerance within expect_equal doesn't work
-  expect_equal(abs(post_mean_beastt-post_mean_comp) < 0.0001, TRUE)
-  expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
+  #expect_equal(abs(post_mean_beastt-post_mean_comp) < 0.0001, TRUE)
+  #expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
+  expect_equal(post_mean_beastt, post_mean_comp)
+  expect_equal(post_var_beastt, post_var_comp)
 
   ## Check that a distribution is returned
   expect_s3_class(post_dist, "distribution")
