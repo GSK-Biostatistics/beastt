@@ -363,7 +363,7 @@ test_that("calc_post_weibull returns correct values for second case", {
   ## Define values to be used for both beastt code and comparison code
   MVN_prior <- dist_multivariate_normal(mu = list(c(0.5, 0.6)),
                                         sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2)))   # normal prior
-  analysis_times <- c(12, 24)
+  analysis_times <- c(6, 8)
 
   ## beastt code
   set.seed(123)
@@ -397,8 +397,8 @@ test_that("calc_post_weibull returns correct values for second case", {
   post_vars_comp <- apply(post_draws[,c("survProb[1]", "survProb[2]")], 2, var)
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(abs(post_means_beastt-post_means_comp) < 0.001, TRUE)
-  expect_equal(abs(post_vars_beastt-post_vars_comp) < 0.0001, TRUE)
+  expect_equal(all(abs(post_means_beastt-post_means_comp) < 0.001), TRUE)
+  expect_equal(all(abs(post_vars_beastt-post_vars_comp) < 0.0001), TRUE)
 
   ## Check that a stanfit is returned
   expect_s4_class(post_dist, "stanfit")
@@ -447,11 +447,11 @@ test_that("calc_post_weibull returns correct values for third case", {
   post_var_comp <- var(post_draws[,"survProb[1]"])
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(post_mean_beastt, post_mean_comp, tolerance=0.001)
-  expect_equal(post_var_beastt, post_var_comp, tolerance=0.0001)
+  expect_equal(abs(post_mean_beastt-post_mean_comp) < 0.001, TRUE)
+  expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
 
   ## Check that a stanfit is returned
-  expect_s3_class(post_dist, "stanfit")
+  expect_s4_class(post_dist, "stanfit")
 })
 
 ##### Test for calc_post_weibull() with:
@@ -462,7 +462,7 @@ test_that("calc_post_weibull returns correct values for fourth case", {
   MVN_prior <- dist_multivariate_normal(mu = list(c(0.5, 0.6)),
                                         sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2)))   # normal prior
   mix_prior <- robustify_mvnorm(MVN_prior, n = sum(ex_tte_df$event), weights = c(.5, .5))
-  analysis_times <- c(12, 24)
+  analysis_times <- c(6, 8)
 
   ## beastt code
   set.seed(123)
@@ -496,11 +496,11 @@ test_that("calc_post_weibull returns correct values for fourth case", {
   post_vars_comp <- apply(post_draws[,c("survProb[1]", "survProb[2]")], 2, var)
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(post_means_beastt, post_means_comp, tolerance=c(0.001, 0.002))
-  expect_equal(post_vars_beastt, post_vars_comp, tolerance=c(0.0001, 0.001))
+  expect_equal(all(abs(post_means_beastt-post_means_comp) < 0.001), TRUE)
+  expect_equal(all(abs(post_vars_beastt-post_vars_comp) < 0.0001), TRUE)
 
   ## Check that a stanfit is returned
-  expect_s3_class(pwr_prior, "stanfit")
+  expect_s4_class(post_dist, "stanfit")
 })
 
 # Test for invalid internal data

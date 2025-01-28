@@ -398,19 +398,19 @@ test_that("calc_post_norm returns the correct values for fourth case", {
                               response = y,
                               prior = norm_prior,
                               internal_sd = NULL)
-  # post_mean_beastt <- mean(post_dist)
-  # post_sd_beastt <- variance(post_dist)
+  post_mean_beastt <- mean(post_dist)
+  post_var_beastt <- variance(post_dist)
 
   ## Comparison code
   data_input <- list(
     N = nrow(filter(int_norm_df, trt == 0)),    # sample size of the internal control arm
     y = filter(int_norm_df, trt == 0)$y,        # N x 1 vector of binary responses (1: event, 0: no event)
-    nu_pp = 10,                                 # degrees of freedom for t prior component
-    theta_pp = .5,                              # mean hyperparameter for t prior component
-    tau_pp = 10,                                # scale hyperparameter for t prior component
-    theta_v = parameters(t_prior)$mu,           # mean hyperparameter for normal prior component
-    tau_v = parameters(t_prior)$sigma,          # standard deviation hyperparameter for normal prior component
-    w = .5                                      # prior weight associated with t prior component
+    nu_pp = 10,                                 # degrees of freedom for normal prior component
+    theta_pp = .5,                              # mean hyperparameter for normal prior component
+    tau_pp = 10,                                # scale hyperparameter for normal prior component
+    theta_v = parameters(norm_prior)$mu,           # mean hyperparameter for normal prior component
+    tau_v = parameters(norm_prior)$sigma,          # standard deviation hyperparameter for normal prior component
+    w = .5                                      # prior weight associated with normal prior component
   )
   set.seed(123)
   stan_fit <- sampling(stan_mod_sigma2_unknown, data = data_input, pars = "muC",
