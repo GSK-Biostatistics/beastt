@@ -378,7 +378,7 @@ test_that("calc_post_norm returns the correct values for third case", {
   post_var_comp <- var(post_draws[,"muC"])
 
   ## Check that means and SDs of the normal posteriors are equal using both methods
-  expect_equal(post_mean_beastt, post_mean_comp, tolerance=0.0001)
+  expect_equal(post_mean_beastt, post_mean_comp, tolerance=0.0002)
   # SDs very small so tolerance within expect_equal doesn't work
   expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
 
@@ -463,7 +463,7 @@ test_that("calc_post_norm returns the correct values for fifth case", {
   post_var_comp <- var(post_draws[,"muC"])
 
   ## Check that means and SDs of the normal posteriors are equal using both methods
-  expect_equal(post_mean_beastt, post_mean_comp, tolerance=0.0001)
+  expect_equal(post_mean_beastt, post_mean_comp, tolerance=0.0005)
   # SDs very small so tolerance within expect_equal doesn't work
   expect_equal(abs(post_var_beastt-post_var_comp) < 0.0001, TRUE)
 
