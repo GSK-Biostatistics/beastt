@@ -22,6 +22,7 @@ probability weights
 Tidy a(n) prop_scr object
 }
 \examples{
+library(dplyr)
 ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
                        external_df = ex_binary_df,
                        id_col = subjid,
