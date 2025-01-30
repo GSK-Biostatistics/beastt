@@ -401,6 +401,7 @@ calc_post_weibull <- function(internal_data,
 #' @importFrom purrr quietly
 #' @importFrom stats quantile
 #' @importFrom distributional variance
+#' @importFrom mixtools normalmixEM
 t_to_mixnorm <- function(x){
   # distribution is constrained to equal the mean of the t distribution
   # quantiles of t distribution

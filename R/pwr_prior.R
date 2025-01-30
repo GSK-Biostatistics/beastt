@@ -452,7 +452,6 @@ calc_neg_log_dens <- function(x, y_vec, event_vec, ipw_vec, beta0_mean, beta0_sd
 #'
 #' @return t distributional object
 #' @importFrom distributional dist_student_t
-#' @importFrom mixtools normalmixEM
 #' @noRd
 calc_t <- function(Y, n, W =NULL){
   # Degrees of freedom
