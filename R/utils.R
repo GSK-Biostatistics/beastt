@@ -64,6 +64,7 @@ plot_dist_mvnorm <- function(dist_list){
   if(!all(map_lgl(dist_list, is_mvnorm))){
     cli_abort("Must be given multivariate normal objects")
   } else {
+    check_pkg_installed("mvtnorm")
     tib <- data.frame(x1=numeric(), x2=numeric(), z=numeric(), id=factor())
     for (i in 1:length(dist_list)){
       dist <- dist_list[[i]]
