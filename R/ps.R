@@ -41,7 +41,7 @@
 #'   subject.
 #' @export
 #' @importFrom rlang f_rhs f_lhs `f_lhs<-` is_formula enquo as_name
-#' @importFrom stringr str_split_1 str_detect
+#' @importFrom stringr str_split_1 str_detect str_extract str_remove_all
 #' @importFrom cli cli_abort
 #' @importFrom purrr reduce discard
 #' @importFrom rlang sym
