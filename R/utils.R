@@ -1,35 +1,3 @@
-#' Check package installation
-#'
-#' @param pkg (`character`)\cr
-#'   vector of package names to check.
-#' @param ref (`string`)\cr
-#'   name of the package the function will search for a minimum required version from.
-#' @param call (`environment`)\cr
-#'   frame for error messaging. Default is [get_cli_abort_call()].
-#' @examples
-#' check_pkg_installed("dplyr")
-#'
-#' @noRd
-check_pkg_installed <- function(pkg,
-                                ref = utils::packageName(),
-                                call = get_cli_abort_call()) {
-  if (!is.character(ref) && !is.null(ref)) cli::cli_abort("{.arg ref} must be a string.")
-
-  # get min version data -------------------------------------------------------
-  df_pkg_min_version <-
-    get_min_version_required(pkg = pkg, ref = ref)
-
-  # prompt user to install package ---------------------------------------------
-  rlang::check_installed(
-    pkg = df_pkg_min_version$pkg,
-    version = df_pkg_min_version$version,
-    compare = df_pkg_min_version$compare,
-    call = call
-  ) |>
-    # this can be removed after this issue is resolved https://github.com/r-lib/rlang/issues/1694
-    suppressWarnings()
-}
-
 #' Plot Distribution
 #'
 #' @param ... Distributional object(s) to plot. When passing multiple objects
