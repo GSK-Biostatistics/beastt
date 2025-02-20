@@ -1,7 +1,7 @@
 ################################################################################
 # Code to test various functions of beastt - TTE endpoint
 ################################################################################
-
+skip_on_cran()
 ### Source R script with Stan code and compile Stan models
 source("code_for_tte_tests_Stan.R")
 # compile Stan model - power prior

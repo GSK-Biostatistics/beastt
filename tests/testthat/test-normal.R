@@ -1,7 +1,7 @@
 ################################################################################
 # Code to test various functions of beastt - normal endpoint
 ################################################################################
-
+skip_on_cran()
 ### Source R script with Stan code and compile Stan models
 source("code_for_normal_tests_Stan.R")
 # compile Stan model - sigma2 known
