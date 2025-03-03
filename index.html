@@ -97,6 +97,8 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p>Welcome to the {<a href="https://gsk-biostatistics.github.io/beastt/" class="external-link">beastt</a>} package! This R package is designed to assist users in performing Bayesian dynamic borrowing with covariate adjustment via inverse probability weighting for simulations and data analyses in clinical trials.</p>
+<p>Inverse Probability Weighted Bayesian Dynamic Borrowing (IPW BDB) is a statistical approach designed to enhance the estimation of marginal treatment effects in clinical trials, particularly in hybrid control arm oncology studies. This method employs inverse probability weighted robust mixture priors (IPW-RMP) to adjust for covariate differences between the target study and external control data. By using propensity score-based inverse probability weighting, IPW BDB effectively balances prognostic variables between trial participants and historical controls, improving inference accuracy and reducing biases due to differences in data distributions. This technique increases the statistical power and reduces potential biases in estimating average treatment effects, which are critical for health policy decisions and drug approval processes.</p>
+<p>IPW BDB should be considered in clinical trial settings where individual level external control data is available and you want to integrate this data with your current trial. This method is particularly useful when there are differences in distributions of key prognostic factors between the target study population and the external controls, which could otherwise introduce bias. It is especially relevant in oncology trials, where using external data can help overcome challenges such as slow patient enrollment due to reluctance to join control groups. IPW BDB is well-suited for contexts where Bayesian dynamic borrowing is already applicable but could benefit from additional adjustments for confounding.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -109,7 +111,7 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>At the moment {beastt} covers cases when borrowing from external control data with either normal or binary endpoints. For more information, see the vignettes. Future updates are expected to include cases with survival endpoints and repeated measure.</p>
+<p>At the moment {beastt} covers borrowing from external control data for normal, binary, and time to event endpoints. For more information, see the vignettes.</p>
 </div>
 <div class="section level2">
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
@@ -119,7 +121,7 @@
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>This package is released under the Apache License.</p>
+<p>This package is released under GLP-3.</p>
 </div>
 </div>
   </div>
