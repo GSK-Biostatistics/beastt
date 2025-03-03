@@ -39,7 +39,8 @@ IPW BDB has two mechanisms by which it can account for drift from different sour
 
 *Augmenting the standard robust mixture prior (RMP) approach to incorporate IPWs does not add substantial computational burden associated with other Bayesian approaches*; e.g., in cases where conjugate priors exist for the standard RMP approach, they will still exist for the IPW BDB approach.
 
-IPW BDB should be considered in clinical trial settings where individual level external control data is available and you want to integrate this data with your current trial. This method is particularly useful when there are differences in distributions of key prognostic factors between the target study population and the external controls, which could otherwise introduce bias. It is especially relevant in oncology trials, where using external data can help overcome challenges such as slow patient enrollment due to reluctance to join control groups. IPW BDB is well-suited for contexts where Bayesian dynamic borrowing is already applicable but could benefit from additional adjustments for confounding.
+## When can IPW BDB be used?
+IPW BDB should be considered in clinical trial settings where individual level external control data is available and you want to integrate this data with your current trial. This method is particularly useful when there are differences in distributions of key prognostic factors between the current study population and the external controls, which could otherwise introduce bias. It is especially relevant in oncology and rare disease trials, where using external data can help overcome challenges such as slow patient enrollment due to reluctance to join control groups. IPW BDB is well-suited for contexts where Bayesian dynamic borrowing is already applicable but could benefit from additional adjustments for confounding.
 
 ## Installation
 
