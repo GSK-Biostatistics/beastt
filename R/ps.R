@@ -451,7 +451,7 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #'   lower bound will be used
 #' @param high High cut-off so all values will be less than. If left `NULL` no
 #'   upper bound will be used
-#' @return a trimmed propensity score
+#' @return a `prop_scr` object with a trimmed propensity score distribution
 #'
 #' @export
 #' @examples
