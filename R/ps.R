@@ -439,4 +439,116 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 }
 
 
+#' Trim a prop_scr object
+#'
+#' @param x a `prop_scr` obj
+#' @param low Low cut-off so all values will be greater than. If left `NULL` no
+#'   lower bound will be used
+#' @param high High cut-off so all values will be less than. If left `NULL` no
+#'   upper bound will be used
+#' @return a trimmed propensity score
+#'
+#' @export
+#' @examples
+#' library(dplyr)
+#' ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+#'                        external_df = ex_binary_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#' trim(ps_obj, )
+#'
+trim <- function(x, low = NULL, high = NULL){
+  test_prop_scr(x)
+
+  if(!is.null(low)){
+    x$external_df <- x$external_df |>
+      filter(.data$`___ps___` > low)
+  }
+
+  if(!is.null(high)){
+    x$external_df <- x$external_df |>
+      filter(.data$`___ps___` < high)
+  }
+
+  x |>
+    refit_ps_obj()
+}
+
+#' Rescale a prop_scr object
+#'
+#' @param x a `prop_scr` obj
+#' @param n Desired sample size that the external data effectively contribute to
+#'   the analysis of the internal trial data. This will be used to scale the
+#'   external weights if no scale factor is given
+#' @param scale_factor Value to multiple all weights by.
+#' @return a rescaled propensity score
+#'
+#' @export
+#' @examples
+#' library(dplyr)
+#' ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+#'                        external_df = ex_binary_df,
+#'                        id_col = subjid,
+#'                        model = ~ cov1 + cov2 + cov3 + cov4)
+#' rescale(ps_obj)
+#'
+rescale <- function(x, n = NULL, scale_factor = NULL){
+  test_prop_scr(x)
+  if(!is.null(n) & !is.null(scale_factor)){
+    cli_abort("{.arg n} and {.arg scale_factor} are both not `NULL` only one input can be used")
+  }
+
+
+  if(!is.null(n)){
+    external_sample <- sum(x$external_df$`___weight___`)
+    scale_factor <- n/external_sample
+  }
+
+    x$external_df <- x$external_df |>
+      mutate(`___weight___` = .data$`___weight___`*scale_factor)
+
+  x |>
+    refit_ps_obj()
+}
+
+
+#' Refit the Propensity Score Object
+#'
+#' Used when an object is re-scaled or trimmed to refit the absolute standarized
+#' mean difference
+#'
+#' @param x `prop_scr` object
+#'
+#' @returns `prop_scr` object with corrected mean differences
+#' @noRd
+refit_ps_obj <- function (x){
+  all_df_ps <- bind_rows(x$external_df, x$internal_df)
+
+  covriates <- all.vars(f_rhs(x$model))
+  # Calculating the absolute standardized mean difference
+  asmd_adj <- bal.tab(select(all_df_ps, !!covriates), # df of covariates (internal and external)
+                      treat = all_df_ps$`___internal___`,   # internal indicator
+                      binary = "std",         # use standardized version of mean differences for binary covariates
+                      continuous = "std",     # use standardized version of mean differences for continuous covariates
+                      s.d.denom = "pooled",   # calculation of the denominator of SMD
+                      weights = all_df_ps$`___weight___`,
+                      abs = TRUE)$Balance
+
+  asmd_unadj <- bal.tab(select(all_df_ps, !!covriates), # df of covariates (internal and external)
+                        treat = all_df_ps$`___internal___`,   # internal indicator
+                        binary = "std",         # use standardized version of mean differences for binary covariates
+                        continuous = "std",     # use standardized version of mean differences for continuous covariates
+                        s.d.denom = "pooled",   # calculation of the denominator of SMD
+                        abs = TRUE)$Balance
+
+  asmd_clean <- tibble(
+    covariate = rownames(asmd_adj),
+    diff_unadj = asmd_unadj[,2],
+    diff_adj = asmd_adj[,3],
+  )
+
+  x$abs_std_mean_diff <- asmd_clean
+
+  x
+}
 
