@@ -467,26 +467,27 @@ trim <- function(x, low = NULL, high = NULL){
 
   if(!is.null(low)){
     x$external_df <- x$external_df |>
-      filter(.data$`___ps___` > low)
+      filter(.data$`___ps___` >= low)
   }
 
   if(!is.null(high)){
     x$external_df <- x$external_df |>
-      filter(.data$`___ps___` < high)
+      filter(.data$`___ps___` <= high)
   }
 
   x |>
     refit_ps_obj()
 }
 
-#' Rescale a prop_scr object
+#' Rescale a `prop_scr` object
 #'
 #' @param x a `prop_scr` obj
-#' @param n Desired sample size that the external data effectively contribute to
+#' @param n Desired sample size that the external data should effectively contribute to
 #'   the analysis of the internal trial data. This will be used to scale the
-#'   external weights if no scale factor is given
-#' @param scale_factor Value to multiple all weights by.
-#' @return a rescaled propensity score
+#'   external weights if `scale_factor` is not specified
+#' @param scale_factor Value to multiple all weights by. This will be used to scale the
+#'   external weights if `n` is not specified
+#' @return a `prop_scr` object with rescaled weights
 #'
 #' @export
 #' @examples
@@ -495,7 +496,7 @@ trim <- function(x, low = NULL, high = NULL){
 #'                        external_df = ex_binary_df,
 #'                        id_col = subjid,
 #'                        model = ~ cov1 + cov2 + cov3 + cov4)
-#' # propensity score objects can be rescaled to equal a desired outcome weight
+#' # weights in a propensity score object can be rescaled to achieve a desired effective sample size (i.e., sum of weights)
 #' rescale(ps_obj, n = 75)
 #'
 #' # Or by a predetermined factor
@@ -504,7 +505,7 @@ trim <- function(x, low = NULL, high = NULL){
 rescale <- function(x, n = NULL, scale_factor = NULL){
   test_prop_scr(x)
   if(!is.null(n) & !is.null(scale_factor)){
-    cli_abort("{.arg n} and {.arg scale_factor} are both not `NULL` only one input can be used")
+    cli_abort("{.arg n} and {.arg scale_factor} are both not `NULL`, only one input can be used")
   }
 
   if(is.null(n) & is.null(scale_factor)){
@@ -525,14 +526,14 @@ rescale <- function(x, n = NULL, scale_factor = NULL){
 }
 
 
-#' Refit the Propensity Score Object
+#' Refit the absolute standardized mean differences in a `prop_scr` object
 #'
 #' Used when an object is trimmed to refit the absolute standarized
-#' mean difference
+#' mean differences
 #'
 #' @param x `prop_scr` object
 #'
-#' @returns `prop_scr` object with corrected mean differences
+#' @returns `prop_scr` object with corrected absolute standardized mean differences
 #' @noRd
 refit_ps_obj <- function (x){
   all_df_ps <- bind_rows(x$external_df, x$internal_df)
