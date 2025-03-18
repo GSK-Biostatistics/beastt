@@ -447,7 +447,7 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #' Trim a `prop_scr` object
 #'
 #' @param x a `prop_scr` object
-#' @param low Low cut-off so all values will be greater than. If left `NULL` no
+#' @param low Low cut-off such that all participants with propensity scores less than this value are removed. If left `NULL` no
 #'   lower bound will be used
 #' @param high High cut-off so all values will be less than. If left `NULL` no
 #'   upper bound will be used
