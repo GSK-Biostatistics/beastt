@@ -61,6 +61,8 @@ test_that("Check rescale prop score",{
                           external_df = ex_binary_df,
                           id_col = subjid,
                           model = ~ cov1 + cov2 + cov3 + cov4)
+
+  expect_error(rescale(ps_obj))
   expect_error(rescale(ps_obj, n = 75, scale_factor = 1.7))
 
   pop_recale <- rescale(ps_obj, n = 75)

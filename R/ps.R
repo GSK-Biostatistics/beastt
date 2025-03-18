@@ -507,6 +507,11 @@ rescale <- function(x, n = NULL, scale_factor = NULL){
     cli_abort("{.arg n} and {.arg scale_factor} are both not `NULL` only one input can be used")
   }
 
+  if(is.null(n) & is.null(scale_factor)){
+    cli_abort("{.arg n} and {.arg scale_factor} are both `NULL` one input is required")
+  }
+
+
 
   if(!is.null(n)){
     external_sample <- sum(x$external_df$`___weight___`)
@@ -516,14 +521,13 @@ rescale <- function(x, n = NULL, scale_factor = NULL){
     x$external_df <- x$external_df |>
       mutate(`___weight___` = .data$`___weight___`*scale_factor)
 
-  x |>
-    refit_ps_obj()
+  x
 }
 
 
 #' Refit the Propensity Score Object
 #'
-#' Used when an object is re-scaled or trimmed to refit the absolute standarized
+#' Used when an object is trimmed to refit the absolute standarized
 #' mean difference
 #'
 #' @param x `prop_scr` object
