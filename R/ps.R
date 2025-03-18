@@ -509,7 +509,7 @@ rescale <- function(x, n = NULL, scale_factor = NULL){
   }
 
   if(is.null(n) & is.null(scale_factor)){
-    cli_abort("{.arg n} and {.arg scale_factor} are both `NULL` one input is required")
+    cli_abort("{.arg n} and {.arg scale_factor} are both `NULL`, one input is required")
   }
 
 
