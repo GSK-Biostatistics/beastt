@@ -27,6 +27,10 @@ ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
                        external_df = ex_binary_df,
                        id_col = subjid,
                        model = ~ cov1 + cov2 + cov3 + cov4)
-rescale(ps_obj)
+# propensity score objects can be rescaled to equal a desired outcome weight
+rescale(ps_obj, n = 75)
+
+# Or by a predetermined factor
+rescale(ps_obj, scale_factor = 1.5)
 
 }
