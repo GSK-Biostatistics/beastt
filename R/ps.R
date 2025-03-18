@@ -181,12 +181,17 @@ print.prop_scr <- function(x, ..., n = 10){
   cli_bullets(c("*" = f_rhs(x$model)))
 
   cli_h1("Propensity Scores and Weights")
+  ess <- round(sum(x$external_df$`___weight___`),0)
+
+  cli_bullets(c("*" = str_glue("Effective sample size of the external arm: {ess}")))
   x$external_df |>
     select(!!x$id_col,
            Internal = .data$`___internal___`,
            `Propensity Score` = .data$`___ps___`,
            `Inverse Probability Weight` = .data$`___weight___`) |>
     print(n = n)
+
+
 
   cli_h1("Absolute Standardized Mean Difference")
   print(x$abs_std_mean_diff)
@@ -455,7 +460,7 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #'                        external_df = ex_binary_df,
 #'                        id_col = subjid,
 #'                        model = ~ cov1 + cov2 + cov3 + cov4)
-#' trim(ps_obj, )
+#' trim(ps_obj, low = 0.3, high = 0.7)
 #'
 trim <- function(x, low = NULL, high = NULL){
   test_prop_scr(x)
@@ -490,7 +495,11 @@ trim <- function(x, low = NULL, high = NULL){
 #'                        external_df = ex_binary_df,
 #'                        id_col = subjid,
 #'                        model = ~ cov1 + cov2 + cov3 + cov4)
-#' rescale(ps_obj)
+#' # propensity score objects can be rescaled to equal a desired outcome weight
+#' rescale(ps_obj, n = 75)
+#'
+#' # Or by a predetermined factor
+#' rescale(ps_obj, scale_factor = 1.5)
 #'
 rescale <- function(x, n = NULL, scale_factor = NULL){
   test_prop_scr(x)
