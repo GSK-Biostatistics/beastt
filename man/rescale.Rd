@@ -2,24 +2,25 @@
 % Please edit documentation in R/ps.R
 \name{rescale}
 \alias{rescale}
-\title{Rescale a prop_scr object}
+\title{Rescale a \code{prop_scr} object}
 \usage{
 rescale(x, n = NULL, scale_factor = NULL)
 }
 \arguments{
 \item{x}{a \code{prop_scr} obj}
 
-\item{n}{Desired sample size that the external data effectively contribute to
+\item{n}{Desired sample size that the external data should effectively contribute to
 the analysis of the internal trial data. This will be used to scale the
-external weights if no scale factor is given}
+external weights if \code{scale_factor} is not specified}
 
-\item{scale_factor}{Value to multiple all weights by.}
+\item{scale_factor}{Value to multiple all weights by. This will be used to scale the
+external weights if \code{n} is not specified}
 }
 \value{
-a rescaled propensity score
+a \code{prop_scr} object with rescaled weights
 }
 \description{
-Rescale a prop_scr object
+Rescale a \code{prop_scr} object
 }
 \examples{
 library(dplyr)
@@ -27,7 +28,7 @@ ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
                        external_df = ex_binary_df,
                        id_col = subjid,
                        model = ~ cov1 + cov2 + cov3 + cov4)
-# propensity score objects can be rescaled to equal a desired outcome weight
+# weights in a propensity score object can be rescaled to achieve a desired effective sample size (i.e., sum of weights)
 rescale(ps_obj, n = 75)
 
 # Or by a predetermined factor

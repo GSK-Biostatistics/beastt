@@ -2,24 +2,24 @@
 % Please edit documentation in R/ps.R
 \name{trim}
 \alias{trim}
-\title{Trim a prop_scr object}
+\title{Trim a \code{prop_scr} object}
 \usage{
 trim(x, low = NULL, high = NULL)
 }
 \arguments{
-\item{x}{a \code{prop_scr} obj}
+\item{x}{a \code{prop_scr} object}
 
-\item{low}{Low cut-off so all values will be greater than. If left \code{NULL} no
+\item{low}{Low cut-off such that all participants with propensity scores less than this value are removed. If left \code{NULL} no
 lower bound will be used}
 
-\item{high}{High cut-off so all values will be less than. If left \code{NULL} no
+\item{high}{High cut-off such that all participants with propensity scores greater than this value are removed. If left \code{NULL} no
 upper bound will be used}
 }
 \value{
-a trimmed propensity score
+a \code{prop_scr} object with a trimmed propensity score distribution
 }
 \description{
-Trim a prop_scr object
+Trim a \code{prop_scr} object
 }
 \examples{
 library(dplyr)
