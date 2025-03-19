@@ -15,6 +15,7 @@
 #' @examples
 #' library(distributional)
 #' plot_dist(dist_normal(0, 1))
+#' plot_dist(dist_multivariate_normal(mu = list(c(1, 2)), sigma = list(matrix(c(4, 2, 2, 3), ncol=2))))
 #' #Plotting Multiple
 #' plot_dist(dist_normal(0, 1), dist_normal(10, 5))
 #' plot_dist('Prior' = dist_normal(0, 1), 'Posterior' = dist_normal(10, 5))
@@ -57,43 +58,43 @@ plot_dist <- function(...){
 #' @importFrom dplyr rowwise mutate
 #' @importFrom tidyr crossing
 #' @importFrom stats density
-#' @importFrom purrr map_lgl
+#' @importFrom purrr map_lgl map_dbl
 #' @importFrom grDevices rainbow
 plot_dist_mvnorm <- function(dist_list){
 
   if(!all(map_lgl(dist_list, is_mvnorm))){
     cli_abort("Must be given multivariate normal objects")
-  } else {
-    check_pkg_installed("mvtnorm")
-    tib <- data.frame(x1=numeric(), x2=numeric(), z=numeric(), id=factor())
-    for (i in 1:length(dist_list)){
-      dist <- dist_list[[i]]
-      mu1 <- mean(dist)[1]
-      sigma1 <- sqrt(variance(dist)[1])
-      x1 <- seq(from=mu1-2.5*sigma1, to=mu1+2.5*sigma1, length.out=100)
-      mu2 <- mean(dist)[2]
-      sigma2 <- sqrt(variance(dist)[2])
-      x2 <- seq(from=mu2-2.5*sigma2, to=mu2+2.5*sigma2, length.out=100)
-      temp <- crossing(x1, x2) |>
-        rowwise() |>
-        mutate(z = unlist(density(dist, c(x1, x2))), id=as.factor(i))
-      tib <- rbind(tib, temp)
+  }
+  check_pkg_installed("mvtnorm")
+  tib <- data.frame(x1=numeric(), x2=numeric(), z=numeric(), id=factor())
+  for (i in 1:length(dist_list)){
+    dist <- dist_list[[i]]
+    mus <- mean(dist)
+    vars <- variance(dist)
+    if(length(mus) == 1 & length(vars) == 1){
+      cli_abort("Cannot plot multivariate normals with an index of 1")
     }
+    sigmas <- map_dbl(vars, sqrt)
+    x1 <- seq(from=mus[1]-2.5*sigmas[1], to=mus[1]+2.5*sigmas[1], length.out=100)
+    x2 <- seq(from=mus[2]-2.5*sigmas[2], to=mus[2]+2.5*sigmas[2], length.out=100)
+    temp <- crossing(x1, x2) |>
+      rowwise() |>
+      mutate(z = unlist(density(dist, c(x1, x2))), id=as.factor(i))
+    tib <- rbind(tib, temp)
+  }
 
-    n <- length(dist_list)
-    if(n == 1){
-      ggplot(tib, aes(x=x1, y=x2, z=.data$z)) +
-        geom_contour(colour = "black") +
-        labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
-        theme_bw()
-    }
-    else {
-      colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
-      ggplot(tib, aes(x=x1, y=x2, z=.data$z, colour=.data$id)) +
-        geom_contour() +
-        labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
-        theme_bw() + scale_color_manual(values = colors)
-    }
+  n <- length(dist_list)
+  if(n == 1){
+    ggplot(tib, aes(x=x1, y=x2, z=.data$z)) +
+      geom_contour(colour = "black") +
+      labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
+      theme_bw()
+  } else {
+    colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
+    ggplot(tib, aes(x=x1, y=x2, z=.data$z, colour=.data$id)) +
+      geom_contour() +
+      labs(x=expression(paste("log(", alpha, ")")), y=expression(beta)) +
+      theme_bw() + scale_color_manual(values = colors)
   }
 }
 
