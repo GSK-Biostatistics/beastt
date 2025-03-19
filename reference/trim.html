@@ -59,13 +59,13 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Trim a prop_scr object</h1>
+    <h1>Trim a <code>prop_scr</code> object</h1>
     <small class="dont-index">Source: <a href="https://github.com/GSK-Biostatistics/beastt/blob/main/R/ps.R" class="external-link"><code>R/ps.R</code></a></small>
     <div class="hidden name"><code>trim.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Trim a prop_scr object</p>
+    <p>Trim a <code>prop_scr</code> object</p>
     </div>
 
     <div id="ref-usage">
@@ -77,22 +77,22 @@
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>a <code>prop_scr</code> obj</p></dd>
+<dd><p>a <code>prop_scr</code> object</p></dd>
 
 
 <dt id="arg-low">low<a class="anchor" aria-label="anchor" href="#arg-low"></a></dt>
-<dd><p>Low cut-off so all values will be greater than. If left <code>NULL</code> no
+<dd><p>Low cut-off such that all participants with propensity scores less than this value are removed. If left <code>NULL</code> no
 lower bound will be used</p></dd>
 
 
 <dt id="arg-high">high<a class="anchor" aria-label="anchor" href="#arg-high"></a></dt>
-<dd><p>High cut-off so all values will be less than. If left <code>NULL</code> no
+<dd><p>High cut-off such that all participants with propensity scores greater than this value are removed. If left <code>NULL</code> no
 upper bound will be used</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a trimmed propensity score</p>
+    <p>a <code>prop_scr</code> object with a trimmed propensity score distribution</p>
     </div>
 
     <div id="ref-examples">

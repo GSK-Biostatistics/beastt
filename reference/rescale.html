@@ -59,13 +59,13 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Rescale a prop_scr object</h1>
+    <h1>Rescale a <code>prop_scr</code> object</h1>
     <small class="dont-index">Source: <a href="https://github.com/GSK-Biostatistics/beastt/blob/main/R/ps.R" class="external-link"><code>R/ps.R</code></a></small>
     <div class="hidden name"><code>rescale.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Rescale a prop_scr object</p>
+    <p>Rescale a <code>prop_scr</code> object</p>
     </div>
 
     <div id="ref-usage">
@@ -81,18 +81,19 @@
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>Desired sample size that the external data effectively contribute to
+<dd><p>Desired sample size that the external data should effectively contribute to
 the analysis of the internal trial data. This will be used to scale the
-external weights if no scale factor is given</p></dd>
+external weights if <code>scale_factor</code> is not specified</p></dd>
 
 
 <dt id="arg-scale-factor">scale_factor<a class="anchor" aria-label="anchor" href="#arg-scale-factor"></a></dt>
-<dd><p>Value to multiple all weights by.</p></dd>
+<dd><p>Value to multiple all weights by. This will be used to scale the
+external weights if <code>n</code> is not specified</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a rescaled propensity score</p>
+    <p>a <code>prop_scr</code> object with rescaled weights</p>
     </div>
 
     <div id="ref-examples">
@@ -102,7 +103,7 @@ external weights if no scale factor is given</p></dd>
 <span class="r-in"><span>                       external_df <span class="op">=</span> <span class="va">ex_binary_df</span>,</span></span>
 <span class="r-in"><span>                       id_col <span class="op">=</span> <span class="va">subjid</span>,</span></span>
 <span class="r-in"><span>                       model <span class="op">=</span> <span class="op">~</span> <span class="va">cov1</span> <span class="op">+</span> <span class="va">cov2</span> <span class="op">+</span> <span class="va">cov3</span> <span class="op">+</span> <span class="va">cov4</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># propensity score objects can be rescaled to equal a desired outcome weight</span></span></span>
+<span class="r-in"><span><span class="co"># weights in a propensity score object can be rescaled to achieve a desired effective sample size (i.e., sum of weights)</span></span></span>
 <span class="r-in"><span><span class="fu">rescale</span><span class="op">(</span><span class="va">ps_obj</span>, n <span class="op">=</span> <span class="fl">75</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Model</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────────────────</span></span>
