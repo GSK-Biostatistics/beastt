@@ -4,16 +4,21 @@
 \alias{trim}
 \title{Trim a \code{prop_scr} object}
 \usage{
-trim(x, low = NULL, high = NULL)
+trim(x, low = NULL, high = NULL, quantile = FALSE)
 }
 \arguments{
 \item{x}{a \code{prop_scr} object}
 
-\item{low}{Low cut-off such that all participants with propensity scores less than this value are removed. If left \code{NULL} no
-lower bound will be used}
+\item{low}{Low cut-off such that all participants with propensity scores (or
+quantiles if \code{quantile = TRUE}) less than this value are removed. If left
+\code{NULL} no lower bound will be used}
 
-\item{high}{High cut-off such that all participants with propensity scores greater than this value are removed. If left \code{NULL} no
-upper bound will be used}
+\item{high}{High cut-off such that all participants with propensity scores
+(or quantiles if \code{quantile = TRUE}) greater than this value are removed. If
+left \code{NULL} no upper bound will be used}
+
+\item{quantile}{True/False value to determine if the cut-off values are based
+directly one the propensity scores or their quantiles.}
 }
 \value{
 a \code{prop_scr} object with a trimmed propensity score distribution
