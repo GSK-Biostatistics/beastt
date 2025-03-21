@@ -585,3 +585,7 @@ refit_ps_obj <- function (x){
 
   x
 }
+
+cloud_plot <- function(x, trimmed_prop_scr = NULL){
+
+}

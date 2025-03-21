@@ -22,8 +22,8 @@ test_that("Check trim prop score",{
    trimmed_df_high <- trim(ps_obj, high = 0.75, quantile = TRUE)$external_df
    trimmed_df_low <- trim(ps_obj, low = 0.25,  quantile = TRUE)$external_df
 
-   ps_vals <- tidy(ps_obj) |>
-     pull(ps)
+   ps_vals <- bind_rows(ps_obj$external_df, ps_obj$internal_df) |>
+     pull(`___ps___` )
    low_cv <- quantile(ps_vals, 0.25)
    high_cv <-  quantile(ps_vals, 0.75)
 
@@ -33,7 +33,7 @@ test_that("Check trim prop score",{
 
    man_high <-  ps_obj$external_df |>
      filter(`___ps___` < high_cv)
-   expect_equal(trimmed_df_high, high_cv)
+   expect_equal(trimmed_df_high, man_high)
 
 
    # Errors
