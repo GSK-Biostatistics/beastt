@@ -447,12 +447,17 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #' Trim a `prop_scr` object
 #'
 #' @param x a `prop_scr` object
-#' @param low Low cut-off such that all participants with propensity scores less than this value are removed. If left `NULL` no
-#'   lower bound will be used
-#' @param high High cut-off such that all participants with propensity scores greater than this value are removed. If left `NULL` no
-#'   upper bound will be used
+#' @param low Low cut-off such that all participants with propensity scores (or
+#'   quantiles if `quantile = TRUE`) less than this value are removed. If left
+#'   `NULL` no lower bound will be used
+#' @param high High cut-off such that all participants with propensity scores
+#'   (or quantiles if `quantile = TRUE`) greater than this value are removed. If
+#'   left `NULL` no upper bound will be used
+#' @param quantile True/False value to determine if the cut-off values are based
+#'   directly one the propensity scores or their quantiles.
 #' @return a `prop_scr` object with a trimmed propensity score distribution
 #'
+#' @importFrom rlang is_empty
 #' @export
 #' @examples
 #' library(dplyr)
@@ -462,15 +467,30 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #'                        model = ~ cov1 + cov2 + cov3 + cov4)
 #' trim(ps_obj, low = 0.3, high = 0.7)
 #'
-trim <- function(x, low = NULL, high = NULL){
+trim <- function(x, low = NULL, high = NULL, quantile = FALSE){
   test_prop_scr(x)
 
-  if(!is.null(low)){
+
+  if(quantile) {
+    ps_vals <- bind_rows(x$internal_df, x$external_df) |>
+      pull(`___ps___`)
+    low <- quantile(ps_vals, low)
+    high <-  quantile(ps_vals, high)
+
+  }
+
+  if(!is.null(low) && !is_empty(low)){
+    if(low < 0){
+      cli_abort("{.arg low} must be above 0" )
+    }
     x$external_df <- x$external_df |>
       filter(.data$`___ps___` >= low)
   }
 
-  if(!is.null(high)){
+  if(!is.null(high) && !is_empty(high)){
+    if(high > 1){
+      cli_abort("{.arg high} must be below 1" )
+    }
     x$external_df <- x$external_df |>
       filter(.data$`___ps___` <= high)
   }
@@ -565,4 +585,3 @@ refit_ps_obj <- function (x){
 
   x
 }
-

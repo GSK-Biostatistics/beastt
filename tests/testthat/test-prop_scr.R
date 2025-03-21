@@ -9,6 +9,8 @@ test_that("Check trim prop score",{
                          external_df = ex_binary_df,
                          id_col = subjid,
                          model = ~ cov1 + cov2 + cov3 + cov4)
+
+  # Direct
    trimmed_ps_obj <- trim(ps_obj, low = 0.3, high = 0.7)
    trimmed_df <- trimmed_ps_obj$external_df
 
@@ -16,7 +18,31 @@ test_that("Check trim prop score",{
      filter(`___ps___` > 0.3 & `___ps___` < 0.7)
    expect_equal(trimmed_df, man)
 
+   # Quantile
+   trimmed_df_high <- trim(ps_obj, high = 0.75, quantile = TRUE)$external_df
+   trimmed_df_low <- trim(ps_obj, low = 0.25,  quantile = TRUE)$external_df
+
+   ps_vals <- tidy(ps_obj) |>
+     pull(ps)
+   low_cv <- quantile(ps_vals, 0.25)
+   high_cv <-  quantile(ps_vals, 0.75)
+
+   man_low <-  ps_obj$external_df |>
+     filter(`___ps___` > low_cv)
+   expect_equal(trimmed_df_low, man_low)
+
+   man_high <-  ps_obj$external_df |>
+     filter(`___ps___` < high_cv)
+   expect_equal(trimmed_df_high, high_cv)
+
+
+   # Errors
+   expect_error(trim(ps_obj, low = -0.3))
+   expect_error(trim(ps_obj, high = 1.2))
+
+
   })
+
 
 test_that("test refitting prop score", {
   ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
