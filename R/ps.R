@@ -446,7 +446,7 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 
 #' Trim a `prop_scr` object
 #'
-#' @param x a `prop_scr` object
+#' @param x A `prop_scr` object
 #' @param low Low cut-off such that all participants with propensity scores less
 #'   than this value (or quantile if `quantile = TRUE`) are removed.  If left
 #'   `NULL` no lower bound will be used
@@ -454,7 +454,7 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #'   greater than this value (or quantile if `quantile = TRUE`) are removed. If
 #'   left `NULL` no upper bound will be used
 #' @param quantile True/False value to determine if the cut-off values are based
-#'   directly one the propensity scores or their quantiles. By default this is
+#'   directly on the propensity scores (false) or their quantiles (true). By default this is
 #'   false.
 #' @return a `prop_scr` object with a trimmed propensity score distribution
 #'
@@ -593,13 +593,21 @@ refit_ps_obj <- function (x){
 
 #' Propensity Score Cloud Plot
 #'
-#' @param x a `prop_scr` obj
-#' @param trimmed_prop_scr a trimmed `prop_scr` obj
+#' @param x A `prop_scr` object
+#' @param trimmed_prop_scr A trimmed `prop_scr` object
 #'
 #' @returns ggplot object
 #' @export
 #'
 #' @examples
+#' library(dplyr)
+#' ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
+#'                         external_df = ex_norm_df,
+#'                         id_col = subjid,
+#'                         model = ~ cov1 + cov2 + cov3 + cov4)
+#' ps_obj_trimmed <- trim(ps_obj, low = 0.1, high = 0.6)
+#' # Plotting the Propensity Scores
+#' prop_scr_cloud(ps_obj, trimmed_prop_scr = ps_obj_trimmed)
 #'
 #' @importFrom dplyr if_else anti_join
 #' @importFrom ggplot2 position_jitter scale_shape_manual
@@ -611,7 +619,7 @@ prop_scr_cloud <- function(x, trimmed_prop_scr = NULL){
 
   if(is.null(trimmed_prop_scr)){
     plot <- ggplot(graph_df, aes(x = `___ps___`, y = arm)) +
-      geom_point(position = position_jitter(width = 0))
+      geom_point(position = position_jitter(width = 0, height = .1))
 
   } else {
     nontrimmed_df <- bind_rows(trimmed_prop_scr$external_df, trimmed_prop_scr$internal_df) |>
@@ -624,11 +632,11 @@ prop_scr_cloud <- function(x, trimmed_prop_scr = NULL){
 
     plot <- ggplot(graph_df, aes(x = `___ps___`, y = arm,
                                  color = trimmed, shape = trimmed)) +
-      geom_point(position = ggplot2::position_jitter(width = 0)) +
+      geom_point(position = ggplot2::position_jitter(width = 0, height = .1)) +
       scale_color_manual(values = c("#5398BE", "#FFA21F"),
-                         labels = c("TRUE" =  "Trimmed", "FALSE" = "Not Trimmed")) +
+                         labels = c("TRUE" =  "Yes", "FALSE" = "No")) +
       scale_shape_manual(values = c(16, 4),
-                         labels = c("TRUE" =  "Trimmed", "FALSE" = "Not Trimmed"))
+                         labels = c("TRUE" =  "Yes", "FALSE" = "No"))
 
   }
 
