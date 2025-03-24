@@ -1,3 +1,8 @@
+# beastt 0.0.3 
+
+* add trim() and rescale() function 
+* add prop_scr_cloud() function 
+
 # beastt 0.0.2
 
 * Add time-to-event capabilities 

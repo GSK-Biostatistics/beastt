@@ -18,21 +18,38 @@ test_that("Check trim prop score",{
      filter(`___ps___` > 0.3 & `___ps___` < 0.7)
    expect_equal(trimmed_df, man)
 
+   # Test with only low boundary
+   low_only <- trim(ps_obj, low = 0.3)
+   expect_true(all(low_only$external_df$`___ps___` >= 0.3))
+
+   # Test with only high boundary
+   high_only <- trim(ps_obj, high = 0.7)
+   expect_true(all(high_only$external_df$`___ps___` <= 0.7))
+
+   # Manual calculation for comparison
+   man_low_only <- ps_obj$external_df |>
+     filter(`___ps___` >= 0.3)
+   expect_equal(low_only$external_df, man_low_only)
+
+   man_high_only <- ps_obj$external_df |>
+     filter(`___ps___` <= 0.7)
+   expect_equal(high_only$external_df, man_high_only)
+
    # Quantile
    trimmed_df_high <- trim(ps_obj, high = 0.75, quantile = TRUE)$external_df
    trimmed_df_low <- trim(ps_obj, low = 0.25,  quantile = TRUE)$external_df
 
-   ps_vals <- bind_rows(ps_obj$external_df, ps_obj$internal_df) |>
+   ps_vals <- ps_obj$external_df |>
      pull(`___ps___` )
    low_cv <- quantile(ps_vals, 0.25)
    high_cv <-  quantile(ps_vals, 0.75)
 
    man_low <-  ps_obj$external_df |>
-     filter(`___ps___` > low_cv)
+     filter(`___ps___` >= low_cv)
    expect_equal(trimmed_df_low, man_low)
 
    man_high <-  ps_obj$external_df |>
-     filter(`___ps___` < high_cv)
+     filter(`___ps___` <= high_cv)
    expect_equal(trimmed_df_high, man_high)
 
 
@@ -42,6 +59,63 @@ test_that("Check trim prop score",{
 
 
   })
+
+
+test_that("trim preserves prop_scr object structure", {
+  ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+                          external_df = ex_binary_df,
+                          id_col = subjid,
+                          model = ~ cov1 + cov2 + cov3 + cov4)
+
+  trimmed_ps_obj <- trim(ps_obj, low = 0.2, high = 0.8)
+
+  # Check that required properties exist in trimmed object
+  expect_true(is_prop_scr(trimmed_ps_obj))
+  expect_equal(names(ps_obj), names(trimmed_ps_obj))
+  expect_equal(class(ps_obj), class(trimmed_ps_obj))
+
+  # Check model formula is preserved
+  expect_equal(ps_obj$model_formula, trimmed_ps_obj$model_formula)
+
+  # Check that id column is preserved
+  expect_equal(ps_obj$id_col, trimmed_ps_obj$id_col)
+})
+
+test_that("trim with NULL parameters returns unchanged dataset", {
+  ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+                          external_df = ex_binary_df,
+                          id_col = subjid,
+                          model = ~ cov1 + cov2 + cov3 + cov4)
+
+  # Trim with NULL parameters should return the original object
+  null_trim <- trim(ps_obj, low = NULL, high = NULL)
+  expect_equal(ps_obj$external_df, null_trim$external_df)
+})
+
+test_that("trim correctly handles quantile edge cases", {
+  ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
+                          external_df = ex_binary_df,
+                          id_col = subjid,
+                          model = ~ cov1 + cov2 + cov3 + cov4)
+
+  # Test with quantile = 0
+  q0_trim <- trim(ps_obj, low = 0, quantile = TRUE)
+  expect_equal(nrow(q0_trim$external_df), nrow(ps_obj$external_df))
+
+  # Test with quantile = 1
+  q1_trim <- trim(ps_obj, high = 1, quantile = TRUE)
+  expect_equal(nrow(q1_trim$external_df), nrow(ps_obj$external_df))
+
+  # Test with very small quantile range
+  narrow_trim <- trim(ps_obj, low = 0.49, high = 0.51, quantile = TRUE)
+  ps_vals <- ps_obj$external_df |>
+    pull(`___ps___`)
+  low_val <- quantile(ps_vals, 0.49)
+  high_val <- quantile(ps_vals, 0.51)
+
+  expect_true(all(narrow_trim$external_df$`___ps___` >= low_val))
+  expect_true(all(narrow_trim$external_df$`___ps___` <= high_val))
+})
 
 
 test_that("test refitting prop score", {

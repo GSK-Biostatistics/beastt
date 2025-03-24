@@ -9,22 +9,27 @@ trim(x, low = NULL, high = NULL, quantile = FALSE)
 \arguments{
 \item{x}{a \code{prop_scr} object}
 
-\item{low}{Low cut-off such that all participants with propensity scores (or
-quantiles if \code{quantile = TRUE}) less than this value are removed. If left
+\item{low}{Low cut-off such that all participants with propensity scores less
+than this value (or quantile if \code{quantile = TRUE}) are removed.  If left
 \code{NULL} no lower bound will be used}
 
 \item{high}{High cut-off such that all participants with propensity scores
-(or quantiles if \code{quantile = TRUE}) greater than this value are removed. If
+greater than this value (or quantile if \code{quantile = TRUE}) are removed. If
 left \code{NULL} no upper bound will be used}
 
 \item{quantile}{True/False value to determine if the cut-off values are based
-directly one the propensity scores or their quantiles.}
+directly one the propensity scores or their quantiles. By default this is
+false.}
 }
 \value{
 a \code{prop_scr} object with a trimmed propensity score distribution
 }
 \description{
 Trim a \code{prop_scr} object
+}
+\details{
+This function uses R's default method of quantile calculation (type
+7)
 }
 \examples{
 library(dplyr)
