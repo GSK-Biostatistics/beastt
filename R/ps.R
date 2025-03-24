@@ -447,15 +447,20 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #' Trim a `prop_scr` object
 #'
 #' @param x a `prop_scr` object
-#' @param low Low cut-off such that all participants with propensity scores (or
-#'   quantiles if `quantile = TRUE`) less than this value are removed. If left
+#' @param low Low cut-off such that all participants with propensity scores less
+#'   than this value (or quantile if `quantile = TRUE`) are removed.  If left
 #'   `NULL` no lower bound will be used
 #' @param high High cut-off such that all participants with propensity scores
-#'   (or quantiles if `quantile = TRUE`) greater than this value are removed. If
+#'   greater than this value (or quantile if `quantile = TRUE`) are removed. If
 #'   left `NULL` no upper bound will be used
 #' @param quantile True/False value to determine if the cut-off values are based
-#'   directly one the propensity scores or their quantiles.
+#'   directly one the propensity scores or their quantiles. By default this is
+#'   false.
 #' @return a `prop_scr` object with a trimmed propensity score distribution
+#'
+#' @details This function uses R's default method of quantile calculation (type
+#' 7)
+#'
 #'
 #' @importFrom rlang is_empty
 #' @export
@@ -472,7 +477,7 @@ trim <- function(x, low = NULL, high = NULL, quantile = FALSE){
 
 
   if(quantile) {
-    ps_vals <- bind_rows(x$internal_df, x$external_df) |>
+    ps_vals <- x$external_df |>
       pull(`___ps___`)
     low <- quantile(ps_vals, low)
     high <-  quantile(ps_vals, high)
@@ -586,6 +591,51 @@ refit_ps_obj <- function (x){
   x
 }
 
-cloud_plot <- function(x, trimmed_prop_scr = NULL){
+#' Propensity Score Cloud Plot
+#'
+#' @param x a `prop_scr` obj
+#' @param trimmed_prop_scr a trimmed `prop_scr` obj
+#'
+#' @returns ggplot object
+#' @export
+#'
+#' @examples
+#'
+#' @importFrom dplyr if_else anti_join
+#' @importFrom ggplot2 position_jitter scale_shape_manual
+prop_scr_cloud <- function(x, trimmed_prop_scr = NULL){
+  test_prop_scr(x)
+
+  graph_df <- bind_rows(x$external_df, x$internal_df) |>
+    mutate(arm = if_else(`___internal___`, "Internal Control", "External Control"))
+
+  if(is.null(trimmed_prop_scr)){
+    plot <- ggplot(graph_df, aes(x = `___ps___`, y = arm)) +
+      geom_point(position = position_jitter(width = 0))
+
+  } else {
+    nontrimmed_df <- bind_rows(trimmed_prop_scr$external_df, trimmed_prop_scr$internal_df) |>
+      mutate(arm = if_else(`___internal___`, "Internal Control", "External Control"),
+             trimmed = FALSE)
+    by_vars <- intersect(colnames(graph_df), colnames(nontrimmed_df))
+    trimmed_df <- anti_join(graph_df, nontrimmed_df, by = by_vars) |>
+      mutate(trimmed = TRUE)
+    graph_df <- bind_rows(nontrimmed_df, trimmed_df)
+
+    plot <- ggplot(graph_df, aes(x = `___ps___`, y = arm,
+                                 color = trimmed, shape = trimmed)) +
+      geom_point(position = ggplot2::position_jitter(width = 0)) +
+      scale_color_manual(values = c("#5398BE", "#FFA21F"),
+                         labels = c("TRUE" =  "Trimmed", "FALSE" = "Not Trimmed")) +
+      scale_shape_manual(values = c(16, 4),
+                         labels = c("TRUE" =  "Trimmed", "FALSE" = "Not Trimmed"))
+
+  }
+
+  plot +
+    labs(y = "Arm", x = "Propensity Score", color = "Trimmed",
+         shape = "Trimmed") +
+    ggtitle("Propensity Score Cloud Plot") +
+    theme_bw()
 
 }
