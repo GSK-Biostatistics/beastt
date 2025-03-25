@@ -7,7 +7,7 @@
 trim(x, low = NULL, high = NULL, quantile = FALSE)
 }
 \arguments{
-\item{x}{a \code{prop_scr} object}
+\item{x}{A \code{prop_scr} object}
 
 \item{low}{Low cut-off such that all participants with propensity scores less
 than this value (or quantile if \code{quantile = TRUE}) are removed.  If left
@@ -18,7 +18,7 @@ greater than this value (or quantile if \code{quantile = TRUE}) are removed. If
 left \code{NULL} no upper bound will be used}
 
 \item{quantile}{True/False value to determine if the cut-off values are based
-directly one the propensity scores or their quantiles. By default this is
+directly on the propensity scores (false) or their quantiles (true). By default this is
 false.}
 }
 \value{
