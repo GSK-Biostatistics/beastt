@@ -1,5 +1,5 @@
 
-#' Bootstrap Binary Data
+#' Bootstrap Covariate Data
 #'
 #' @param external_dat External Data to bootstrap
 #' @param n number of rows in the output dataset
@@ -8,18 +8,19 @@
 #'   the external dataset. The imbalance variable must be binary.
 #' @param imbal_prop optional imbalance proportion. Needed if there is an
 #'   imbalance variable. This controls the proportion of subjects with the
-#'   reference value.
+#'   reference value. This can either be a vector of proportions or a single
+#'   proportion.
 #' @param ref_val
 #'
-#' @returns dataframe with the same number of columns as the reference dataframe,
-#'   but n number of rows
+#' @returns dataframe with the same number of columns as the reference
+#'   dataframe, but n number of rows
 #' @export
 #'
 #' @examples
-#' bootstrap_binary(external_dat, n = 100000)
+#' bootstrap_cov(external_dat, n = 100000)
 #' @importFrom rlang quo_is_null
 #' @importFrom dplyr slice row_number
-bootstrap_binary <- function(external_dat, n,
+bootstrap_cov <- function(external_dat, n,
                              imbal_var = NULL, imbal_prop = NULL, ref_val = 0){
   var <- enquo(imbal_var)
   if(quo_is_null(var)){
@@ -28,10 +29,9 @@ bootstrap_binary <- function(external_dat, n,
   } else if(!quo_is_null(var) && !is.null(imbal_prop)){
     uni_val <- external_dat |>
       pull({{imbal_var}}) |>
-      discard(is.na) |>
       unique()
     if(length(uni_val) > 2){
-      cli_abort("{.arg imbal_var} must be binary")
+      cli_abort("{.arg imbal_var} must be binary without missing")
     }
     indexed_df <- external_dat |>
       mutate(`__row__` = row_number())
@@ -41,13 +41,27 @@ bootstrap_binary <- function(external_dat, n,
     non_ref <- indexed_df |>
       filter({{imbal_var}} != ref_val) |>
       pull(`__row__`)
-    ref_size = round(imbal_prop*n)
-    non_ref_size = n-ref_size
-    imbal_ids <- c( sample(ref_inds,
-                           size = ref_size, replace = TRUE),
-                    sample(non_ref,
-                           size = non_ref_size, replace = TRUE) )  # sample IDs
-    pop <- slice(external_dat, imbal_ids)
+    if(length(imbal_prop) == 1) {
+      ref_size = round(imbal_prop*n)
+      non_ref_size = n-ref_size
+      imbal_ids <- c( sample(ref_inds,
+                             size = ref_size, replace = TRUE),
+                      sample(non_ref,
+                             size = non_ref_size, replace = TRUE) )  # sample IDs
+      pop <- slice(external_dat, imbal_ids)
+    } else {
+      pop <- map(imbal_prop, function(ip){
+        ref_size = round(ip*n)
+        non_ref_size = n-ref_size
+        imbal_ids <- c( sample(ref_inds,
+                               size = ref_size, replace = TRUE),
+                        sample(non_ref,
+                               size = non_ref_size, replace = TRUE) )  # sample IDs
+        slice(external_dat, imbal_ids)
+      })
+      names(pop) = imbal_prop
+    }
+
 
   } else{
     cli_abort("{.arg imbal_var} and {.arg imbal_prop} must both have values")
