@@ -152,7 +152,21 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
 
 }
 
-#' @noRd
+
+#' Inverse Logit
+#'
+#' @param x value(s) to take the inverse logit of
+#'
+#' @returns vector of numbers between 0 and 1
+#' @export
+#'
+#' @examples
+#' inv_logit(0.5)
+#'
+#' @details
+#' This function is a short hand to exp(x)/(1+exp(x))
+#'
 inv_logit <- function(x){
   exp(x)/(1+exp(x))
 }
+

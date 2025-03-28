@@ -23,13 +23,14 @@ the external dataset. The imbalance variable must be binary.}
 
 \item{imbal_prop}{optional imbalance proportion. Needed if there is an
 imbalance variable. This controls the proportion of subjects with the
-reference value.}
+reference value. This can either be a vector of proportions or a single
+proportion.}
 
 \item{ref_val}{}
 }
 \value{
-dataframe with the same number of columns as the reference dataframe,
-but n number of rows
+dataframe with the same number of columns as the reference
+dataframe, but n number of rows
 }
 \description{
 Bootstrap Covariate Data
