@@ -2,21 +2,21 @@
 % Please edit documentation in R/binary-sim.R
 \name{inv_logit}
 \alias{inv_logit}
-\title{Inverse Logit}
+\title{Inverse Logit Function}
 \usage{
 inv_logit(x)
 }
 \arguments{
-\item{x}{value(s) to take the inverse logit of}
+\item{x}{Real number(s) to take the inverse logit of}
 }
 \value{
-vector of numbers between 0 and 1
+Vector of probabilities between 0 and 1
 }
 \description{
-Inverse Logit
+Inverse Logit Function
 }
 \details{
-This function is a short hand to exp(x)/(1+exp(x))
+This function is a short hand to \eqn{\exp(x)/(1 + \exp(x))}.
 }
 \examples{
 inv_logit(0.5)

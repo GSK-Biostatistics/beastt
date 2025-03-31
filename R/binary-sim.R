@@ -48,11 +48,12 @@
 #' # Return a list of two data frames that incorporate imbalance w.r.t. covariate 2
 #' samp_imbalance <- bootstrap_cov(ex_binary_df, n = 1000, imbal_var = cov2,
 #'                                 imbal_prop = c(0.25, 0.5), ref_val = 0)
-#' @importFrom rlang quo_is_null
+#' @importFrom rlang quo_is_null as_name
 #' @importFrom dplyr slice row_number
 bootstrap_cov <- function(external_dat, n,
                              imbal_var = NULL, imbal_prop = NULL, ref_val = 0){
   var <- enquo(imbal_var)
+
   if(quo_is_null(var)){
 
     # Draw n covariate vectors from external data frame using bootstrap sampling
@@ -60,26 +61,21 @@ bootstrap_cov <- function(external_dat, n,
     pop <- slice(external_dat, no_imbal_ids)
 
   } else if(!quo_is_null(var) && !is.null(imbal_prop)){
-    uni_val <- external_dat |>
-      pull({{imbal_var}}) |>
-      unique()
+    if(!as_name(var) %in% colnames(external_dat)){
+      cli_abort("{.arg imbal_var} is not present in {.arg imbal_var}")
+    }
+    var_val <- external_dat |>
+      pull({{imbal_var}})
+    uni_val <- unique(var_val)
     if(length(uni_val) > 2){
       cli_abort("{.arg imbal_var} must be binary without missing data")
     }
 
-    # Index all individuals in external data by their row number
-    indexed_df <- external_dat |>
-      mutate(`__row__` = row_number())
-
     # Identify individuals in external data with reference level of imbal_var
-    ref_inds <- indexed_df |>
-      filter({{imbal_var}} == ref_val) |>
-      pull(`__row__`)
+    ref_inds <- which(var_val == ref_val)
 
     # Identify individuals in external data with non-reference level of imbal_var
-    non_ref <- indexed_df |>
-      filter({{imbal_var}} != ref_val) |>
-      pull(`__row__`)
+    non_ref <-  which(var_val != ref_val)
 
     if(length(imbal_prop) == 1) {
 
@@ -166,7 +162,7 @@ bootstrap_cov <- function(external_dat, n,
 #'   translation of specified marginal values (`marg_drift`) to conditional
 #'   values.
 #'
-#'   Let \{\Delta} and \eqn{\delta} denote the marginal and conditional drift,
+#'   Let \eqn{\Delta} and \eqn{\delta} denote the marginal and conditional drift,
 #'   respectively. For a specified value of \eqn{\Delta}, we can identify the
 #'   corresponding \eqn{\delta} as the value that, when added as an additional
 #'   term in the logistic regression model (i.e., change in the intercept) for
@@ -236,6 +232,10 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
     cli_abort("{.arg beta_coefs} must be a glm object")
   }
 
+  if(!"data.frame" %in% class(population)){
+    cli_abort("{.arg population} must be a tibble or dataframe. If you are using lists, check you haven't converted the dataframe into a list of vectors")
+  }
+
   cov_vec <-   names(glm$coefficients) |>
     discard(\(x) x == "(Intercept)")
   beta_coefs <- glm$coefficients
@@ -285,7 +285,7 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
         IC_RR_true_val <- mean(inv_logit(X_IC %*% beta_coefs + delta_val))
         c("marg_drift" = Delta, "conditional_drift" = delta_val, "true_control_RR" = IC_RR_true_val)
       }) |>
-      reduce(bind_rows)
+      bind_rows()
 
     # Identify the optimal conditional trt effect value ("gamma") that corresponds
     # to the defined marginal trt effect value ("Gamma"). If we calculate the
@@ -294,6 +294,7 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
     # covariates, delta, and gamma), the optimal value of the conditional trt
     # effect is the gamma that results in a difference between the IT RR and the
     # IC RR that is approximately equal to the marginal trt effect (Gamma).
+
     cond_df <- scenarios |>
       left_join(delta_df, by = "marg_drift") |>
       mutate(conditional_trt_eff =

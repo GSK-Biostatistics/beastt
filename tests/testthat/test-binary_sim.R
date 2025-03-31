@@ -2,12 +2,6 @@
 # Code to test various functions of beastt - simulation functions for binary endpoint
 ###################################################################################################
 
-### Load libraries
-library(beastt)
-library(distributional)
-library(dplyr)
-
-
 ###################################################################################################
 # bootstrap_cov
 ###################################################################################################
@@ -40,6 +34,11 @@ test_that("bootstrap_cov returns dataset with imbalanced covariate distributions
 
   ## Check that the proportion participants with baseline cov2 is 0.25
   expect_equal(mean(samp$cov2 == 0), .25)
+
+  ## Test passing string rather than quosure
+  samp2 <- bootstrap_cov(ex_binary_df, n = 100, imbal_var = "cov2", imbal_prop = .25)
+  ## Check that the proportion participants with baseline cov2 is 0.25
+  expect_equal(mean(samp2$cov2 == 0), .25)
 })
 
 ##### Test for bootstrap_cov() with multiple imbalance proportions
@@ -67,7 +66,6 @@ test_that("bootstrap_cov handles invalid external data", {
 
 ### Test for invalid imbalance covariates
 test_that("bootstrap_cov handles invalid imbalance covariates", {
-  expect_error(bootstrap_cov(ex_binary_df, n = 100, imbal_var = "cov2", imbal_prop = .2))
   expect_error(bootstrap_cov(ex_binary_df, n = 100, imbal_var = cov8, imbal_prop = .2))
 })
 
@@ -129,6 +127,10 @@ test_that("calc_cond_binary returns data frame for a list of populations", {
   pop_var <- pop_ls |>
     map(calc_cond_binary, logit_mod, marg_drift = c(-.1, 0, .1), marg_trt_eff = c(0, .1)) |>
     bind_rows(.id = "population")
+
+  # Adding error if the list is made improperly
+  expect_error(c(pop1, pop23) |>
+    map(calc_cond_binary, logit_mod, marg_drift = c(-.1, 0, .1), marg_trt_eff = c(0, .1)))
 
   ## Response rate of external control after standardizing covariate distributions to match the internal trial
   RR_EC <- pop_ls |>

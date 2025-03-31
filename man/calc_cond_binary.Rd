@@ -2,19 +2,22 @@
 % Please edit documentation in R/binary-sim.R
 \name{calc_cond_binary}
 \alias{calc_cond_binary}
-\title{Calculate Conditional Drift for Binary}
+\title{Calculate Conditional Drift and Treatment Effect for Binary Outcome Models}
 \usage{
 calc_cond_binary(population, glm, marg_drift, marg_trt_eff)
 }
 \arguments{
-\item{population}{Large population dataset, where the columns of the dataset
-correspond to the covariates for the logistic regression}
+\item{population}{A very large data frame (e.g., number of rows \eqn{\ge}
+100,000) where the columns correspond to the covariates defined in the
+logistic regression model object. This data frame should be constructed to
+represent the population of the internal trial according to the assumed
+covariate distributions (possibly imbalanced from the external data).}
 
-\item{glm}{logistic regression model object}
+\item{glm}{Logistic regression model object fit using the external data}
 
-\item{marg_drift}{vector of marginal drift values}
+\item{marg_drift}{Vector of marginal drift values}
 
-\item{marg_trt_eff}{vector of marginal treatment effect values}
+\item{marg_trt_eff}{Vector of marginal treatment effect values}
 }
 \value{
 tibble of all combinations of the marginal drift and treatment
@@ -23,7 +26,98 @@ calculated as well as the true control response rate and true treatment
 effect.
 }
 \description{
-In order to properly simulate values to test inverse probability weighting,
-we need to convert the marginal drift and treatment effect to effects
-conditioned on the predictive covariates we will use in the IPW weighting.
+In order to properly generate binary response data for the internal trial as
+part of a simulation study that investigates inverse probability weighting,
+we need to translate the desired marginal drift and treatment effect to the
+corresponding conditional drift and treatment effect that can then be added
+into a binary outcome model (e.g., logistic regression model) used to
+simulate response data.
+}
+\details{
+In simulation studies that investigate the properties of inverse
+probability weighted Bayesian dynamic borrowing, scenarios should be
+considered in which the underlying response rates for the internal and
+external control populations differ by varying amounts due to unmeasured
+confounding (i.e., drift, where positive values indicate a higher response
+rate for the internal population). While values of drift and treatment
+effect (i.e., risk difference) can be defined on the marginal scale for
+simulation studies, we must first convert these values to the conditional
+scale and then include these terms, along with covariates, in a logistic
+regression outcome model when generating response data for the internal
+arms. Doing so allows us to assume a relationship between the covariates
+and the response variable while properly accounting for drift and treatment
+effect.
+
+To identify the conditional drift and treatment effect that correspond to
+specified values of marginal drift and treatment effect, we first bootstrap
+covariate vectors from the external data (e.g., \eqn{N \ge 100,000}) to
+construct a "population" that represents both the internal trial
+(possibly incorporating intentional covariate imbalance) and the external
+trial \emph{after} standardizing it to match the coviariate distributions
+of the internal trial (allowing us to control for measured confounding
+from potential imbalance in the covariate distributions). Measured
+confounding can be incorporated into the data generation by bootstrapping
+a very large data frame (\code{population}) in which the distribution of at
+least one covariate is intentionally varied from that of the external data;
+additional \emph{unmeasured} drift can be incorporated through the
+translation of specified marginal values (\code{marg_drift}) to conditional
+values.
+
+Let \eqn{\Delta} and \eqn{\delta} denote the marginal and conditional drift,
+respectively. For a specified value of \eqn{\Delta}, we can identify the
+corresponding \eqn{\delta} as the value that, when added as an additional
+term in the logistic regression model (i.e., change in the intercept) for
+each individual in the population, increases/decreases the
+population-averaged conditional probabilities of response by an amount
+approximately equal to \eqn{\Delta}. That is, the optimal \eqn{\delta}
+minimizes
+
+\deqn{\left| \left( \frac{1}{N} \sum_{i=1}^N \frac{\exp \left(
+  \boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} + \delta \right)}{1 +
+  \exp\left(\boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} + \delta \right)}
+  - \frac{1}{N} \sum_{i=1}^N \frac{\exp \left(
+  \boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} \right)}{1 +
+  \exp \left(\boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} \right)}
+  \right) - \Delta \right|,}
+
+where \eqn{\boldsymbol{\beta}_{EC}} is the vector of regression coefficients
+from the logistic regression model (\code{glm}) fit to the external control data
+(assumed here to be the "true" covariate effects when generating response
+data) and \eqn{\boldsymbol{x}_i} is a vector of covariates from the
+bootstrapped population of size \eqn{N}. In the formula above, the first
+and second terms correspond to the population-averaged conditional
+probabilities (i.e., the marginal response rates) of the internal control
+population with drift and the external control population (with covariate
+distributions standardized to match the internal trial), respectively.
+
+If we now denote the marginal and conditional treatment effect by
+\eqn{\Gamma} and \eqn{\gamma}, respectively, we can use a similar process
+to identify the optimal \eqn{\gamma} that approximately corresponds to the
+specified value of \eqn{\Gamma}, which is done by minimizing the following:
+
+\deqn{\left| \left( \frac{1}{N} \sum_{i=1}^N \frac{\exp \left(
+  \boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} + \delta + \gamma \right)}{1 +
+  \exp\left(\boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} + \delta + \gamma \right)}
+  - \frac{1}{N} \sum_{i=1}^N \frac{\exp \left(
+  \boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} + \delta \right)}{1 +
+  \exp \left(\boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} + \delta \right)}
+  \right) - \Gamma \right|,}
+
+where the first term is the population-averaged conditional probabilities
+(i.e., the marginal response rate) of the internal treated population.
+}
+\examples{
+library(dplyr)
+# Model "true" regression coefficients using the external data
+logit_mod <- glm(y ~ cov1 + cov2 + cov3 + cov4, data = ex_binary_df, family = binomial)
+
+# Bootstrap internal control "population" with imbalance w.r.t. covariate 2
+pop_int_ctrl <- bootstrap_cov(ex_binary_df, n = 100000, imbal_var = cov2,
+                              imbal_prop = 0.25, ref_val = 0) |>
+                              select(-subjid, -y)  # keep only covariate columns
+
+# Convert the marginal drift and treatment effects to conditional
+calc_cond_binary(population = pop_int_ctrl, glm = logit_mod,
+                 marg_drift = c(-.1, 0, .1), marg_trt_eff = c(0, .15))
+
 }
