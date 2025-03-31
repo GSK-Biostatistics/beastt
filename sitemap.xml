@@ -9,6 +9,8 @@
 <url><loc>/index.html</loc></url>
 <url><loc>/news/index.html</loc></url>
 <url><loc>/reference/beastt-package.html</loc></url>
+<url><loc>/reference/bootstrap_cov.html</loc></url>
+<url><loc>/reference/calc_cond_binary.html</loc></url>
 <url><loc>/reference/calc_post_beta.html</loc></url>
 <url><loc>/reference/calc_post_norm.html</loc></url>
 <url><loc>/reference/calc_post_weibull.html</loc></url>
@@ -23,6 +25,7 @@
 <url><loc>/reference/int_binary_df.html</loc></url>
 <url><loc>/reference/int_norm_df.html</loc></url>
 <url><loc>/reference/int_tte_df.html</loc></url>
+<url><loc>/reference/inv_logit.html</loc></url>
 <url><loc>/reference/is_prop_scr.html</loc></url>
 <url><loc>/reference/mix_means.html</loc></url>
 <url><loc>/reference/mix_sigmas.html</loc></url>
