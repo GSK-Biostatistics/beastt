@@ -11,7 +11,7 @@ test_that("Check trim prop score",{
                          model = ~ cov1 + cov2 + cov3 + cov4)
 
   # Direct
-   trimmed_ps_obj <- trim(ps_obj, low = 0.3, high = 0.7)
+   trimmed_ps_obj <- trim_ps(ps_obj, low = 0.3, high = 0.7)
    trimmed_df <- trimmed_ps_obj$external_df
 
    man <- ps_obj$external_df |>
@@ -19,11 +19,11 @@ test_that("Check trim prop score",{
    expect_equal(trimmed_df, man)
 
    # Test with only low boundary
-   low_only <- trim(ps_obj, low = 0.3)
+   low_only <- trim_ps(ps_obj, low = 0.3)
    expect_true(all(low_only$external_df$`___ps___` >= 0.3))
 
    # Test with only high boundary
-   high_only <- trim(ps_obj, high = 0.7)
+   high_only <- trim_ps(ps_obj, high = 0.7)
    expect_true(all(high_only$external_df$`___ps___` <= 0.7))
 
    # Manual calculation for comparison
@@ -36,8 +36,8 @@ test_that("Check trim prop score",{
    expect_equal(high_only$external_df, man_high_only)
 
    # Quantile
-   trimmed_df_high <- trim(ps_obj, high = 0.75, quantile = TRUE)$external_df
-   trimmed_df_low <- trim(ps_obj, low = 0.25,  quantile = TRUE)$external_df
+   trimmed_df_high <- trim_ps(ps_obj, high = 0.75, quantile = TRUE)$external_df
+   trimmed_df_low <- trim_ps(ps_obj, low = 0.25,  quantile = TRUE)$external_df
 
    ps_vals <- ps_obj$external_df |>
      pull(`___ps___` )
@@ -54,8 +54,8 @@ test_that("Check trim prop score",{
 
 
    # Errors
-   expect_error(trim(ps_obj, low = -0.3))
-   expect_error(trim(ps_obj, high = 1.2))
+   expect_error(trim_ps(ps_obj, low = -0.3))
+   expect_error(trim_ps(ps_obj, high = 1.2))
 
 
   })
@@ -67,7 +67,7 @@ test_that("trim preserves prop_scr object structure", {
                           id_col = subjid,
                           model = ~ cov1 + cov2 + cov3 + cov4)
 
-  trimmed_ps_obj <- trim(ps_obj, low = 0.2, high = 0.8)
+  trimmed_ps_obj <- trim_ps(ps_obj, low = 0.2, high = 0.8)
 
   # Check that required properties exist in trimmed object
   expect_true(is_prop_scr(trimmed_ps_obj))
@@ -88,7 +88,7 @@ test_that("trim with NULL parameters returns unchanged dataset", {
                           model = ~ cov1 + cov2 + cov3 + cov4)
 
   # Trim with NULL parameters should return the original object
-  null_trim <- trim(ps_obj, low = NULL, high = NULL)
+  null_trim <- trim_ps(ps_obj, low = NULL, high = NULL)
   expect_equal(ps_obj$external_df, null_trim$external_df)
 })
 
@@ -99,15 +99,15 @@ test_that("trim correctly handles quantile edge cases", {
                           model = ~ cov1 + cov2 + cov3 + cov4)
 
   # Test with quantile = 0
-  q0_trim <- trim(ps_obj, low = 0, quantile = TRUE)
+  q0_trim <- trim_ps(ps_obj, low = 0, quantile = TRUE)
   expect_equal(nrow(q0_trim$external_df), nrow(ps_obj$external_df))
 
   # Test with quantile = 1
-  q1_trim <- trim(ps_obj, high = 1, quantile = TRUE)
+  q1_trim <- trim_ps(ps_obj, high = 1, quantile = TRUE)
   expect_equal(nrow(q1_trim$external_df), nrow(ps_obj$external_df))
 
   # Test with very small quantile range
-  narrow_trim <- trim(ps_obj, low = 0.49, high = 0.51, quantile = TRUE)
+  narrow_trim <- trim_ps(ps_obj, low = 0.49, high = 0.51, quantile = TRUE)
   ps_vals <- ps_obj$external_df |>
     pull(`___ps___`)
   low_val <- quantile(ps_vals, 0.49)
@@ -123,7 +123,7 @@ test_that("test refitting prop score", {
                           external_df = ex_binary_df,
                           id_col = subjid,
                           model = ~ cov1 + cov2 + cov3 + cov4)
-  trimmed_ps_obj <- trim(ps_obj, low = 0.3, high = 0.7)
+  trimmed_ps_obj <- trim_ps(ps_obj, low = 0.3, high = 0.7)
   # Manual calc
   dat <- bind_rows(trimmed_ps_obj$external_df,
             trimmed_ps_obj$internal_df)
@@ -162,15 +162,15 @@ test_that("Check rescale prop score",{
                           id_col = subjid,
                           model = ~ cov1 + cov2 + cov3 + cov4)
 
-  expect_error(rescale(ps_obj))
-  expect_error(rescale(ps_obj, n = 75, scale_factor = 1.7))
+  expect_error(rescale_ps(ps_obj))
+  expect_error(rescale_ps(ps_obj, n = 75, scale_factor = 1.7))
 
-  pop_recale <- rescale(ps_obj, n = 75)
+  pop_recale <- rescale_ps(ps_obj, n = 75)
   # The sum of the new weights should equal the input n
   expect_equal(sum(pop_recale$external_df$`___weight___`),
                75)
 
-  rescale_df <- rescale(ps_obj, scale_factor = 1.2)$external_df
+  rescale_df <- rescale_ps(ps_obj, scale_factor = 1.2)$external_df
 
   man <- ps_obj$external_df |>
     mutate(`___weight___` = `___weight___`*1.2)
