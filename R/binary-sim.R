@@ -244,7 +244,7 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
 
     # Construct design matrix (with intercept) for the large sample ("population")
     # corresponding to the internal control (IC) population
-    X_IC = as.matrix(cbind(int = 1, select(population,cov_vec)))
+    X_IC = as.matrix(cbind(int = 1, select(population, dplyr::all_of(cov_vec))))
 
     # Marginal response rate (RR) for the external control (EC) population AFTER
     # standardizing it to match the covariate distributions of the IC population
