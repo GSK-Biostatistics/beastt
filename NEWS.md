@@ -1,6 +1,6 @@
 # beastt 0.0.3 
 
-* add trim() and rescale() function 
+* add trim_ps() and rescale_ps() function 
 * add prop_scr_cloud() function 
 
 # beastt 0.0.2
