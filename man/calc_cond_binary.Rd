@@ -53,7 +53,7 @@ specified values of marginal drift and treatment effect, we first bootstrap
 covariate vectors from the external data (e.g., \eqn{N \ge 100,000}) to
 construct a "population" that represents both the internal trial
 (possibly incorporating intentional covariate imbalance) and the external
-trial \emph{after} standardizing it to match the coviariate distributions
+trial \emph{after} standardizing it to match the covariate distributions
 of the internal trial (allowing us to control for measured confounding
 from potential imbalance in the covariate distributions). Measured
 confounding can be incorporated into the data generation by bootstrapping

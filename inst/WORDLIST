@@ -1,6 +1,8 @@
 ATT
 BDB
+BMB
 CMD
+GLP
 IPW
 IPWs
 Lifecycle
@@ -8,9 +10,11 @@ MVN
 Pennello
 RMP
 RStan
+Rescale
 Robustify
 boldsymbol
 codecov
+covariate's
 frac
 ggplot
 https
@@ -23,9 +27,12 @@ normals
 notational
 propto
 ps
+rescale
+rescaled
 robustify
 robustifying
 rstan
+scr
 sd
 stan
 stanfit

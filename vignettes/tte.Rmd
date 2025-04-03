@@ -154,6 +154,7 @@ ggplot(data.frame(samp = surv_prob_control), aes(x = samp)) +
   geom_histogram(aes(y = after_stat(density)), color = "#5398BE", fill = "#5398BE",
                  position = "identity", binwidth = .01, alpha = 0.5) +
   geom_density(color = "black") +
+  coord_cartesian(xlim = c(-0.2, 0.8)) +
   theme_bw()
 ```
 
@@ -183,6 +184,7 @@ ggplot(data.frame(samp = surv_prob_treated), aes(x = samp)) +
   geom_histogram(aes(y = after_stat(density)), color = "#FFA21F", fill = "#FFA21F",
                  position = "identity", binwidth = .01, alpha = 0.5) +
   geom_density(color = "black") +
+  coord_cartesian(xlim = c(-0.2, 0.8)) +
   theme_bw()
 ```
 
@@ -197,6 +199,7 @@ ggplot(data.frame(samp = samp_trt_diff), aes(x = samp)) +
   geom_histogram(aes(y = after_stat(density)), color = "#FF0000", fill = "#FF0000",
                  position = "identity", binwidth = .01, alpha = 0.5) +
   geom_density(color = "black") +
+  coord_cartesian(xlim = c(-0.2, 0.8)) +
   theme_bw()
 ```
 
