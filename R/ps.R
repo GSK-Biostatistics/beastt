@@ -470,9 +470,9 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #'                        external_df = ex_binary_df,
 #'                        id_col = subjid,
 #'                        model = ~ cov1 + cov2 + cov3 + cov4)
-#' trim(ps_obj, low = 0.3, high = 0.7)
+#' trim_ps(ps_obj, low = 0.3, high = 0.7)
 #'
-trim <- function(x, low = NULL, high = NULL, quantile = FALSE){
+trim_ps <- function(x, low = NULL, high = NULL, quantile = FALSE){
   test_prop_scr(x)
 
 
@@ -522,12 +522,12 @@ trim <- function(x, low = NULL, high = NULL, quantile = FALSE){
 #'                        id_col = subjid,
 #'                        model = ~ cov1 + cov2 + cov3 + cov4)
 #' # weights in a propensity score object can be rescaled to achieve a desired effective sample size (i.e., sum of weights)
-#' rescale(ps_obj, n = 75)
+#' rescale_ps(ps_obj, n = 75)
 #'
 #' # Or by a predetermined factor
-#' rescale(ps_obj, scale_factor = 1.5)
+#' rescale_ps(ps_obj, scale_factor = 1.5)
 #'
-rescale <- function(x, n = NULL, scale_factor = NULL){
+rescale_ps <- function(x, n = NULL, scale_factor = NULL){
   test_prop_scr(x)
   if(!is.null(n) & !is.null(scale_factor)){
     cli_abort("{.arg n} and {.arg scale_factor} are both not `NULL`, only one input can be used")
@@ -605,7 +605,7 @@ refit_ps_obj <- function (x){
 #'                         external_df = ex_norm_df,
 #'                         id_col = subjid,
 #'                         model = ~ cov1 + cov2 + cov3 + cov4)
-#' ps_obj_trimmed <- trim(ps_obj, low = 0.1, high = 0.6)
+#' ps_obj_trimmed <- trim_ps(ps_obj, low = 0.1, high = 0.6)
 #' # Plotting the Propensity Scores
 #' prop_scr_cloud(ps_obj, trimmed_prop_scr = ps_obj_trimmed)
 #'

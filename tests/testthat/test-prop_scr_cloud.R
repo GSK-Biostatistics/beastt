@@ -18,7 +18,7 @@ test_that("Trimmed Cloud plot",{
                           id_col = subjid,
                           model = ~ cov1 + cov2 + cov3 + cov4)
 
-  trimmed_ps_obj <- ps_obj |> trim(low = 0.3)
+  trimmed_ps_obj <- ps_obj |> trim_ps(low = 0.3)
   trimmed_plot <- prop_scr_cloud(ps_obj, trimmed_ps_obj)
 
   expect_s3_class(trimmed_plot, "ggplot")
