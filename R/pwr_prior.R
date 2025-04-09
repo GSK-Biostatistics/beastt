@@ -338,6 +338,7 @@ calc_power_prior_weibull <- function(external_data,
   if(!is.null(check_response$error)){
     cli_abort("{.agr response} was not found in {.agr external_data}")
   }
+
   event <- enquo(event)
   check_event <- safely(select)(data, !!event)
   if(!is.null(check_event$error)){

@@ -61,36 +61,53 @@ simulate_tte_pwch <- function(n, hazard_periods = NULL, hazard_values){
 
 }
 
-#' Simulate event times for each participant from a Weibull proportional hazards regression model
+#' Simulate event times for each participant from a Weibull proportional hazards
+#' regression model
 #'
-#' @param n Number of participants
-#' @param shape Weibull shape parameter value
-#' @param beta_trt Treatment effect coefficient for the hazard regression model
-#' @param beta_coefs Vector of regression coefficients for the intercept and covariate effects in the hazard
-#'    regression model (p x 1). Should not include the treatment effect coefficient.
-#' @param Z Vector of treatment indicators (n x 1)
-#' @param X Matrix of covariates values, including a column of ones for the intercept (n x p)
+#' @param weibull_ph_mod `survreg` object corresponding to a Weibull
+#'   proportional hazards model fit using the external data
+#' @param samp_df Data frame of covariates corresponding to the sample arm
+#'   (control or treated) for which event times should be simulated. The column
+#'   names should correspond to the covariate names in the `survreg` object.
+#' @param cond_drift Optional value of the conditional drift by which the
+#'   intercept in the Weibull proportional hazards regression model should be
+#'   increased/decreased to incorporate the impact of unmeasurable sources of
+#'   drift. Default is 0.
+#' @param cond_trt_effect Optional value of the conditional treatment effect by
+#'   which the intercept in the Weibull proportional hazards regression model
+#'   should be increased/decreased if simulating event data for a treated arm.
+#'   Default is 0.
 #'
-#' @return Vector of simulated times from the time-to-event distribution
+#' @return Vector of simulated event times from a Weibull proportional hazards
+#'   regression model
 #' @export
 #'
 #' @examples
-#' set.seed(1)
-#' n <- 1000
-#' X <- cbind(1, matrix(rnorm(n*2), nrow = n, ncol = 2))
-#' Z <- matrix(c(rep(0, n/2), rep(1, n/2)), nrow = n, ncol = 1)
-#' shape <- 1
-#' beta_trt <- log(0.5)
-#' beta_coefs <- c(-0.5, log(0.5), log(1.5))
-#' tte_dat <- simulate_tte_weib_ph(shape, beta_trt, beta_coefs, Z, X)
-#' hist(tte_dat, breaks = 100, main = "Event Time Distribution", xlab = "Event Time")
-simulate_tte_weib_ph <- function(shape, beta_trt, beta_coefs = NULL, Z, X = NULL){
-  n     <- length(Z)
-  Z     <- matrix(Z, ncol = 1)
-  sigma <- exp(-1.0 * (X%*%beta_coefs + Z%*%beta_trt))
-  t     <- rweibull(n, shape, scale = sigma)
+#' library(dplyr)
+#' library(survival)
+#' # Model "true" regression coefficients and shape parameter using the external data
+#' weibull_ph_mod <- survreg(Surv(y, event) ~ cov1 + cov2 + cov3 + cov4, data = ex_tte_df,
+#'                           dist = "weibull")
+#'
+#' # Sample covariates for internal control arm via bootstrap from external data
+#' samp_int_ctrl <- bootstrap_cov(ex_tte_df, n = 100) |>
+#'   select(c(cov1, cov2, cov3, cov4))     # keep only covariate columns
+#' tte_dat <- simulate_tte_weib_ph(weibull_ph_mod, samp_df = samp_int_ctrl)
+simulate_tte_weib_ph <- function(weibull_ph_mod, samp_df, cond_drift = 0,
+                                 cond_trt_effect = 0){
+  # Calculate Weibull shape parameter
+  shape <- 1 / weibull_ph_mod$scale
+
+  # Calculate Weibull scale parameter for each individual using linear predictors
+  lp_vec <- predict(weibull_ph_mod, newdata = samp_df, type = "lp")
+  sigma <- exp(lp_vec - cond_drift - cond_trt_effect)
+
+  # Sample event times
+  t <- rweibull(n = nrow(samp_df), shape = shape, scale = sigma)
   t
 }
+
+
 
 #' Calculate Conditional Drift and Treatment Effect for Time-to-Event Outcome Models
 #'
@@ -326,80 +343,60 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
 
 }
 
-
-
-
-
-#' Create observed time-to-event trial data using that accounts for administrative censoring
+#' Calculate the analysis time based on a target number of events
 #'
-#' @param data Data frame for all enrolled participants with the following columns:
-#'    \describe{
-#'    \item{y}{observed event/dropout time}
-#'    \item{enr_time}{enrollment time}
-#'    \item{total_time}{time from study start}
-#'    \item{event}{event indicator}
-#'    \item{trt}{treatment indicator}
-#'    \item{[optional covariates]}{}
-#'    }
-#' @param target_events Target number of events to trigger analysis of the study
-#' @param target_follow_up Target duration of follow-up on all individuals under observation to
-#'    trigger analysis of the study
+#' @param study_time Vector of study (accrual + observed) times
+#' @param observed_time Vector of observed times
+#' @param event_indicator Vector of boolean values (True/False or 1/0) indicating if the observed time value is an event or censoring
+#' @param target_events Number of target events, if only using target follow-up time leave NULL
+#' @param min_follow_up Minimum follow-up for each subject, if only using target events leave NULL
 #'
-#' @return Data frame of simulated times from the time-to-event distribution
+#' @returns Time of analysis
 #' @export
-create_obs_tte_data <- function(data, target_events, target_follow_up){
-
-  ## Find the time point when the target number of events was met
-
-  # Subset to events only
-  dat_events <- data[which(data$event == 1),]
-
-  # Find the total elapsed time when the target event number has been reached (this may not happen)
-  if( nrow(dat_events) < target_events ){
-    selected_event_time <- Inf
-  } else{
-    selected_event_time <- dat_events[dat_events$total_time == sort(dat_events$total_time)[target_events],]$total_time
+#'
+#' @examples
+#' library(dplyr)
+#' # Determining analysis time by reaching a number of events
+#' ex_tte_df |> mutate(
+#'   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
+#'                                      event_indicator = event, target_events = 30)
+#' )
+#' # Determining analysis time by minimum follow-up time
+#' ex_tte_df |> mutate(
+#'   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
+#'                                      event_indicator = event, min_follow_up = 12)
+#' )
+#' # Or use both and whichever happens first
+#' ex_tte_df |> mutate(
+#'   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
+#'                                      event_indicator = event,
+#'                                      target_events = 30,min_follow_up = 12)
+#' )
+calc_analysis_time <- function(study_time, observed_time, event_indicator,
+                               target_events = NULL, min_follow_up = NULL){
+  if(is.null(target_events) & is.null(min_follow_up)){
+    cli_abort("Either {.arg target_events} or {.arg min_follow_up} need to be not NULL")
+  }
+  analy_time <- max(study_time) # Maximum time
+  event_indicator <- as.logical(event_indicator)
+  if(!is.null(target_events)){
+    #The study time where the number of events equals the target (order and then just get the ith event)
+    event_st <- study_time[event_indicator]
+    event_time <- event_st[order(event_st)][target_events]
+    analy_time <- if_else(event_time < analy_time, event_time, analy_time,
+                          missing = analy_time)
+  }
+  if(!is.null(min_follow_up)){
+    # Filter out any censored
+    event_st <- study_time[event_indicator]
+    event_ot <- observed_time[event_indicator]
+    subj_to_make_fu <- which(event_ot >= min_follow_up) #Get all individuals who have observed times at least to the minimum follow-up
+    accrual_time = event_st-event_ot
+    min_fu_time <- max(accrual_time[subj_to_make_fu])+min_follow_up
+    analy_time <- if_else(min_fu_time < analy_time, min_fu_time, analy_time,
+                          missing = analy_time)
   }
 
-
-  ## Find the total elapsed time when all individuals in the risk set have been followed for the
-  ## minimum length of time. For ease, this is taken to correspond to one of the times an individual
-  ## finishes observation (due to event or drop out). This will trigger the analysis if the target number
-  ## of events has not been reached earlier.
-  dat_ordered <- data[order(data$total_time),]
-  for(i in 1:nrow(dat_ordered)){
-
-    # Identify the potential stoppage time
-    selected_follow_up_time <- dat_ordered[i,]$total_time
-
-    # Identify the risk set at this point in time
-    dat_at_risk <- dat_ordered[which(dat_ordered$total_time >= selected_follow_up_time),]
-
-    # Select those individuals still under observation
-    min_follow_up_time <- min(selected_follow_up_time - dat_at_risk$enr_time)
-
-    if(min_follow_up_time > target_follow_up) break
-
-  }
-
-  ## Create study stop time variable and remove participants who enrolled after the study stopped
-  stop_time <- min(selected_follow_up_time, selected_event_time)
-  dat_new <- data %>% filter(enr_time < stop_time)
-
-  ## Administratively censor data for participants who would have been observed beyond the end of study
-  dat_new <- dat_new %>%
-    mutate(event = ifelse( total_time <= stop_time, event, 0)) %>%
-    mutate(y     = ifelse( total_time <= stop_time, y, stop_time - enr_time))
-
-  ## Return a list that includes that dataset with administrative censoring, the study duration,
-  ## the number of events, and the sample size
-  dat_list <- list()
-  dat_list$data           <- dat_new
-  dat_list$study_duration <- stop_time
-  dat_list$event_number   <- sum(dat_new$event)
-  dat_list$sample_size    <- nrow(dat_new)
-  dat_list
+  analy_time
 
 }
-
-
