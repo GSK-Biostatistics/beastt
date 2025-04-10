@@ -67,6 +67,13 @@ test_that("simulate_accrual handles extreme probability distributions", {
   expect_true(sum(result >= 10) > 950)
 })
 
+test_that("simulate_accrual handles uneven inputs", {
+  expect_error(simulate_accrual(n = 1000,
+                             accrual_periods = c(5, 10, 15),
+                             accrual_props = c(0.01, 0.01)),
+               "`accrual_periods` and `accrual_props` should have equal lengths")
+})
+
 
 # simulate_tte_pwch -------------------------------------------------------
 
@@ -339,5 +346,166 @@ test_that("simulate_tte_weib_ph validates weibull_ph_mod input", {
     simulate_tte_weib_ph(weibull_ph_mod = exp_model, samp_df = samp_df),
     "`weibull_ph_mod` must be a `survreg` object with a Wiebull distribution"
   )
+})
+
+
+# calc_cond_weibull -------------------------------------------------------
+
+test_that("calc_cond_weibull produces expected results format and validates inputs", {
+  # Setup test data
+  set.seed(123)
+  n <- 50
+  df <- data.frame(
+    y = rweibull(n, shape = 1.5, scale = 5),
+    event = sample(0:1, n, replace = TRUE, prob = c(0.2, 0.8)),
+    cov1 = rnorm(n),
+    cov2 = rbinom(n, 1, 0.5),
+    cov3 = rnorm(n, mean = 0.5),
+    cov4 = rbinom(n, 1, 0.7)
+  )
+
+  # Create model for testing
+  weib_model <- survival::survreg(survival::Surv(y, event) ~ cov1 + cov2 + cov3 + cov4, data = df, dist = "weibull")
+
+  # Create small test population - small to make test run faster
+  pop <- data.frame(
+    cov1 = rnorm(1000),
+    cov2 = rbinom(1000, 1, 0.5),
+    cov3 = rnorm(1000, mean = 0.5),
+    cov4 = rbinom(1000, 1, 0.7)
+  )
+
+  # Test with wrong model class
+  expect_error(
+    calc_cond_weibull(
+      population = pop,
+      weibull_ph_mod = "not a survreg object",
+      marg_drift = c(0),
+      marg_trt_eff = c(0.1),
+      analysis_time = 12
+    ),
+    "`weibull_ph_mod` must be a survreg object"
+  )
+
+  # Test with wrong model distribution
+  exp_model <- survival::survreg(survival::Surv(y, event) ~ cov1 + cov2 + cov3 + cov4, data = df, dist = "exponential")
+  expect_error(
+    calc_cond_weibull(
+      population = pop,
+      weibull_ph_mod = exp_model,
+      marg_drift = c(0),
+      marg_trt_eff = c(0.1),
+      analysis_time = 12
+    ),
+    "`weibull_ph_mod` must use a weibull distribution"
+  )
+
+  # Test with wrong population format
+  expect_error(
+    calc_cond_weibull(
+      population = as.list(pop),
+      weibull_ph_mod = weib_model,
+      marg_drift = c(0),
+      marg_trt_eff = c(0.1),
+      analysis_time = 12
+    ),
+    "`population` must be a tibble or dataframe"
+  )
+
+  # Test with missing covariates in population
+  pop_missing <- pop |> select(-cov4)
+  expect_error(
+    calc_cond_weibull(
+      population = pop_missing,
+      weibull_ph_mod = weib_model,
+      marg_drift = c(0),
+      marg_trt_eff = c(0.1),
+      analysis_time = 12
+    ),
+    "Not all covariates in `weibull_ph_mod` are in the population"
+  )
+})
+
+test_that("calc_cond_weibull correctly calculates conditional effects", {
+  # Setup test data - to avoid recomputing
+  skip_on_cran() # Skip on CRAN since this is a slower test
+
+  set.seed(123)
+  n <- 100
+  df <- data.frame(
+    y = rweibull(n, shape = 1.5, scale = 5),
+    event = sample(0:1, n, replace = TRUE, prob = c(0.2, 0.8)),
+    cov1 = rnorm(n),
+    cov2 = rbinom(n, 1, 0.5)
+  )
+
+  weib_model <- survival::survreg(survival::Surv(y, event) ~ cov1 + cov2, data = df, dist = "weibull")
+
+  # Create a larger population for more accurate calculation
+  set.seed(456)
+  pop <- data.frame(
+    cov1 = rnorm(10000),
+    cov2 = rbinom(10000, 1, 0.5)
+  )
+
+  # Run function once and save results for multiple assertions
+  result <- calc_cond_weibull(
+    population = pop,
+    weibull_ph_mod = weib_model,
+    marg_drift = c(-0.1, 0, 0.1),
+    marg_trt_eff = c(0, 0.1),
+    analysis_time = 12
+  )
+
+  # Test structure
+  expect_true(is.data.frame(result))
+  expect_equal(nrow(result), 5) # 3 drift values × 2 treatment effects (-the case with 0 trt effect and neg drift)
+  expect_equal(ncol(result), 6) # 6 columns in output
+
+  # Check column names
+  expected_cols <- c("marg_drift", "marg_trt_eff", "conditional_drift",
+                     "true_control_surv_prob", "conditional_trt_eff",
+                     "true_trt_surv_prob")
+  expect_true(all(expected_cols %in% colnames(result)))
+
+})
+
+test_that("calc_cond_weibull survival probabilities match marginal effects", {
+  # Use the same results object from previous test to avoid recomputation
+  skip_on_cran() # Skip on CRAN since this is a slower test
+
+  set.seed(123)
+  n <- 100
+  df <- data.frame(
+    y = rweibull(n, shape = 1.5, scale = 5),
+    event = sample(0:1, n, replace = TRUE, prob = c(0.2, 0.8)),
+    cov1 = rnorm(n),
+    cov2 = rbinom(n, 1, 0.5)
+  )
+
+  weib_model <- survival::survreg(survival::Surv(y, event) ~ cov1 + cov2, data = df, dist = "weibull")
+
+  # Create a larger population for more accurate calculation
+  set.seed(456)
+  pop <- data.frame(
+    cov1 = rnorm(5000), # Smaller to run faster in tests
+    cov2 = rbinom(5000, 1, 0.5)
+  )
+
+  # Run function and save results
+  result <- calc_cond_weibull(
+    population = pop,
+    weibull_ph_mod = weib_model,
+    marg_drift = c(0),    # Testing just one value to speed up test
+    marg_trt_eff = c(0.1),
+    analysis_time = 12
+  )
+
+  # For drift = 0, treatment effect = 0.1
+  trt_effect_row <- result[1, ]
+
+  # The difference between treatment and control survival probabilities should be close to the marginal effect
+  observed_effect <- trt_effect_row$true_trt_surv_prob - trt_effect_row$true_control_surv_prob
+  expect_equal(observed_effect, trt_effect_row$marg_trt_eff, tolerance = 0.01)
 })
 
