@@ -5,12 +5,7 @@
 \title{Simulate event times for each participant from a Weibull proportional hazards
 regression model}
 \usage{
-sim_weib_ph(
-  weibull_ph_mod,
-  samp_df,
-  cond_drift = 0,
-  cond_trt_effect = 0
-)
+sim_weib_ph(weibull_ph_mod, samp_df, cond_drift = 0, cond_trt_effect = 0)
 }
 \arguments{
 \item{weibull_ph_mod}{\code{survreg} object corresponding to a Weibull

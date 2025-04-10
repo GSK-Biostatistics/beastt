@@ -299,7 +299,7 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
     cond_df <- scenarios |>
       left_join(delta_df, by = "marg_drift") |>
       mutate(conditional_trt_eff =
-               map2_dbl(marg_trt_eff, conditional_drift,
+               map2_dbl(marg_trt_eff, .data$conditional_drift,
                         function(Gamma, delta){
                           if(Gamma == 0){
                             gamma_val <- 0    # set gamma = 0 if Gamma = 0
@@ -314,7 +314,7 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
                         })) |>
       rowwise() |>
       # Calculate the "true" IT RR for each defined value of drift and treatment effect
-      mutate(true_trt_RR =  mean(inv_logit(X_IC %*% beta_coefs + conditional_drift + conditional_trt_eff)))|>
+      mutate(true_trt_RR =  mean(inv_logit(X_IC %*% beta_coefs + .data$conditional_drift + .data$conditional_trt_eff)))|>
       ungroup()
   } else {
     cli_abort("Not all covariates in {.arg beta_coefs} are in the population")

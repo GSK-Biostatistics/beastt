@@ -9,6 +9,7 @@
 #' @return Vector of accrual times corresponding to when each participant enters
 #'   the study
 #' @export
+#' @importFrom stats runif
 #'
 #' @examples
 #' at <- sim_accrual(n = 100000, accrual_periods = c(6, 8), accrual_props = c(.5, .5))
@@ -40,6 +41,7 @@ sim_accrual <- function(n, accrual_periods, accrual_props){
 #'
 #' @return Vector of simulated times from the time-to-event distribution
 #' @export
+#' @importFrom stats rexp
 #'
 #' @examples
 #' tte_dat <- sim_pw_const_haz(n = 100000, hazard_periods = c(6, 8), hazard_values = c(0.1, 0.1, 0.1))
@@ -88,6 +90,7 @@ sim_pw_const_haz <- function(n, hazard_periods = NULL, hazard_values){
 #' @return Vector of simulated event times from a Weibull proportional hazards
 #'   regression model
 #' @export
+#' @importFrom stats predict rweibull
 #'
 #' @examples
 #' library(dplyr)
@@ -106,7 +109,7 @@ sim_weib_ph <- function(weibull_ph_mod, samp_df, cond_drift = 0,
     cli_abort("{.arg cond_drift} must be a single number")
   } else if(length(cond_trt_effect) > 1 | !is.numeric(cond_trt_effect)){
     cli_abort("{.arg cond_trt_effect} must be a single number")
-  } else if(class(weibull_ph_mod) != "survreg" || weibull_ph_mod["dist"] != "weibull") {
+  } else if(!inherits(weibull_ph_mod, "survreg") || weibull_ph_mod["dist"] != "weibull") {
     cli_abort("{.arg weibull_ph_mod} must be a `survreg` object with a Wiebull distribution")
   }
   # Calculate Weibull shape parameter
@@ -250,7 +253,7 @@ sim_weib_ph <- function(weibull_ph_mod, samp_df, cond_drift = 0,
 #' @importFrom purrr map2_dbl
 calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_eff,
                               analysis_time){
-  if(!all(class(weibull_ph_mod) == "survreg")){
+  if(!inherits(weibull_ph_mod, "survreg")){
     cli_abort("{.arg weibull_ph_mod} must be a survreg object")
   } else if(weibull_ph_mod$dist != "weibull"){
     cli_abort("{.arg weibull_ph_mod} must use a weibull distribution")
@@ -260,7 +263,7 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
     cli_abort("{.arg analysis_time} must be a single number")
   }
 
-  if(!"data.frame" %in% class(population)){
+  if(!inherits(population, "data.frame")){
     cli_abort("{.arg population} must be a tibble or dataframe. If you are using lists, check you haven't converted the dataframe into a list of vectors")
   }
 
@@ -333,7 +336,7 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
     cond_df <- scenarios |>
       left_join(delta_df, by = "marg_drift") |>
       mutate(conditional_trt_eff =
-               map2_dbl(marg_trt_eff, conditional_drift,
+               map2_dbl(marg_trt_eff, .data$conditional_drift,
                         function(Gamma, delta){
                           if(Gamma == 0){
                             gamma_val <- 0    # set gamma = 0 if Gamma = 0
@@ -351,8 +354,8 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
       rowwise() |>
       # Calculate the "true" IT survival probability at the analysis time for each defined value
       # of drift and treatment effect
-      mutate(true_trt_surv_prob = mean( exp( -(exp(X_IC %*% beta_coefs + conditional_drift +
-                                                     conditional_trt_eff) * analysis_time)^shape ) ))|>
+      mutate(true_trt_surv_prob = mean( exp( -(exp(X_IC %*% beta_coefs + .data$conditional_drift +
+                                                     .data$conditional_trt_eff) * analysis_time)^shape ) ))|>
       ungroup()
   } else {
     cli_abort("Not all covariates in {.arg weibull_ph_mod} are in the population")
