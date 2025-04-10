@@ -14,7 +14,9 @@
 #' at <- simulate_accrual(n = 100000, accrual_periods = c(6, 8), accrual_props = c(.5, .5))
 #' hist(at, breaks = 100, main = "Histogram of Enrollment Times", xlab = "Enrollment Time")
 simulate_accrual <- function(n, accrual_periods, accrual_props){
-
+  if(length(accrual_periods) != length(accrual_props)){
+    cli_abort("{.arg accrual_periods} and {.arg accrual_props} should have equal lengths")
+  }
 
   # Calculate accrual probabilities for each period
   accrual_periods <- c(0, accrual_periods)
