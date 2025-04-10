@@ -256,6 +256,10 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
     cli_abort("{.arg weibull_ph_mod} must use a weibull distribution")
   }
 
+  if(length(analysis_time) > 1 | !is.numeric(analysis_time)){
+    cli_abort("{.arg analysis_time} must be a single number")
+  }
+
   if(!"data.frame" %in% class(population)){
     cli_abort("{.arg population} must be a tibble or dataframe. If you are using lists, check you haven't converted the dataframe into a list of vectors")
   }

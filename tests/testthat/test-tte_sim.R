@@ -424,6 +424,18 @@ test_that("calc_cond_weibull produces expected results format and validates inpu
     ),
     "Not all covariates in `weibull_ph_mod` are in the population"
   )
+
+  expect_error(
+    calc_cond_weibull(
+      population = pop,
+      weibull_ph_mod = weib_model,
+      marg_drift = c(0),
+      marg_trt_eff = c(0.1),
+      analysis_time = c(6, 12)
+    ),
+    "`analysis_time` must be a single number"
+  )
+
 })
 
 test_that("calc_cond_weibull correctly calculates conditional effects", {
