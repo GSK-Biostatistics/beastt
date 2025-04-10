@@ -32,18 +32,24 @@ plot_dist <- function(...){
     n <- length(input)
     colors <- c("#5398BE", "#FFA21F", rainbow(n-2))
 
-    fill_alpha <- ifelse(n > 1, 0.5, 1)
     if(is.null(Distributions) & n > 0){
       Distributions <- map_chr(input, format, width = 2)
       if(length(unique(Distributions)) != n)
         Distributions <- paste0(1:n,": ", Distributions)
     }
-    ggplot(data.frame(), aes(xdist = input)) +
-      stat_slab(aes(fill = Distributions), alpha=fill_alpha) +
-      stat_slab(fill = NA, slab_color="black", show.legend = FALSE) +
+    plot <- ggplot(data.frame(), aes(xdist = input)) +
+      stat_slab(aes(color = Distributions), fill = NA) +
       labs(y = "Density", x = "") +
       scale_fill_manual(values = colors) +
+      scale_color_manual(values = colors) +
       theme_bw()
+
+    if(n==1){
+      plot + stat_slab(aes(fill = Distributions), alpha = 0.5)
+    } else {
+      plot
+    }
+
   }
 }
 

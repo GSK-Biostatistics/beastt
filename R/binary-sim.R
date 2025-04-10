@@ -152,7 +152,7 @@ bootstrap_cov <- function(external_dat, n,
 #'   covariate vectors from the external data (e.g., \eqn{N \ge 100,000}) to
 #'   construct a "population" that represents both the internal trial
 #'   (possibly incorporating intentional covariate imbalance) and the external
-#'   trial \emph{after} standardizing it to match the coviariate distributions
+#'   trial \emph{after} standardizing it to match the covariate distributions
 #'   of the internal trial (allowing us to control for measured confounding
 #'   from potential imbalance in the covariate distributions). Measured
 #'   confounding can be incorporated into the data generation by bootstrapping
@@ -225,8 +225,9 @@ bootstrap_cov <- function(external_dat, n,
 #' calc_cond_binary(population = pop_int_ctrl, glm = logit_mod,
 #'                  marg_drift = c(-.1, 0, .1), marg_trt_eff = c(0, .15))
 #'
-#' @importFrom dplyr left_join ungroup
+#' @importFrom dplyr left_join ungroup all_of
 #' @importFrom purrr map2_dbl
+#' @importFrom stats optimize
 calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
   if(!all(class(glm) == c("glm","lm"))){
     cli_abort("{.arg beta_coefs} must be a glm object")
@@ -236,7 +237,7 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
     cli_abort("{.arg population} must be a tibble or dataframe. If you are using lists, check you haven't converted the dataframe into a list of vectors")
   }
 
-  cov_vec <-   names(glm$coefficients) |>
+  cov_vec <- names(glm$coefficients) |>
     discard(\(x) x == "(Intercept)")
   beta_coefs <- glm$coefficients
 
@@ -244,7 +245,7 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
 
     # Construct design matrix (with intercept) for the large sample ("population")
     # corresponding to the internal control (IC) population
-    X_IC = as.matrix(cbind(int = 1, select(population,cov_vec)))
+    X_IC = as.matrix(cbind(int = 1, select(population, all_of(cov_vec))))
 
     # Marginal response rate (RR) for the external control (EC) population AFTER
     # standardizing it to match the covariate distributions of the IC population
