@@ -1,17 +1,17 @@
 
-# simulate_accrual --------------------------------------------------------
+# sim_accrual --------------------------------------------------------
 
-test_that("simulate_accrual returns correct number of values", {
+test_that("sim_accrual returns correct number of values", {
   n <- 100
-  result <- simulate_accrual(n = n, accrual_periods = c(6, 8), accrual_props = c(0.5, 0.5))
+  result <- sim_accrual(n = n, accrual_periods = c(6, 8), accrual_props = c(0.5, 0.5))
 
   expect_equal(length(result), n)
   expect_true(is.numeric(result))
 })
 
-test_that("simulate_accrual returns values within expected range", {
+test_that("sim_accrual returns values within expected range", {
   # Test with multiple periods
-  result <- simulate_accrual(n = 1000,
+  result <- sim_accrual(n = 1000,
                              accrual_periods = c(6, 8),
                              accrual_props = c(0.5, 0.5))
 
@@ -27,8 +27,8 @@ test_that("simulate_accrual returns values within expected range", {
   expect_true(period2_count > 475)
 })
 
-test_that("simulate_accrual works with single accrual period", {
-  result <- simulate_accrual(n = 100,
+test_that("sim_accrual works with single accrual period", {
+  result <- sim_accrual(n = 100,
                              accrual_periods = c(10),
                              accrual_props = c(1))
 
@@ -37,9 +37,9 @@ test_that("simulate_accrual works with single accrual period", {
   expect_true(all(result <= 10))
 })
 
-test_that("simulate_accrual works with unequal accrual proportions", {
+test_that("sim_accrual works with unequal accrual proportions", {
   set.seed(123) # For reproducibility
-  result <- simulate_accrual(n = 1000,
+  result <- sim_accrual(n = 1000,
                              accrual_periods = c(5, 10, 15),
                              accrual_props = c(0.2, 0.3, 0.5))
 
@@ -57,9 +57,9 @@ test_that("simulate_accrual works with unequal accrual proportions", {
 })
 
 
-test_that("simulate_accrual handles extreme probability distributions", {
+test_that("sim_accrual handles extreme probability distributions", {
   # Test with very skewed probability
-  result <- simulate_accrual(n = 1000,
+  result <- sim_accrual(n = 1000,
                              accrual_periods = c(5, 10, 15),
                              accrual_props = c(0.01, 0.01, 0.98))
 
@@ -67,25 +67,25 @@ test_that("simulate_accrual handles extreme probability distributions", {
   expect_true(sum(result >= 10) > 950)
 })
 
-test_that("simulate_accrual handles uneven inputs", {
-  expect_error(simulate_accrual(n = 1000,
+test_that("sim_accrual handles uneven inputs", {
+  expect_error(sim_accrual(n = 1000,
                              accrual_periods = c(5, 10, 15),
                              accrual_props = c(0.01, 0.01)),
                "`accrual_periods` and `accrual_props` should have equal lengths")
 })
 
 
-# simulate_tte_pwch -------------------------------------------------------
+# sim_pw_const_haz -------------------------------------------------------
 
 
-test_that("simulate_tte_pwch returns correct number and type of values", {
+test_that("sim_pw_const_haz returns correct number and type of values", {
   n <- 100
   hazard_periods <- c(5, 10)
   hazard_values <- c(0.1, 0.2, 0.3)
 
   # Run the function
   set.seed(123)
-  result <- simulate_tte_pwch(n = n, hazard_periods = hazard_periods, hazard_values = hazard_values)
+  result <- sim_pw_const_haz(n = n, hazard_periods = hazard_periods, hazard_values = hazard_values)
 
   # Check results
   expect_equal(length(result), n)
@@ -93,27 +93,27 @@ test_that("simulate_tte_pwch returns correct number and type of values", {
   expect_true(all(result >= 0))
 })
 
-test_that("simulate_tte_pwch handles constant hazard case", {
+test_that("sim_pw_const_haz handles constant hazard case", {
   n <- 1000
   hazard_value <- 0.1
 
   # Run with single hazard value (constant hazard)
   set.seed(123)
-  result <- simulate_tte_pwch(n = n, hazard_values = hazard_value)
+  result <- sim_pw_const_haz(n = n, hazard_values = hazard_value)
 
   # For exponential distribution with rate 0.1, mean should be approximately 10
   expect_gt(mean(result), 9)
   expect_lt(mean(result), 11)
 })
 
-test_that("simulate_tte_pwch handles piecewise constant hazard", {
+test_that("sim_pw_const_haz handles piecewise constant hazard", {
   n <- 1000
   hazard_periods <- c(5)
   hazard_values <- c(0.05, 0.8)  # Low hazard then high hazard
 
   # Run the function
   set.seed(123)
-  result <- simulate_tte_pwch(n = n, hazard_periods = hazard_periods, hazard_values = hazard_values)
+  result <- sim_pw_const_haz(n = n, hazard_periods = hazard_periods, hazard_values = hazard_values)
 
   # Count events in different periods
   early_events <- sum(result <= 5)
@@ -129,35 +129,35 @@ test_that("simulate_tte_pwch handles piecewise constant hazard", {
   expect_gt(late_density, early_density)
 })
 
-test_that("simulate_tte_pwch handles edge cases", {
+test_that("sim_pw_const_haz handles edge cases", {
   # Very high hazard (should result in early events)
-  high_hazard_result <- simulate_tte_pwch(n = 100, hazard_values = 10)
+  high_hazard_result <- sim_pw_const_haz(n = 100, hazard_values = 10)
   expect_true(mean(high_hazard_result) < 1)  # Mean should be less than 1 with hazard=10
 
   # Very low hazard (should result in later events)
-  low_hazard_result <- simulate_tte_pwch(n = 100, hazard_values = 0.01)
+  low_hazard_result <- sim_pw_const_haz(n = 100, hazard_values = 0.01)
   expect_true(mean(low_hazard_result) > 50)  # Mean should be greater than 50 with hazard=0.01
 })
 
-test_that("simulate_tte_pwch validates inputs", {
+test_that("sim_pw_const_haz validates inputs", {
   # Number of hazard values should match number of periods + 1
   expect_error(
-    simulate_tte_pwch(n = 100, hazard_periods = c(5, 10), hazard_values = c(0.1, 0.2)),
+    sim_pw_const_haz(n = 100, hazard_periods = c(5, 10), hazard_values = c(0.1, 0.2)),
     "`hazard_values` should have length equal to one more than the length of `hazard_periods`"
   )
 
   # Negative hazard values should error
   expect_error(
-    simulate_tte_pwch(n = 100, hazard_values = -0.1),
+    sim_pw_const_haz(n = 100, hazard_values = -0.1),
     "`hazard_values` and `hazard_periods` can only have positive values"
   )
 })
 
 
-# simulate_tte_weib_ph ----------------------------------------------------
+# sim_weib_ph ----------------------------------------------------
 
 
-test_that("simulate_tte_weib_ph returns correct format", {
+test_that("sim_weib_ph returns correct format", {
   # Create a simple survreg Weibull model
   set.seed(123)
   n <- 50
@@ -176,7 +176,7 @@ test_that("simulate_tte_weib_ph returns correct format", {
   )
 
   # Run the function
-  result <- simulate_tte_weib_ph(weibull_ph_mod = weib_model, samp_df = samp_df)
+  result <- sim_weib_ph(weibull_ph_mod = weib_model, samp_df = samp_df)
 
   # Check results
   expect_length(result, nrow(samp_df))
@@ -184,7 +184,7 @@ test_that("simulate_tte_weib_ph returns correct format", {
   expect_type(result, "double")
 })
 
-test_that("simulate_tte_weib_ph handles conditional effects correctly", {
+test_that("sim_weib_ph handles conditional effects correctly", {
   # Create a simple survreg Weibull model
   set.seed(123)
   n <- 50
@@ -204,17 +204,17 @@ test_that("simulate_tte_weib_ph handles conditional effects correctly", {
   )
 
   # Generate times with no drift/treatment effect
-  base_times <- simulate_tte_weib_ph(weibull_ph_mod = weib_model, samp_df = samp_df)
+  base_times <- sim_weib_ph(weibull_ph_mod = weib_model, samp_df = samp_df)
 
   # Generate times with positive drift (should increase survival time)
-  pos_times <- simulate_tte_weib_ph(
+  pos_times <- sim_weib_ph(
     weibull_ph_mod = weib_model,
     samp_df = samp_df,
     cond_drift = 0.5
   )
 
   # Generate times with negative treatment effect (should decrease survival time)
-  neg_times <- simulate_tte_weib_ph(
+  neg_times <- sim_weib_ph(
     weibull_ph_mod = weib_model,
     samp_df = samp_df,
     cond_trt_effect = -0.5
@@ -229,7 +229,7 @@ test_that("simulate_tte_weib_ph handles conditional effects correctly", {
 
 
 
-test_that("simulate_tte_weib_ph handles empty data correctly", {
+test_that("sim_weib_ph handles empty data correctly", {
   # Create a simple survreg Weibull model
   set.seed(123)
   n <- 50
@@ -248,12 +248,12 @@ test_that("simulate_tte_weib_ph handles empty data correctly", {
   )
 
   # Function should return empty vector
-  result <- simulate_tte_weib_ph(weibull_ph_mod = weib_model, samp_df = samp_df)
+  result <- sim_weib_ph(weibull_ph_mod = weib_model, samp_df = samp_df)
   expect_length(result, 0)
 })
 
 
-test_that("simulate_tte_weib_ph validates cond_drift input", {
+test_that("sim_weib_ph validates cond_drift input", {
   # Create a simple survreg Weibull model
   set.seed(123)
   n <- 50
@@ -273,18 +273,18 @@ test_that("simulate_tte_weib_ph validates cond_drift input", {
 
   # Test error when cond_drift is not numeric
   expect_error(
-    simulate_tte_weib_ph(weib_model, samp_df, cond_drift = "not a number"),
+    sim_weib_ph(weib_model, samp_df, cond_drift = "not a number"),
     "`cond_drift` must be a single number"
   )
 
   # Test error when cond_drift is a vector
   expect_error(
-    simulate_tte_weib_ph(weib_model, samp_df, cond_drift = c(0.1, 0.2)),
+    sim_weib_ph(weib_model, samp_df, cond_drift = c(0.1, 0.2)),
     "`cond_drift` must be a single number"
   )
 })
 
-test_that("simulate_tte_weib_ph validates cond_trt_effect input", {
+test_that("sim_weib_ph validates cond_trt_effect input", {
   # Create a simple survreg Weibull model
   set.seed(123)
   n <- 50
@@ -304,18 +304,18 @@ test_that("simulate_tte_weib_ph validates cond_trt_effect input", {
 
   # Test error when cond_trt_effect is not numeric
   expect_error(
-    simulate_tte_weib_ph(weib_model, samp_df, cond_trt_effect = "not a number"),
+    sim_weib_ph(weib_model, samp_df, cond_trt_effect = "not a number"),
     "`cond_trt_effect` must be a single number"
   )
 
   # Test error when cond_trt_effect is a vector
   expect_error(
-    simulate_tte_weib_ph(weib_model, samp_df, cond_trt_effect = c(0.1, 0.2)),
+    sim_weib_ph(weib_model, samp_df, cond_trt_effect = c(0.1, 0.2)),
     "`cond_trt_effect` must be a single number"
   )
 })
 
-test_that("simulate_tte_weib_ph validates weibull_ph_mod input", {
+test_that("sim_weib_ph validates weibull_ph_mod input", {
   # Create sample data
   samp_df <- data.frame(
     cov1 = rnorm(10),
@@ -324,7 +324,7 @@ test_that("simulate_tte_weib_ph validates weibull_ph_mod input", {
 
   # Test error with non-survreg object
   expect_error(
-    simulate_tte_weib_ph(weibull_ph_mod = "not a survreg object", samp_df = samp_df),
+    sim_weib_ph(weibull_ph_mod = "not a survreg object", samp_df = samp_df),
     "`weibull_ph_mod` must be a `survreg` object with a Wiebull distribution"
   )
 
@@ -343,7 +343,7 @@ test_that("simulate_tte_weib_ph validates weibull_ph_mod input", {
 
   # This should error because it's not a Weibull model
   expect_error(
-    simulate_tte_weib_ph(weibull_ph_mod = exp_model, samp_df = samp_df),
+    sim_weib_ph(weibull_ph_mod = exp_model, samp_df = samp_df),
     "`weibull_ph_mod` must be a `survreg` object with a Wiebull distribution"
   )
 })

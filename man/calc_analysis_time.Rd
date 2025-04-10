@@ -9,7 +9,7 @@ calc_analysis_time(
   observed_time,
   event_indicator,
   target_events = NULL,
-  min_follow_up = NULL
+  target_follow_up = NULL
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ calc_analysis_time(
 
 \item{target_events}{Number of target events, if only using target follow-up time leave NULL}
 
-\item{min_follow_up}{Minimum follow-up for each subject, if only using target events leave NULL}
+\item{target_follow_up}{Target follow-up for each subject, if only using target events leave NULL}
 }
 \value{
 Time of analysis
@@ -39,12 +39,12 @@ ex_tte_df |> mutate(
 # Determining analysis time by minimum follow-up time
 ex_tte_df |> mutate(
   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
-                                     event_indicator = event, min_follow_up = 12)
+                                     event_indicator = event, target_follow_up = 12)
 )
 # Or use both and whichever happens first
 ex_tte_df |> mutate(
   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
                                      event_indicator = event,
-                                     target_events = 30,min_follow_up = 12)
+                                     target_events = 30, target_follow_up = 12)
 )
 }

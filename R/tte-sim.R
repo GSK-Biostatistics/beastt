@@ -2,7 +2,7 @@
 #'
 #' @param n Number of participants
 #' @param accrual_periods Vector of right endpoints defining the time periods of
-#'   accrual, e.g., c(6,8) defines [0,6), [6,8].
+#'   accrual, e.g., c(6,8) defines 0<=x<6, 6<=x<8.
 #' @param accrual_props Vector indicating the proportion of participants that are
 #'   expected to be enrolled during each of the defined accrual periods. Must sum
 #'   to 1.
@@ -11,9 +11,9 @@
 #' @export
 #'
 #' @examples
-#' at <- simulate_accrual(n = 100000, accrual_periods = c(6, 8), accrual_props = c(.5, .5))
+#' at <- sim_accrual(n = 100000, accrual_periods = c(6, 8), accrual_props = c(.5, .5))
 #' hist(at, breaks = 100, main = "Histogram of Enrollment Times", xlab = "Enrollment Time")
-simulate_accrual <- function(n, accrual_periods, accrual_props){
+sim_accrual <- function(n, accrual_periods, accrual_props){
   if(length(accrual_periods) != length(accrual_props)){
     cli_abort("{.arg accrual_periods} and {.arg accrual_props} should have equal lengths")
   }
@@ -42,9 +42,9 @@ simulate_accrual <- function(n, accrual_periods, accrual_props){
 #' @export
 #'
 #' @examples
-#' tte_dat <- simulate_tte_pwch(n = 100000, hazard_periods = c(6, 8), hazard_values = c(0.1, 0.1, 0.1))
+#' tte_dat <- sim_pw_const_haz(n = 100000, hazard_periods = c(6, 8), hazard_values = c(0.1, 0.1, 0.1))
 #' hist(tte_dat, breaks = 100, main = "Event Time Distribution", xlab = "Event Time")
-simulate_tte_pwch <- function(n, hazard_periods = NULL, hazard_values){
+sim_pw_const_haz <- function(n, hazard_periods = NULL, hazard_values){
   if(length(hazard_periods)+1 != length(hazard_values)){
     cli_abort("{.arg hazard_values} should have length equal to one more than the length of {.arg hazard_periods}")
   } else if(any(c(hazard_periods, hazard_values) < 0)){
@@ -99,8 +99,8 @@ simulate_tte_pwch <- function(n, hazard_periods = NULL, hazard_values){
 #' # Sample covariates for internal control arm via bootstrap from external data
 #' samp_int_ctrl <- bootstrap_cov(ex_tte_df, n = 100) |>
 #'   select(c(cov1, cov2, cov3, cov4))     # keep only covariate columns
-#' tte_dat <- simulate_tte_weib_ph(weibull_ph_mod, samp_df = samp_int_ctrl)
-simulate_tte_weib_ph <- function(weibull_ph_mod, samp_df, cond_drift = 0,
+#' tte_dat <- sim_weib_ph(weibull_ph_mod, samp_df = samp_int_ctrl)
+sim_weib_ph <- function(weibull_ph_mod, samp_df, cond_drift = 0,
                                  cond_trt_effect = 0){
   if(length(cond_drift) > 1 | !is.numeric(cond_drift)){
     cli_abort("{.arg cond_drift} must be a single number")
@@ -376,21 +376,21 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
 #' library(dplyr)
 #' # Determining analysis time by reaching a number of events
 #' ex_tte_df |> mutate(
-#'   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
+#'   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
 #'                                      event_indicator = event, target_events = 30)
 #' )
 #' # Determining analysis time by minimum follow-up time
 #' ex_tte_df |> mutate(
-#'   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
+#'   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
 #'                                      event_indicator = event, target_follow_up = 12)
 #' )
 #' # Or use both and whichever happens first
 #' ex_tte_df |> mutate(
-#'   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
+#'   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
 #'                                      event_indicator = event,
 #'                                      target_events = 30, target_follow_up = 12)
 #' )
-calc_analysis_time <- function(study_time, observed_time, event_indicator,
+calc_study_duration <- function(study_time, observed_time, event_indicator,
                                target_events = NULL, target_follow_up = NULL){
   if(is.null(target_events) & is.null(target_follow_up)){
     cli_abort("Either {.arg target_events} or {.arg target_follow_up} need to be not NULL")

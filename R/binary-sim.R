@@ -230,7 +230,7 @@ bootstrap_cov <- function(external_dat, n,
 #' @importFrom stats optimize
 calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
   if(!all(class(glm) == c("glm","lm"))){
-    cli_abort("{.arg beta_coefs} must be a glm object")
+    cli_abort("{.arg glm} must be a glm object")
   }
 
   if(!"data.frame" %in% class(population)){

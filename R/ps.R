@@ -507,11 +507,11 @@ trim_ps <- function(x, low = NULL, high = NULL, quantile = FALSE){
 #' Rescale a `prop_scr` object
 #'
 #' @param x a `prop_scr` obj
-#' @param n Desired sample size that the external data should effectively contribute to
-#'   the analysis of the internal trial data. This will be used to scale the
-#'   external weights if `scale_factor` is not specified
-#' @param scale_factor Value to multiple all weights by. This will be used to scale the
-#'   external weights if `n` is not specified
+#' @param n Desired sample size that the external data should effectively
+#'   contribute to the analysis of the internal trial data. This will be used to
+#'   scale the external weights if `scale_factor` is not specified
+#' @param scale_factor Value to multiple all weights by. This will be used to
+#'   scale the external weights if `n` is not specified
 #' @return a `prop_scr` object with rescaled weights
 #'
 #' @export
@@ -521,7 +521,8 @@ trim_ps <- function(x, low = NULL, high = NULL, quantile = FALSE){
 #'                        external_df = ex_binary_df,
 #'                        id_col = subjid,
 #'                        model = ~ cov1 + cov2 + cov3 + cov4)
-#' # weights in a propensity score object can be rescaled to achieve a desired effective sample size (i.e., sum of weights)
+#' # weights in a propensity score object can be rescaled to achieve a desired
+#' # effective sample size (i.e., sum of weights)
 #' rescale_ps(ps_obj, n = 75)
 #'
 #' # Or by a predetermined factor
