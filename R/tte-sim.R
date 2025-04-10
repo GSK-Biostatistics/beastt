@@ -349,7 +349,7 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
 #' @param observed_time Vector of observed times
 #' @param event_indicator Vector of boolean values (True/False or 1/0) indicating if the observed time value is an event or censoring
 #' @param target_events Number of target events, if only using target follow-up time leave NULL
-#' @param min_follow_up Minimum follow-up for each subject, if only using target events leave NULL
+#' @param target_follow_up Target follow-up for each subject, if only using target events leave NULL
 #'
 #' @returns Time of analysis
 #' @export
@@ -364,18 +364,18 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
 #' # Determining analysis time by minimum follow-up time
 #' ex_tte_df |> mutate(
 #'   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
-#'                                      event_indicator = event, min_follow_up = 12)
+#'                                      event_indicator = event, target_follow_up = 12)
 #' )
 #' # Or use both and whichever happens first
 #' ex_tte_df |> mutate(
 #'   analysis_time = calc_analysis_time(study_time = total_time, observed_time = y,
 #'                                      event_indicator = event,
-#'                                      target_events = 30,min_follow_up = 12)
+#'                                      target_events = 30, target_follow_up = 12)
 #' )
 calc_analysis_time <- function(study_time, observed_time, event_indicator,
-                               target_events = NULL, min_follow_up = NULL){
-  if(is.null(target_events) & is.null(min_follow_up)){
-    cli_abort("Either {.arg target_events} or {.arg min_follow_up} need to be not NULL")
+                               target_events = NULL, target_follow_up = NULL){
+  if(is.null(target_events) & is.null(target_follow_up)){
+    cli_abort("Either {.arg target_events} or {.arg target_follow_up} need to be not NULL")
   }
   analy_time <- max(study_time) # Maximum time
   event_indicator <- as.logical(event_indicator)
@@ -386,13 +386,13 @@ calc_analysis_time <- function(study_time, observed_time, event_indicator,
     analy_time <- if_else(event_time < analy_time, event_time, analy_time,
                           missing = analy_time)
   }
-  if(!is.null(min_follow_up)){
+  if(!is.null(target_follow_up)){
     # Filter out any censored
     event_st <- study_time[event_indicator]
     event_ot <- observed_time[event_indicator]
-    subj_to_make_fu <- which(event_ot >= min_follow_up) #Get all individuals who have observed times at least to the minimum follow-up
+    subj_to_make_fu <- which(event_ot >= target_follow_up) #Get all individuals who have observed times at least to the minimum follow-up
     accrual_time = event_st-event_ot
-    min_fu_time <- max(accrual_time[subj_to_make_fu])+min_follow_up
+    min_fu_time <- max(accrual_time[subj_to_make_fu])+target_follow_up
     analy_time <- if_else(min_fu_time < analy_time, min_fu_time, analy_time,
                           missing = analy_time)
   }
