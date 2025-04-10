@@ -43,6 +43,11 @@ simulate_accrual <- function(n, accrual_periods, accrual_props){
 #' tte_dat <- simulate_tte_pwch(n = 100000, hazard_periods = c(6, 8), hazard_values = c(0.1, 0.1, 0.1))
 #' hist(tte_dat, breaks = 100, main = "Event Time Distribution", xlab = "Event Time")
 simulate_tte_pwch <- function(n, hazard_periods = NULL, hazard_values){
+  if(length(hazard_periods)+1 != length(hazard_values)){
+    cli_abort("{.arg hazard_values} should have length equal to one more than the length of {.arg hazard_periods}")
+  } else if(any(c(hazard_periods, hazard_values) < 0)){
+    cli_abort("{.arg hazard_values} and {.arg hazard_periods} can only have positive values")
+  }
 
   # Define hazard periods, including 0 and (essentially) infinity
   hazard_periods <- c(0, hazard_periods, 1e50)
@@ -95,6 +100,13 @@ simulate_tte_pwch <- function(n, hazard_periods = NULL, hazard_values){
 #' tte_dat <- simulate_tte_weib_ph(weibull_ph_mod, samp_df = samp_int_ctrl)
 simulate_tte_weib_ph <- function(weibull_ph_mod, samp_df, cond_drift = 0,
                                  cond_trt_effect = 0){
+  if(length(cond_drift) > 1 | !is.numeric(cond_drift)){
+    cli_abort("{.arg cond_drift} must be a single number")
+  } else if(length(cond_trt_effect) > 1 | !is.numeric(cond_trt_effect)){
+    cli_abort("{.arg cond_trt_effect} must be a single number")
+  } else if(class(weibull_ph_mod) != "survreg" || weibull_ph_mod["dist"] != "weibull") {
+    cli_abort("{.arg weibull_ph_mod} must be a `survreg` object with a Wiebull distribution")
+  }
   # Calculate Weibull shape parameter
   shape <- 1 / weibull_ph_mod$scale
 
