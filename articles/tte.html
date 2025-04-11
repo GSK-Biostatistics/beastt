@@ -10,7 +10,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Time-to-Event Outcome">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="../deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Time-to-Event Outcome">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -75,40 +75,25 @@
 baseline covariate distributions between external and internal datasets.
 This particular example considers a hypothetical trial with a
 time-to-event outcome which we assume to follow a Weibull distribution;
-i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>∼</mo><mtext mathvariant="normal">Weibull</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>α</mi><mo>,</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y_i \sim \mbox{Weibull}(\alpha, \sigma)</annotation></semantics></math>
-where
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>∣</mo><mi>α</mi><mo>,</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>α</mi><mi>σ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>y</mi><mi>i</mi></msub><mi>σ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>α</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>y</mi><mi>i</mi></msub><mi>σ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>α</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">f(y_i \mid \alpha, \sigma) = \left( \frac{\alpha}{\sigma} \right) \left( \frac{y_i}{\sigma}
-\right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
-\right).</annotation></semantics></math> Define
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛉</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>α</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>β</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\boldsymbol{\theta} = \{\log(\alpha), \beta\}</annotation></semantics></math>
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mo>−</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\beta = -\log(\sigma)</annotation></semantics></math>
-is the intercept (i.e., log-inverse-scale) parameter of a Weibull
-proportional hazards regression model and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
-is the shape parameter.</p>
+i.e., <span class="math inline">\(Y_i \sim \mbox{Weibull}(\alpha,
+\sigma)\)</span> where <span class="math display">\[f(y_i \mid \alpha,
+\sigma) = \left( \frac{\alpha}{\sigma} \right) \left( \frac{y_i}{\sigma}
+\right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma}
+\right)^\alpha
+\right).\]</span> Define <span class="math inline">\(\boldsymbol{\theta}
+= \{\log(\alpha), \beta\}\)</span> where <span class="math inline">\(\beta = -\log(\sigma)\)</span> is the intercept
+(i.e., log-inverse-scale) parameter of a Weibull proportional hazards
+regression model and <span class="math inline">\(\alpha\)</span> is the
+shape parameter.</p>
 <p>Our objective is to use BDB with IPWs to construct a posterior
-distribution for the probability of surviving past time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-in the control arm,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_C(t | \boldsymbol{\theta})</annotation></semantics></math>
-(hereafter denoted as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_C(t)</annotation></semantics></math>
-for notational convenience). For each treatment arm, we will define our
-prior distributions with respect to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol{\theta}</annotation></semantics></math>
-before eventually obtaining MCMC samples from the posterior
-distributions of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_C(t)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_T(t)</annotation></semantics></math>
-(i.e., the survival probability at time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-for the active treatment arm). In this example, suppose we are
-interested in survival probabilities at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">t=12</annotation></semantics></math>
-months.</p>
+distribution for the probability of surviving past time <span class="math inline">\(t\)</span> in the control arm, <span class="math inline">\(S_C(t | \boldsymbol{\theta})\)</span> (hereafter
+denoted as <span class="math inline">\(S_C(t)\)</span> for notational
+convenience). For each treatment arm, we will define our prior
+distributions with respect to <span class="math inline">\(\boldsymbol{\theta}\)</span> before eventually
+obtaining MCMC samples from the posterior distributions of <span class="math inline">\(S_C(t)\)</span> and <span class="math inline">\(S_T(t)\)</span> (i.e., the survival probability at
+time <span class="math inline">\(t\)</span> for the active treatment
+arm). In this example, suppose we are interested in survival
+probabilities at <span class="math inline">\(t=12\)</span> months.</p>
 <p>We will use simulated internal and external datasets from the package
 where each dataset has a time-to-event response variable (the observed
 time at which a participant either had an event or was censored), an
@@ -288,28 +273,24 @@ x-axis for a vertical reference line.</p>
 <p>Now that we have created and assessed our propensity score object, we
 can read it into the <code>calc_power_prior_weibull</code> function to
 calculate an approximate inverse probability weighted power prior for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol{\theta}</annotation></semantics></math>
-under the control arm, which we denote as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝛉</mi><mi>C</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mi>C</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>β</mi><mi>C</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\boldsymbol{\theta}_C = \{\log(\alpha_C), \beta_C\}</annotation></semantics></math>.
-Specifically, we approximate the power prior with a bivariate normal
-distribution using one of two approximation methods: (1) Laplace
-approximation or (2) estimation of the mean vector and covariance matrix
-using MCMC samples from the unnormalized power prior (see the details
-section of the <code>calc_power_prior_weibull</code> documentation for
-more information). In this example, we use the Laplace approximation
-which is considerably faster than the MCMC approach.</p>
+<span class="math inline">\(\boldsymbol{\theta}\)</span> under the
+control arm, which we denote as <span class="math inline">\(\boldsymbol{\theta}_C = \{\log(\alpha_C),
+\beta_C\}\)</span>. Specifically, we approximate the power prior with a
+bivariate normal distribution using one of two approximation methods:
+(1) Laplace approximation or (2) estimation of the mean vector and
+covariance matrix using MCMC samples from the unnormalized power prior
+(see the details section of the <code>calc_power_prior_weibull</code>
+documentation for more information). In this example, we use the Laplace
+approximation which is considerably faster than the MCMC approach.</p>
 <p>To approximate the power prior, we need to supply the following
 information:</p>
 <ul>
 <li><p>weighted object (the propensity score object we created
 above)</p></li>
-<li><p>response variable name (in this case
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>)</p></li>
-<li><p>event indicator variable name (in this case
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>v</mi><mi>e</mi><mi>n</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">event</annotation></semantics></math>)</p></li>
+<li><p>response variable name (in this case <span class="math inline">\(y\)</span>)</p></li>
+<li><p>event indicator variable name (in this case <span class="math inline">\(event\)</span>)</p></li>
 <li><p>initial prior for the intercept parameter, in the form of a
-normal distributional object (e.g.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">N</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mtext mathvariant="normal">sd</mtext><mo>=</mo><mn>10</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mbox{N}(0, \mbox{sd} = 10)</annotation></semantics></math>)</p></li>
+normal distributional object (e.g., <span class="math inline">\(\mbox{N}(0, \mbox{sd} = 10)\)</span>)</p></li>
 <li><p>scale hyperparameter for the half-normal initial prior for the
 shape parameter</p></li>
 <li><p>approximation method (either “Laplace” or “MCMC”)</p></li>
@@ -328,21 +309,16 @@ shape parameter</p></li>
 <h2 id="inverse-probability-weighted-robust-mixture-prior">Inverse Probability Weighted Robust Mixture Prior<a class="anchor" aria-label="anchor" href="#inverse-probability-weighted-robust-mixture-prior"></a>
 </h2>
 <p>We can robustify the approximate multivariate normal (MVN) power
-prior for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛉</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\boldsymbol{\theta}_C</annotation></semantics></math>
-by adding a vague component to create a robust mixture prior (RMP). We
+prior for <span class="math inline">\(\boldsymbol{\theta}_C\)</span> by
+adding a vague component to create a robust mixture prior (RMP). We
 define the vague component to be a MVN distribution with the same mean
 vector as the approximate power prior and a covariance matrix that is
 equal to the covariance matrix of the approximate power prior multiplied
-by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mrow><mi>e</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">r_{ex}</annotation></semantics></math>,
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mrow><mi>e</mi><mi>x</mi></mrow></msub><annotation encoding="application/x-tex">r_{ex}</annotation></semantics></math>
-denotes the number of observed events in the external control arm. To
-construct this RMP, we can use either the <code>robustify_norm</code> or
-<code>robustify_mvnorm</code> functions, and we place 0.5 weight on each
-component. The two components of the resulting RMP are labeled as
-“informative” and “vague”.</p>
+by <span class="math inline">\(r_{ex}\)</span>, where <span class="math inline">\(r_{ex}\)</span> denotes the number of observed
+events in the external control arm. To construct this RMP, we can use
+either the <code>robustify_norm</code> or <code>robustify_mvnorm</code>
+functions, and we place 0.5 weight on each component. The two components
+of the resulting RMP are labeled as “informative” and “vague”.</p>
 <p>We can print the mean vectors and covariance matrices of each MVN
 component using the functions <code>mix_means</code> and
 <code>mix_sigmas</code>, respectively.</p>
@@ -370,27 +346,17 @@ component using the functions <code>mix_means</code> and
 <div class="section level2">
 <h2 id="posterior-distributions">Posterior Distributions<a class="anchor" aria-label="anchor" href="#posterior-distributions"></a>
 </h2>
-<p>To create a posterior distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛉</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\boldsymbol{\theta}_C</annotation></semantics></math>,
-we can pass the resulting RMP and the internal control data to the
+<p>To create a posterior distribution for <span class="math inline">\(\boldsymbol{\theta}_C\)</span>, we can pass the
+resulting RMP and the internal control data to the
 <code>calc_post_weibull</code> function which returns a stanfit object
 from which we can extract the MCMC samples for the control parameters.
-In addition to returning posterior samples for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mi>C</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log(\alpha_C)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\beta_C</annotation></semantics></math>,
-the function returns posterior samples for the marginal survival
-probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_C(t)</annotation></semantics></math>
-where the time(s)
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-can be specified as either a scalar or vector of numbers using the
-<code>analysis_time</code> argument.</p>
+In addition to returning posterior samples for <span class="math inline">\(\log(\alpha_C)\)</span> and <span class="math inline">\(\beta_C\)</span>, the function returns posterior
+samples for the marginal survival probability <span class="math inline">\(S_C(t)\)</span> where the time(s) <span class="math inline">\(t\)</span> can be specified as either a scalar or
+vector of numbers using the <code>analysis_time</code> argument.</p>
 <p><strong>Note: when reading internal data directly into
 <code>calc_post_weibull</code>, be sure to include only the arm of
 interest (e.g., the internal control arm if creating a posterior
-distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝛉</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\boldsymbol{\theta}_C</annotation></semantics></math>).</strong></p>
+distribution for <span class="math inline">\(\boldsymbol{\theta}_C\)</span>).</strong></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_weibull.html">calc_post_weibull</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_tte_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                                  response <span class="op">=</span> <span class="va">y</span>,</span>
@@ -411,11 +377,10 @@ distribution for
 <span><span class="co">#&gt; survProb[1]    0.470524    0.4987585    0.5702913 17554.608 1.0001324</span></span>
 <span><span class="co">#&gt; lp__        -148.108591 -147.6609827 -147.3811442  9523.906 0.9999708</span></span>
 <span><span class="co">#plot_dist(post_control)</span></span></code></pre></div>
-<p>We can extract and plot the posterior samples of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_C(t)</annotation></semantics></math>.
-Here, we plot the samples using a histogram, however, additional
-posterior plots (e.g., density curves, trace plots) can easily be
-obtained using the <code>bayesplot</code> package.</p>
+<p>We can extract and plot the posterior samples of <span class="math inline">\(S_C(t)\)</span>. Here, we plot the samples using a
+histogram, however, additional posterior plots (e.g., density curves,
+trace plots) can easily be obtained using the <code>bayesplot</code>
+package.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">surv_prob_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://mc-stan.org/rstan/reference/stanfit-method-extract.html" class="external-link">extract</a></span><span class="op">(</span><span class="va">post_control</span>, pars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"survProb"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>samp <span class="op">=</span> <span class="va">surv_prob_control</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -428,10 +393,9 @@ obtained using the <code>bayesplot</code> package.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tte_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <p>Next, we create a posterior distribution for the survival probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_T(t)</annotation></semantics></math>
-for the active treatment arm at time
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">t=12</annotation></semantics></math>
-by reading the internal data for the corresponding arm into the
+<span class="math inline">\(S_T(t)\)</span> for the active treatment arm
+at time <span class="math inline">\(t=12\)</span> by reading the
+internal data for the corresponding arm into the
 <code>calc_post_weibull</code> function. In this case, we use the vague
 component of the RMP as our MVN prior.</p>
 <p><strong>As noted earlier, be sure to read in only the data for the
@@ -460,8 +424,7 @@ data.</strong></p>
 <span><span class="co">#&gt; lp__        -141.3906390 -140.9749554 -140.7038264 10664.005 0.9999849</span></span>
 <span><span class="co">#plot_dist(post_treated)</span></span></code></pre></div>
 <p>As was previously done, we can extract and plot the posterior samples
-of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_T(t)</annotation></semantics></math>.</p>
+of <span class="math inline">\(S_T(t)\)</span>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">surv_prob_treated</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://mc-stan.org/rstan/reference/stanfit-method-extract.html" class="external-link">extract</a></span><span class="op">(</span><span class="va">post_treated</span>, pars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"survProb"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>samp <span class="op">=</span> <span class="va">surv_prob_treated</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -475,14 +438,11 @@ of
 <p><img src="tte_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <p>We define our marginal treatment effect to be the difference in
 survival probabilities at 12 months between the active treatment and
-control arms (i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_T(t=12) - S_C(t=12)</annotation></semantics></math>).
-We can obtain a sample from the posterior distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_T(t=12) - S_C(t=12)</annotation></semantics></math>
-by subtracting the posterior sample of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_C(t=12)</annotation></semantics></math>
-from the posterior sample of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_T(t=12)</annotation></semantics></math>.</p>
+control arms (i.e., <span class="math inline">\(S_T(t=12) -
+S_C(t=12)\)</span>). We can obtain a sample from the posterior
+distribution for <span class="math inline">\(S_T(t=12) -
+S_C(t=12)\)</span> by subtracting the posterior sample of <span class="math inline">\(S_C(t=12)\)</span> from the posterior sample of
+<span class="math inline">\(S_T(t=12)\)</span>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">samp_trt_diff</span> <span class="op">&lt;-</span> <span class="va">surv_prob_treated</span> <span class="op">-</span> <span class="va">surv_prob_control</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>samp <span class="op">=</span> <span class="va">samp_trt_diff</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -499,19 +459,14 @@ from the posterior sample of
 <div class="section level2">
 <h2 id="posterior-summary-statistics">Posterior Summary Statistics<a class="anchor" aria-label="anchor" href="#posterior-summary-statistics"></a>
 </h2>
-<p>Suppose we want to test the hypotheses
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>0</mn></msub><mo>:</mo><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">H_0: S_T(t=12) - S_C(t=12) \le 0</annotation></semantics></math>
-versus
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>1</mn></msub><mo>:</mo><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">H_1: S_T(t=12) - S_C(t=12) &gt; 0</annotation></semantics></math>.
-We can use our posterior sample for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_T(t=12) - S_C(t=12)</annotation></semantics></math>
-to calculate the posterior probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mn>0</mn><mo>∣</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Pr(S_T(t=12) - S_C(t=12) &gt; 0 \mid D)</annotation></semantics></math>
-(i.e., the probability in favor of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>H</mi><mn>1</mn></msub><annotation encoding="application/x-tex">H_1</annotation></semantics></math>),
-and we conclude that we have sufficient evidence in favor of the
-alternative hypothesis if
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mn>0</mn><mo>∣</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mn>0.975</mn></mrow><annotation encoding="application/x-tex">Pr(S_T(t=12) - S_C(t=12) &gt; 0 \mid D) &gt; 0.975</annotation></semantics></math>.</p>
+<p>Suppose we want to test the hypotheses <span class="math inline">\(H_0: S_T(t=12) - S_C(t=12) \le 0\)</span> versus
+<span class="math inline">\(H_1: S_T(t=12) - S_C(t=12) &gt; 0\)</span>.
+We can use our posterior sample for <span class="math inline">\(S_T(t=12) - S_C(t=12)\)</span> to calculate the
+posterior probability <span class="math inline">\(Pr(S_T(t=12) -
+S_C(t=12) &gt; 0 \mid D)\)</span> (i.e., the probability in favor of
+<span class="math inline">\(H_1\)</span>), and we conclude that we have
+sufficient evidence in favor of the alternative hypothesis if <span class="math inline">\(Pr(S_T(t=12) - S_C(t=12) &gt; 0 \mid D) &gt;
+0.975\)</span>.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">samp_trt_diff</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.9534667</span></span></code></pre></div>
@@ -521,8 +476,8 @@ hypothesis.</p>
 <p>With MCMC samples from our posterior distributions, we can calculate
 posterior summary statistics such as the mean, median, and standard
 deviation. As an example, we calculate these statistics using the
-posterior distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>T</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_T(t=12) - S_C(t=12)</annotation></semantics></math>.</p>
+posterior distribution for <span class="math inline">\(S_T(t=12) -
+S_C(t=12)\)</span>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">samp_trt_diff</span><span class="op">)</span>,</span>
 <span>  median <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">samp_trt_diff</span><span class="op">)</span>,</span>
@@ -536,12 +491,10 @@ posterior distribution for
 <span><span class="co">#&gt;        2.5%       97.5% </span></span>
 <span><span class="co">#&gt; -0.02240224  0.24521556</span></span></code></pre></div>
 <p>Lastly, we calculate the effective sample size of the posterior
-distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_C(t=12)</annotation></semantics></math>
-using the method by Pennello and Thompson (2008). To do so, we first
-must construct the posterior distribution of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>C</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>=</mo><mn>12</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">S_C(t=12)</annotation></semantics></math><em>without borrowing from the external control data</em> (e.g., using a
-vague prior).</p>
+distribution for <span class="math inline">\(S_C(t=12)\)</span> using
+the method by Pennello and Thompson (2008). To do so, we first must
+construct the posterior distribution of <span class="math inline">\(S_C(t=12)\)</span> <em>without borrowing from the
+external control data</em> (e.g., using a vague prior).</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_ctrl_no_brrw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_weibull.html">calc_post_weibull</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_tte_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                                       response <span class="op">=</span> <span class="va">y</span>,</span>

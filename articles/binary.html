@@ -10,7 +10,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Binary Outcome">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="../deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Binary Outcome">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -75,11 +75,10 @@
 baseline covariate distributions between external and internal datasets.
 This particular example considers a hypothetical trial with a binary
 outcome, and our objective is to use BDB with IPWs to construct a
-posterior distribution for the control response rate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>.
-We will use simulated internal and external datasets from the package
-where each dataset has a binary response variable (1: positive response;
-0: otherwise) and four baseline covariates which we will balance.</p>
+posterior distribution for the control response rate <span class="math inline">\(\theta_C\)</span>. We will use simulated internal
+and external datasets from the package where each dataset has a binary
+response variable (1: positive response; 0: otherwise) and four baseline
+covariates which we will balance.</p>
 <p>The external control dataset has a sample size of 150 participants,
 and the distributions of the four covariates are as follows: - Covariate
 1: normal with a mean and standard deviation of approximately 65 and 10,
@@ -227,17 +226,14 @@ x-axis for a vertical reference line.</p>
 </h2>
 <p>Now that we have created and assessed our propensity score object, we
 can read it into the <code>calc_power_prior_beta</code> function to
-calculate a beta inverse probability weighted power prior for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>.
-To calculate the power prior, we need to supply the following
-information:</p>
+calculate a beta inverse probability weighted power prior for <span class="math inline">\(\theta_C\)</span>. To calculate the power prior,
+we need to supply the following information:</p>
 <ul>
 <li><p>weighted object (the propensity score object we created
 above)</p></li>
-<li><p>response variable name (in this case
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>)</p></li>
+<li><p>response variable name (in this case <span class="math inline">\(y\)</span>)</p></li>
 <li><p>initial prior, in the form of a beta distributional object (e.g.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Beta</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mn>0.5</mn><mo>,</mo><mn>0.5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mbox{Beta}(0.5, 0.5)</annotation></semantics></math>)</p></li>
+<span class="math inline">\(\mbox{Beta}(0.5, 0.5)\)</span>)</p></li>
 </ul>
 <p>Once we have a power prior, we might want to plot it. To do that, we
 use the <code>plot_dist</code> function.</p>
@@ -251,12 +247,10 @@ use the <code>plot_dist</code> function.</p>
 <div class="section level2">
 <h2 id="inverse-probability-weighted-robust-mixture-prior">Inverse Probability Weighted Robust Mixture Prior<a class="anchor" aria-label="anchor" href="#inverse-probability-weighted-robust-mixture-prior"></a>
 </h2>
-<p>We can robustify the beta power prior for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>
-by adding a vague component to create a robust mixture prior (RMP). We
-define the vague component to be a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Beta</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mn>0.5</mn><mo>,</mo><mn>0.5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mbox{Beta}(0.5, 0.5)</annotation></semantics></math>
-prior, and we use the <code>dist_mixture</code> function from the
+<p>We can robustify the beta power prior for <span class="math inline">\(\theta_C\)</span> by adding a vague component to
+create a robust mixture prior (RMP). We define the vague component to be
+a <span class="math inline">\(\mbox{Beta}(0.5, 0.5)\)</span> prior, and
+we use the <code>dist_mixture</code> function from the
 <code>distributional</code> package to construct the RMP with 0.5 weight
 on each component. With this function, we can name the different
 components of our RMP (e.g., “informative” and “vague”). In general, we
@@ -275,15 +269,13 @@ number of beta components.</p>
 <div class="section level2">
 <h2 id="posterior-distributions">Posterior Distributions<a class="anchor" aria-label="anchor" href="#posterior-distributions"></a>
 </h2>
-<p>To create a posterior distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>,
-we can pass the resulting RMP to the <code>calc_post_beta</code>
-function. We see that the resulting posterior distribution is also a
-mixture of beta components.</p>
+<p>To create a posterior distribution for <span class="math inline">\(\theta_C\)</span>, we can pass the resulting RMP
+to the <code>calc_post_beta</code> function. We see that the resulting
+posterior distribution is also a mixture of beta components.</p>
 <p><strong>Note: when reading internal data directly into
 <code>calc_post_beta</code>, be sure to include only the arm of interest
 (e.g., the internal control arm if creating a posterior distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>).</strong></p>
+<span class="math inline">\(\theta_C\)</span>).</strong></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_binary_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                               response <span class="op">=</span> <span class="va">y</span>,</span>
@@ -291,9 +283,8 @@ mixture of beta components.</p>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_control</span><span class="op">)</span></span></code></pre></div>
 <p><img src="binary_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 <p>Next, we create a posterior distribution for the response rate of the
-active treatment arm
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>T</mi></msub><annotation encoding="application/x-tex">\theta_T</annotation></semantics></math>
-by reading the internal data for the corresponding arm into the
+active treatment arm <span class="math inline">\(\theta_T\)</span> by
+reading the internal data for the corresponding arm into the
 <code>calc_post_beta</code> function. In this case, we assume a vague
 beta prior.</p>
 <p><strong>As noted earlier, be sure to read in only the data for the
@@ -310,16 +301,11 @@ data.</strong></p>
 <div class="section level2">
 <h2 id="posterior-summary-statistics-and-samples">Posterior Summary Statistics and Samples<a class="anchor" aria-label="anchor" href="#posterior-summary-statistics-and-samples"></a>
 </h2>
-<p>With our posterior distributions for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>T</mi></msub><annotation encoding="application/x-tex">\theta_T</annotation></semantics></math>
-saved as distributional objects, we can use several functions from the
-<code>distributional</code> package to calculate posterior summary
-statistics and sample from the distributions. Using the posterior
-distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>
-as an example, we illustrate several of these functions below.</p>
+<p>With our posterior distributions for <span class="math inline">\(\theta_C\)</span> and <span class="math inline">\(\theta_T\)</span> saved as distributional objects,
+we can use several functions from the <code>distributional</code>
+package to calculate posterior summary statistics and sample from the
+distributions. Using the posterior distribution for <span class="math inline">\(\theta_C\)</span> as an example, we illustrate
+several of these functions below.</p>
 <ul>
 <li>Posterior summary statistics:</li>
 </ul>
@@ -353,9 +339,8 @@ the <code>quantile</code> function:</li>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">post_control</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.025</span>, <span class="fl">.975</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>    <span class="co"># 95% CrI via quantile function</span></span>
 <span><span class="co">#&gt; [1] 0.4594412 0.6211411</span></span></code></pre></div>
 <ul>
-<li>Posterior probabilities (e.g.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>θ</mi><mi>C</mi></msub><mo>&lt;</mo><mn>0.5</mn><mo stretchy="false" form="prefix">|</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Pr(\theta_C &lt; 0.5 | D)</annotation></semantics></math>)
-using the <code>cdf</code> function:</li>
+<li>Posterior probabilities (e.g., <span class="math inline">\(Pr(\theta_C &lt; 0.5 | D)\)</span>) using the
+<code>cdf</code> function:</li>
 </ul>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/cdf.html" class="external-link">cdf</a></span><span class="op">(</span><span class="va">post_control</span>, q <span class="op">=</span> <span class="fl">.5</span><span class="op">)</span>   <span class="co"># Pr(theta_C &lt; 0.5 | D)</span></span>
@@ -371,9 +356,8 @@ using the <code>cdf</code> function:</li>
 <p>In addition to calculating posterior summary statistics, we can
 sample from posterior distributions using the <code>generate</code>
 function. Here, we randomly sample 100,000 draws from the posterior
-distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>
-and plot a histogram of the sample.</p>
+distribution for <span class="math inline">\(\theta_C\)</span> and plot
+a histogram of the sample.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">samp_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/generate.html" class="external-link">generate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">post_control</span>, times <span class="op">=</span> <span class="fl">100000</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>samp <span class="op">=</span> <span class="va">samp_control</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -385,8 +369,7 @@ and plot a histogram of the sample.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">1.1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="binary_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
-<p>Similarly, we sample from the posterior distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>T</mi></msub><annotation encoding="application/x-tex">\theta_T</annotation></semantics></math>.</p>
+<p>Similarly, we sample from the posterior distribution for <span class="math inline">\(\theta_T\)</span>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">samp_treated</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/generate.html" class="external-link">generate</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">post_treated</span>, times <span class="op">=</span> <span class="fl">100000</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>samp <span class="op">=</span> <span class="va">samp_treated</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -400,13 +383,10 @@ and plot a histogram of the sample.</p>
 <p><img src="binary_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 <p>We define our marginal treatment effect to be the difference between
 the active treatment response rate and the control response rate (i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub></mrow><annotation encoding="application/x-tex">\theta_T - \theta_C</annotation></semantics></math>).
-We can obtain a sample from the posterior distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub></mrow><annotation encoding="application/x-tex">\theta_T - \theta_C</annotation></semantics></math>
-by subtracting the posterior sample of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>
-from the posterior sample of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>T</mi></msub><annotation encoding="application/x-tex">\theta_T</annotation></semantics></math>.</p>
+<span class="math inline">\(\theta_T - \theta_C\)</span>). We can obtain
+a sample from the posterior distribution for <span class="math inline">\(\theta_T - \theta_C\)</span> by subtracting the
+posterior sample of <span class="math inline">\(\theta_C\)</span> from
+the posterior sample of <span class="math inline">\(\theta_T\)</span>.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">samp_trt_diff</span> <span class="op">&lt;-</span> <span class="va">samp_treated</span> <span class="op">-</span> <span class="va">samp_control</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>samp <span class="op">=</span> <span class="va">samp_trt_diff</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">samp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -418,19 +398,13 @@ from the posterior sample of
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">1.1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="binary_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
-<p>Suppose we want to test the hypotheses
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>0</mn></msub><mo>:</mo><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">H_0: \theta_T - \theta_C \le 0</annotation></semantics></math>
-versus
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>1</mn></msub><mo>:</mo><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">H_1: \theta_T - \theta_C &gt; 0</annotation></semantics></math>.
-We can use our posterior sample for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub></mrow><annotation encoding="application/x-tex">\theta_T - \theta_C</annotation></semantics></math>
-to calculate the posterior probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub><mo>&gt;</mo><mn>0</mn><mo>∣</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Pr(\theta_T - \theta_C &gt; 0 \mid D)</annotation></semantics></math>
-(i.e., the probability in favor of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>H</mi><mn>1</mn></msub><annotation encoding="application/x-tex">H_1</annotation></semantics></math>),
-and we conclude that we have sufficient evidence in favor of the
-alternative hypothesis if
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub><mo>&gt;</mo><mn>0</mn><mo>∣</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mn>0.975</mn></mrow><annotation encoding="application/x-tex">Pr(\theta_T - \theta_C &gt; 0 \mid D) &gt; 0.975</annotation></semantics></math>.</p>
+<p>Suppose we want to test the hypotheses <span class="math inline">\(H_0: \theta_T - \theta_C \le 0\)</span> versus
+<span class="math inline">\(H_1: \theta_T - \theta_C &gt; 0\)</span>. We
+can use our posterior sample for <span class="math inline">\(\theta_T -
+\theta_C\)</span> to calculate the posterior probability <span class="math inline">\(Pr(\theta_T - \theta_C &gt; 0 \mid D)\)</span>
+(i.e., the probability in favor of <span class="math inline">\(H_1\)</span>), and we conclude that we have
+sufficient evidence in favor of the alternative hypothesis if <span class="math inline">\(Pr(\theta_T - \theta_C &gt; 0 \mid D) &gt;
+0.975\)</span>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">samp_trt_diff</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.99947</span></span></code></pre></div>
@@ -441,27 +415,23 @@ hypothesis.</p>
 <code>distributional</code> package, we can extract the parameters of a
 posterior distribution that consists of a single component (i.e., a
 single beta distribution). For example, we can extract the shape 1 and
-shape 2 parameters of the beta posterior distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>T</mi></msub><annotation encoding="application/x-tex">\theta_T</annotation></semantics></math>.</p>
+shape 2 parameters of the beta posterior distribution for <span class="math inline">\(\theta_T\)</span>.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/parameters.html" class="external-link">parameters</a></span><span class="op">(</span><span class="va">post_treated</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   shape1 shape2</span></span>
 <span><span class="co">#&gt; 1   61.5   19.5</span></span></code></pre></div>
 <p>We can also use the <code>parameters</code> function to extract the
 mixture weights associated with the two beta components of the posterior
-distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>.</p>
+distribution for <span class="math inline">\(\theta_C\)</span>.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/parameters.html" class="external-link">parameters</a></span><span class="op">(</span><span class="va">post_control</span><span class="op">)</span><span class="op">$</span><span class="va">w</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">#&gt; informative       vague </span></span>
 <span><span class="co">#&gt;   0.8879774   0.1120226</span></span></code></pre></div>
 <p>Lastly, we calculate the effective sample size of the posterior
-distribution for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>
-using the method by Pennello and Thompson (2008). To do so, we first
-must construct the posterior distribution of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math><em>without borrowing from the external control data</em> (e.g., using a
-vague prior).</p>
+distribution for <span class="math inline">\(\theta_C\)</span> using the
+method by Pennello and Thompson (2008). To do so, we first must
+construct the posterior distribution of <span class="math inline">\(\theta_C\)</span> <em>without borrowing from the
+external control data</em> (e.g., using a vague prior).</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_control_no_brrw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calc_post_beta.html">calc_post_beta</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">int_binary_df</span>, <span class="va">trt</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>                                       response <span class="op">=</span> <span class="va">y</span>,</span>
