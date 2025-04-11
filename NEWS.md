@@ -1,7 +1,7 @@
 # beastt 0.0.3 
-
-* add trim_ps() and rescale_ps() function 
-* add prop_scr_cloud() function 
+* Add a number of functions to make it easier to simulate binary and time to event data
+* Add trim_ps() and rescale_ps() function to trim and re-scale the propensity score object 
+* Add prop_scr_cloud() function 
 
 # beastt 0.0.2
 
