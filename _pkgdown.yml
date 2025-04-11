@@ -1,5 +1,11 @@
 url: https://gsk-biostatistics.github.io/beastt/
 
+template:
+  bootstrap: 5
+development:
+  mode: auto
+  version_label: default
+
 reference:
 - title: "Propensity Scores"
 - contents:
@@ -40,7 +46,7 @@ reference:
     - prop_scr_hist
     - prop_scr_love
     - plot_dist
-  
+
 
 - title: "Utility"
 - contents:
@@ -56,7 +62,7 @@ reference:
   - int_binary_df
   - int_norm_df
   - int_tte_df
-  
-  
+
+
 
 
