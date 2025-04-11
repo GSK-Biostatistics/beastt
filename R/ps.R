@@ -478,7 +478,7 @@ trim_ps <- function(x, low = NULL, high = NULL, quantile = FALSE){
 
   if(quantile) {
     ps_vals <- x$external_df |>
-      pull(`___ps___`)
+      pull(.data$`___ps___`)
     low <- quantile(ps_vals, low)
     high <-  quantile(ps_vals, high)
 
@@ -507,11 +507,11 @@ trim_ps <- function(x, low = NULL, high = NULL, quantile = FALSE){
 #' Rescale a `prop_scr` object
 #'
 #' @param x a `prop_scr` obj
-#' @param n Desired sample size that the external data should effectively contribute to
-#'   the analysis of the internal trial data. This will be used to scale the
-#'   external weights if `scale_factor` is not specified
-#' @param scale_factor Value to multiple all weights by. This will be used to scale the
-#'   external weights if `n` is not specified
+#' @param n Desired sample size that the external data should effectively
+#'   contribute to the analysis of the internal trial data. This will be used to
+#'   scale the external weights if `scale_factor` is not specified
+#' @param scale_factor Value to multiple all weights by. This will be used to
+#'   scale the external weights if `n` is not specified
 #' @return a `prop_scr` object with rescaled weights
 #'
 #' @export
@@ -521,7 +521,8 @@ trim_ps <- function(x, low = NULL, high = NULL, quantile = FALSE){
 #'                        external_df = ex_binary_df,
 #'                        id_col = subjid,
 #'                        model = ~ cov1 + cov2 + cov3 + cov4)
-#' # weights in a propensity score object can be rescaled to achieve a desired effective sample size (i.e., sum of weights)
+#' # weights in a propensity score object can be rescaled to achieve a desired
+#' # effective sample size (i.e., sum of weights)
 #' rescale_ps(ps_obj, n = 75)
 #'
 #' # Or by a predetermined factor
@@ -615,24 +616,24 @@ prop_scr_cloud <- function(x, trimmed_prop_scr = NULL){
   test_prop_scr(x)
 
   graph_df <- bind_rows(x$external_df, x$internal_df) |>
-    mutate(arm = if_else(`___internal___`, "Internal Control", "External Control"))
+    mutate(arm = if_else(.data$`___internal___`, "Internal Control", "External Control"))
 
   if(is.null(trimmed_prop_scr)){
-    plot <- ggplot(graph_df, aes(x = `___ps___`, y = arm)) +
+    plot <- ggplot(graph_df, aes(x = .data$`___ps___`, y = .data$arm)) +
       geom_point(position = position_jitter(width = 0, height = .1))
 
   } else {
     nontrimmed_df <- bind_rows(trimmed_prop_scr$external_df, trimmed_prop_scr$internal_df) |>
-      mutate(arm = if_else(`___internal___`, "Internal Control", "External Control"),
+      mutate(arm = if_else(.data$`___internal___`, "Internal Control", "External Control"),
              trimmed = FALSE)
     by_vars <- intersect(colnames(graph_df), colnames(nontrimmed_df))
     trimmed_df <- anti_join(graph_df, nontrimmed_df, by = by_vars) |>
       mutate(trimmed = TRUE)
     graph_df <- bind_rows(nontrimmed_df, trimmed_df)
 
-    plot <- ggplot(graph_df, aes(x = `___ps___`, y = arm,
-                                 color = trimmed, shape = trimmed)) +
-      geom_point(position = ggplot2::position_jitter(width = 0, height = .1)) +
+    plot <- ggplot(graph_df, aes(x = .data$`___ps___`, y =.data$ arm,
+                                 color = .data$trimmed, shape = .data$trimmed)) +
+      geom_point(position = position_jitter(width = 0, height = .1)) +
       scale_color_manual(values = c("#5398BE", "#FFA21F"),
                          labels = c("TRUE" =  "Yes", "FALSE" = "No")) +
       scale_shape_manual(values = c(16, 4),

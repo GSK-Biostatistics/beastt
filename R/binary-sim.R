@@ -182,12 +182,13 @@ bootstrap_cov <- function(external_dat, n,
 #'   where \eqn{\boldsymbol{\beta}_{EC}} is the vector of regression coefficients
 #'   from the logistic regression model (`glm`) fit to the external control data
 #'   (assumed here to be the "true" covariate effects when generating response
-#'   data) and \eqn{\boldsymbol{x}_i} is a vector of covariates from the
-#'   bootstrapped population of size \eqn{N}. In the formula above, the first
-#'   and second terms correspond to the population-averaged conditional
-#'   probabilities (i.e., the marginal response rates) of the internal control
-#'   population with drift and the external control population (with covariate
-#'   distributions standardized to match the internal trial), respectively.
+#'   data) and \eqn{\boldsymbol{x}_i} is a vector of covariates (including an
+#'   intercept term) from the bootstrapped population of size \eqn{N}. In the
+#'   formula above, the first and second terms correspond to the
+#'   population-averaged conditional probabilities (i.e., the marginal response
+#'   rates) of the internal control population with drift and the external
+#'   control population (with covariate distributions standardized to match the
+#'   internal trial), respectively.
 #'
 #'   If we now denote the marginal and conditional treatment effect by
 #'   \eqn{\Gamma} and \eqn{\gamma}, respectively, we can use a similar process
@@ -202,13 +203,14 @@ bootstrap_cov <- function(external_dat, n,
 #'   \exp \left(\boldsymbol{x}_i^\prime \boldsymbol{\beta}_{EC} + \delta \right)}
 #'   \right) - \Gamma \right|,}
 #'
-#'   where the first term is the population-averaged conditional probabilities
-#'   (i.e., the marginal response rate) of the internal treated population.
+#'   where the first term is the average of the conditional probabilities
+#'   of response (i.e., the marginal response rate) of the internal
+#'   treated population.
 #'
 #' @returns tibble of all combinations of the marginal drift and treatment
 #'   effect. For each row the conditional drift and treatment effect has been
-#'   calculated as well as the true control response rate and true treatment
-#'   effect.
+#'   calculated as well as the true response rates for the control and treated
+#'   populations.
 #' @export
 #'
 #' @examples
@@ -229,11 +231,11 @@ bootstrap_cov <- function(external_dat, n,
 #' @importFrom purrr map2_dbl
 #' @importFrom stats optimize
 calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
-  if(!all(class(glm) == c("glm","lm"))){
-    cli_abort("{.arg beta_coefs} must be a glm object")
+  if(!inherits(glm, "glm")){
+    cli_abort("{.arg glm} must be a glm object")
   }
 
-  if(!"data.frame" %in% class(population)){
+  if(!inherits(population, "data.frame")){
     cli_abort("{.arg population} must be a tibble or dataframe. If you are using lists, check you haven't converted the dataframe into a list of vectors")
   }
 
@@ -258,8 +260,8 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
     scenarios <- crossing(
       marg_drift,marg_trt_eff
     ) |>
-      filter(marg_drift + marg_trt_eff + external_cont_RR > 0 &
-             marg_drift + marg_trt_eff + external_cont_RR < 1)
+      filter(marg_drift + marg_trt_eff + EC_RR_star > 0 &
+             marg_drift + marg_trt_eff + EC_RR_star < 1)
 
     # Identify the optimal conditional drift value ("delta") that corresponds to
     # the defined marginal drift value ("Delta"). If we calculate the marginal RR
@@ -299,7 +301,7 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
     cond_df <- scenarios |>
       left_join(delta_df, by = "marg_drift") |>
       mutate(conditional_trt_eff =
-               map2_dbl(marg_trt_eff, conditional_drift,
+               map2_dbl(marg_trt_eff, .data$conditional_drift,
                         function(Gamma, delta){
                           if(Gamma == 0){
                             gamma_val <- 0    # set gamma = 0 if Gamma = 0
@@ -314,10 +316,10 @@ calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
                         })) |>
       rowwise() |>
       # Calculate the "true" IT RR for each defined value of drift and treatment effect
-      mutate(true_trt_RR =  mean(inv_logit(X_IC %*% beta_coefs + conditional_drift + conditional_trt_eff)))|>
+      mutate(true_trt_RR =  mean(inv_logit(X_IC %*% beta_coefs + .data$conditional_drift + .data$conditional_trt_eff)))|>
       ungroup()
   } else {
-    cli_abort("Not all covariates in {.arg beta_coefs} are in the population")
+    cli_abort("Not all covariates in {.arg glm} are in the population")
   }
   cond_df
 

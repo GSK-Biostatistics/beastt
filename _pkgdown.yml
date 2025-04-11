@@ -32,6 +32,11 @@ reference:
   - bootstrap_cov
   - calc_cond_binary
   - inv_logit
+  - sim_accrual
+  - sim_weib_ph
+  - sim_pw_const_haz
+  - calc_cond_weibull
+  - calc_study_duration
 
 - title: "Visualisation"
 - contents:
