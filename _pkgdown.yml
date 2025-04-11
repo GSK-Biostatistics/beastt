@@ -1,0 +1,62 @@
+url: https://gsk-biostatistics.github.io/beastt/
+
+reference:
+- title: "Propensity Scores"
+- contents:
+  - calc_prop_scr
+  - trim_ps
+  - rescale_ps
+  - tidy.prop_scr
+  - is_prop_scr
+
+
+- title: "Power Prior"
+- contents:
+  - calc_power_prior_beta
+  - calc_power_prior_norm
+  - calc_power_prior_weibull
+
+- title: "Robusitify"
+- contents:
+  - robustify_mvnorm
+  - robustify_norm
+
+- title: "Posterior"
+- contents:
+  - calc_post_beta
+  - calc_post_norm
+  - calc_post_weibull
+
+- title: "Simulation"
+- contents:
+  - bootstrap_cov
+  - calc_cond_binary
+  - inv_logit
+
+- title: "Visualisation"
+- contents:
+    - prop_scr_cloud
+    - prop_scr_dens
+    - prop_scr_hist
+    - prop_scr_love
+    - plot_dist
+  
+
+- title: "Utility"
+- contents:
+  - mix_means
+  - mix_sigmas
+  - '`beastt-package`'
+
+- title: "Data"
+- contents:
+  - ex_binary_df
+  - ex_norm_df
+  - ex_tte_df
+  - int_binary_df
+  - int_norm_df
+  - int_tte_df
+  
+  
+
+
