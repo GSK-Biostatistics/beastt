@@ -11,6 +11,7 @@
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/beastt-package.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/bootstrap_cov.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_cond_binary.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_cond_weibull.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_post_beta.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_post_norm.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_post_weibull.html</loc></url>
@@ -18,6 +19,7 @@
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_power_prior_norm.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_power_prior_weibull.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_prop_scr.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_study_duration.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/ex_binary_df.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/ex_norm_df.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/ex_tte_df.html</loc></url>
@@ -38,6 +40,9 @@
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/rescale_ps.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/robustify_mvnorm.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/robustify_norm.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/sim_accrual.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/sim_pw_const_haz.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/sim_weib_ph.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/tidy.prop_scr.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/trim_ps.html</loc></url>
 </urlset>

@@ -81,14 +81,14 @@
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>Desired sample size that the external data should effectively contribute to
-the analysis of the internal trial data. This will be used to scale the
-external weights if <code>scale_factor</code> is not specified</p></dd>
+<dd><p>Desired sample size that the external data should effectively
+contribute to the analysis of the internal trial data. This will be used to
+scale the external weights if <code>scale_factor</code> is not specified</p></dd>
 
 
 <dt id="arg-scale-factor">scale_factor<a class="anchor" aria-label="anchor" href="#arg-scale-factor"></a></dt>
-<dd><p>Value to multiple all weights by. This will be used to scale the
-external weights if <code>n</code> is not specified</p></dd>
+<dd><p>Value to multiple all weights by. This will be used to
+scale the external weights if <code>n</code> is not specified</p></dd>
 
 </dl></div>
     <div id="value">
@@ -103,7 +103,8 @@ external weights if <code>n</code> is not specified</p></dd>
 <span class="r-in"><span>                       external_df <span class="op">=</span> <span class="va">ex_binary_df</span>,</span></span>
 <span class="r-in"><span>                       id_col <span class="op">=</span> <span class="va">subjid</span>,</span></span>
 <span class="r-in"><span>                       model <span class="op">=</span> <span class="op">~</span> <span class="va">cov1</span> <span class="op">+</span> <span class="va">cov2</span> <span class="op">+</span> <span class="va">cov3</span> <span class="op">+</span> <span class="va">cov4</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># weights in a propensity score object can be rescaled to achieve a desired effective sample size (i.e., sum of weights)</span></span></span>
+<span class="r-in"><span><span class="co"># weights in a propensity score object can be rescaled to achieve a desired</span></span></span>
+<span class="r-in"><span><span class="co"># effective sample size (i.e., sum of weights)</span></span></span>
 <span class="r-in"><span><span class="fu">rescale_ps</span><span class="op">(</span><span class="va">ps_obj</span>, n <span class="op">=</span> <span class="fl">75</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Model</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────────────────</span></span>
