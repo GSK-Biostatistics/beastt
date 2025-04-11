@@ -71,6 +71,8 @@ calc_power_prior_beta <- function(external_data, response, prior){
   check <- safely(select)(data, !!response)
   if(!is.null(check$error)){
     cli_abort("{.agr response} was not found in {.agr external_data}")
+  } else if(all(is.na(check$result))){
+    cli_abort("{.agr response} is all NA")
   }
 
   prior_checks(prior, "beta")
@@ -183,6 +185,8 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
   check <- safely(select)(data, !!response)
   if(!is.null(check$error)){
     cli_abort("{.agr response} was not found in {.agr external_data}")
+  } else if(all(is.na(check$result))){
+    cli_abort("{.agr response} is all NA")
   }
 
   # mean of IP-weighted power prior
@@ -337,11 +341,15 @@ calc_power_prior_weibull <- function(external_data,
   check_response <- safely(select)(data, !!response)
   if(!is.null(check_response$error)){
     cli_abort("{.agr response} was not found in {.agr external_data}")
+  } else if(all(is.na(check_response$result))){
+    cli_abort("{.agr response} is all NA")
   }
   event <- enquo(event)
   check_event <- safely(select)(data, !!event)
   if(!is.null(check_event$error)){
     cli_abort("{.agr event} was not found in {.agr external_data}")
+  } else if(all(is.na(check_event$result))){
+    cli_abort("{.agr event} is all NA")
   }
   # Check beta
   prior_checks(intercept, "normal")
