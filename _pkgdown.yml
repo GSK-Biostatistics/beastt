@@ -1,6 +1,7 @@
 url: https://gsk-biostatistics.github.io/beastt/
 
 template:
+  math-rendering: mathjax
   bootstrap: 5
 development:
   mode: auto
