@@ -229,11 +229,11 @@ bootstrap_cov <- function(external_dat, n,
 #' @importFrom purrr map2_dbl
 #' @importFrom stats optimize
 calc_cond_binary <- function(population, glm, marg_drift, marg_trt_eff){
-  if(!all(class(glm) == c("glm","lm"))){
+  if(!inherits(glm, "glm")){
     cli_abort("{.arg glm} must be a glm object")
   }
 
-  if(!"data.frame" %in% class(population)){
+  if(!inherits(population, "data.frame")){
     cli_abort("{.arg population} must be a tibble or dataframe. If you are using lists, check you haven't converted the dataframe into a list of vectors")
   }
 
