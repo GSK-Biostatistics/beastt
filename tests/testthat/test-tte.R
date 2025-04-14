@@ -303,6 +303,23 @@ test_that("calc_power_prior_weibull handles invalid approximation method", {
                                         approximation = "zero"))
 })
 
+# Test for internal and external data with different response variable names
+test_that("calc_power_prior_weibull handles different response variable names", {
+  int <- int_tte_df
+  ex <- ex_tte_df |>
+    dplyr::rename(y2 = y)
+  init_prior <- dist_beta(shape1 = 0.5, shape2 = 0.5)
+
+  ps_obj <- calc_prop_scr(internal_df = filter(int, trt == 0),
+                          external_df = ex,
+                          id_col = subjid,
+                          model = ~ cov1 + cov2 + cov3 + cov4)
+
+  expect_error(calc_power_prior_weibull(external_data = ps_obj,
+                                     response = y,
+                                     prior = init_prior))
+})
+
 ################################################################################
 # calc_post_weibull
 ################################################################################
