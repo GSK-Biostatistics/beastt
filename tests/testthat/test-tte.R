@@ -308,7 +308,9 @@ test_that("calc_power_prior_weibull handles different response variable names", 
   int <- int_tte_df
   ex <- ex_tte_df |>
     dplyr::rename(y2 = y)
-  init_prior <- dist_beta(shape1 = 0.5, shape2 = 0.5)
+  init_prior <- dist_normal(mu = 0, sigma = 10)
+  init_hn_scale <- 50
+
 
   ps_obj <- calc_prop_scr(internal_df = filter(int, trt == 0),
                           external_df = ex,
@@ -316,8 +318,11 @@ test_that("calc_power_prior_weibull handles different response variable names", 
                           model = ~ cov1 + cov2 + cov3 + cov4)
 
   expect_error(calc_power_prior_weibull(external_data = ps_obj,
-                                     response = y,
-                                     prior = init_prior))
+                                        response = y,
+                                        event = event,
+                                        intercept = init_norm_prior,
+                                        shape = init_hn_scale,
+                                        approximation = "MCMC"))
 })
 
 ################################################################################

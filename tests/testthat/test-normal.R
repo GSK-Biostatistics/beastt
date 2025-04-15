@@ -266,7 +266,7 @@ test_that("calc_power_prior_norm handles different response variable names", {
   int <- int_norm_df
   ex <- ex_norm_df |>
     dplyr::rename(y2 = y)
-  init_prior <- dist_beta(shape1 = 0.5, shape2 = 0.5)
+  init_prior <- dist_normal(mu = 0.5, sigma = 10)
 
   ps_obj <- calc_prop_scr(internal_df = filter(int, trt == 0),
                           external_df = ex,
