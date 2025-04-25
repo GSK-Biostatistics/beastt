@@ -207,6 +207,9 @@ bootstrap_cov <- function(external_dat, n,
 #'   of response (i.e., the marginal response rate) of the internal
 #'   treated population.
 #'
+#'   See [here](https://github.com/GSK-Biostatistics/beastt/blob/e2b41fe90f639924d10c0d94ceff04a74d0ce617/inst/templates/binary_template.R)
+#'   for a binary simulation example.
+#'
 #' @returns tibble of all combinations of the marginal drift and treatment
 #'   effect. For each row the conditional drift and treatment effect has been
 #'   calculated as well as the true response rates for the control and treated

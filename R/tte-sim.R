@@ -226,6 +226,9 @@ sim_weib_ph <- function(weibull_ph_mod, samp_df, cond_drift = 0,
 #'   (i.e., the marginal survival probabilities) at time \eqn{t} for the
 #'   internal treated population.
 #'
+#'   See [here](https://github.com/GSK-Biostatistics/beastt/blob/e2b41fe90f639924d10c0d94ceff04a74d0ce617/inst/templates/tte-template.R)
+#'   for a survival simulation example.
+#'
 #' @returns tibble of all combinations of the marginal drift and treatment
 #'   effect. For each row the conditional drift and treatment effect has been
 #'   calculated as well as the true marginal survival probabilities at time `t`
