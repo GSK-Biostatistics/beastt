@@ -180,6 +180,10 @@ sim_output <- all_sims |>
       samp_trt_diff <- samp_trt - samp_control
       mean_trt_diff <- mean(samp_trt_diff)
 
+      # Test H0: trt diff <= 0 vs. H1: trt diff > 0. Reject H0 if P(trt diff > 0|data) > 1 - alpha
+      trt_diff_prob <- mean(samp_trt_diff > 0)   # posterior probability P(trt diff > 0|data)
+      reject_H0_yes <- trt_diff_prob > .975      # H0 rejection indicator for alpha = 0.025
+
       # Calculate the effective sample size of the posterior distribution of the control RR
       var_no_borrow <- variance(post_control_no_borrow)   # post variance of control RR without borrowing
       var_borrow <- variance(post_control)                # post variance of control RR with borrowing
@@ -197,7 +201,8 @@ sim_output <- all_sims |>
         "p975_post_cont" = quantile(post_control, .975),
         "post_mix_w" = parameters(post_control)$w[[1]]["informative"],
         "mean_trt_diff" = mean_trt_diff,
-        "trt_diff_prob" = mean(samp_trt_diff > 0),
+        "trt_diff_prob" = trt_diff_prob,
+        "reject_H0_yes" = reject_H0_yes,
         "ess" = ess,
         "irrt_bias_trteff" = mean_trt_diff - marg_trt_eff,
         "irrt_mse_trteff" = (mean_trt_diff - marg_trt_eff)^2,
