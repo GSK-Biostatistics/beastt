@@ -47,7 +47,7 @@ trt_effect_RR = c(0, .1, .15)               # values of marginal trt effect (cha
 # 3 a) Bootstrap a population corresponding to the internal trial. This will be
 # used to identify the conditional drift and treatment effects and to later
 # sample the covariate vectors for the internal trial arms.
-pop_size <- 100000
+pop_size <- 10000
 ex_dat_cov <- external_dat |>
   select(-subjid, -y)  # removing all columns that aren't covariates
 
@@ -100,7 +100,7 @@ all_sims <- pop_var |>
     mix_weight = 0.5
   ) |>
   mutate(scenario = row_number()) |>  # Add a scenario ID
-  crossing(iter_id = c(1:1000))       # Add an iteration ID (within scenario)
+  crossing(iter_id = c(1:100))       # Add an iteration ID (within scenario)
 
 
 # Simulations ------------------------------------------------------------------
@@ -167,16 +167,18 @@ sim_output <- all_sims |>
       # Calculate the posterior distribution for the control RR without borrowing
       post_control_no_borrow <- calc_post_beta(int_cont_df,
                                                response = y,
-                                               prior = vague_prior)
+                                               prior = vague_prior) # w = 0
 
       # Calculate the posterior distribution for the treatment RR
       post_trt <- calc_post_beta(int_trt_df,
                                  response = y,
                                  prior = vague_prior)
 
+      # repeat below for no borrowing? slower, or use numerical integration (not for tte)
+
       # Obtain a posterior sample of the marginal treatment effect (risk difference)
-      samp_control <- generate(x = post_control, times = 100000)[[1]]
-      samp_trt <- generate(x = post_trt, times = 100000)[[1]]
+      samp_control <- generate(x = post_control, times = 10000)[[1]] # numerical integration?
+      samp_trt <- generate(x = post_trt, times = 10000)[[1]]
       samp_trt_diff <- samp_trt - samp_control
       mean_trt_diff <- mean(samp_trt_diff)
 
@@ -220,8 +222,13 @@ sim_output <- all_sims |>
 
 output <- all_sims |>
   left_join(sim_output, by = c("scenario", "iter_id"))
+  # w=0 stuff here
 
 output|>
   group_by(scenario, marg_trt_eff)|>
   summarise(across(mean_post_cont:irrt_mse_cont, mean))
+
+type1_errors <- output |>
+  group_by(scenario) |>
+  summarise()
 
