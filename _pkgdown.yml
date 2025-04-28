@@ -16,7 +16,7 @@ reference:
   - calc_power_prior_norm
   - calc_power_prior_weibull
 
-- title: "Robusitify"
+- title: "Robustify"
 - contents:
   - robustify_mvnorm
   - robustify_norm
