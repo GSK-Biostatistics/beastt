@@ -141,9 +141,9 @@ sweet_spot_plot <- function(.data, scenario_vars,
                                                   "no_borrowing" = "dashed"),
                                        labels = c("Borrowing", "No Borrowing")) +
         ggplot2::scale_fill_manual(name = "", values = "grey85") +
-        guides(fill = guide_legend(order = 1),  # Set the order of the fill legend
-               color = guide_legend(order = 2),  # Set the order of the color legend
-               linetype = guide_legend(order = 3)) + # Set the order of the linetype legend
+        ggplot2::guides(fill = ggplot2::guide_legend(order = 1),  # Set the order of the fill legend
+               color = ggplot2::guide_legend(order = 2),  # Set the order of the color legend
+               linetype = ggplot2::guide_legend(order = 3)) + # Set the order of the linetype legend
         ggplot2::ggtitle(title) +
         ggplot2::theme_bw() +
         theme(legend.position = "bottom")
