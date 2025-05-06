@@ -120,3 +120,20 @@
 #'   \item{cov4}{Covariate 4, which is binary (0 vs. 1) with about 60% of participants having level 1}
 #' }
 "int_tte_df"
+
+#' Binary Simulation Data
+#'
+#' This is a simulated dataset used to illustrate Bayesian dynamic borrowing
+#' simulations. This was generated based on binary simulation template. In this
+#' simulation only population and marginal treatment effect are being varied
+#'
+#' @format ## `binary_sim_df` A data frame with 255 rows and 6 columns:
+#' \describe{
+#'   \item{population}{Different population imbalances}
+#'   \item{marg_trt_eff}{marginal treatment effect}
+#'   \item{true_control_RR}{True control response rate on the marginal scale}
+#'   \item{reject_H0_yes}{probability of rejecting the null hypothesis in the case with borrowing}
+#'   \item{no_borrowing_reject_H0_yes}{probability of rejecting the null hypothesis without borrowing
+#'   \item{pwr_prior}{vector of power priors distributional objects}
+#' }
+"binary_sim_df"
