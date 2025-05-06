@@ -12,8 +12,8 @@
 #' @param trt_diff An unquoted column name representing the treatment
 #'   difference. Used to identify scenarios with null effect (trt_diff = 0) for
 #'   Type I error calculation.
-#' @param x_axis An unquoted column name to be used as the x-axis in the plots.
-#'   This is typically the control end point of interest ton the marginal scale (Control Response Rate)
+#' @param control_marg_param An unquoted column name to be used as the x-axis in the plots.
+#'   This is typically the control end point of interest ton the marginal scale (e.g. Control Response Rate)
 #' @param power_prior An unquoted column name containing distributional objects
 #'   that represent the power prior distribution.
 #' @param h0_prob An unquoted column name containing the probability of
@@ -45,7 +45,7 @@
 #'   .data = binary_sim_df,
 #'   scenario_vars = c("population", "marg_trt_eff"),
 #'   trt_diff = marg_trt_eff,
-#'   x_axis = true_control_RR,
+#'   control_marg_param = true_control_RR,
 #'   power_prior = pwr_prior,
 #'   h0_prob = reject_H0_yes,
 #'   h0_prob_no_borrowing = no_borrowing_reject_H0_yes
@@ -57,13 +57,13 @@
 #'
 #' @export
 sweet_spot_plot <- function(.data, scenario_vars,
-                             trt_diff, x_axis,
+                             trt_diff, control_marg_param,
                              power_prior,
                              h0_prob, h0_prob_no_borrowing
                              ){
 
   data_grouped <- .data |>
-    dplyr::group_by(across({{scenario_vars}}), {{x_axis}})
+    dplyr::group_by(across({{scenario_vars}}), {{control_marg_param}})
 
   # Calculate type 1 Error for all scenarios
   type1_df <- data_grouped |>
@@ -71,7 +71,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::summarise(type1_borrowing = mean({{h0_prob}}),
               type1_no_borrowing = mean({{h0_prob_no_borrowing}}),
               .groups = "drop") |>
-    dplyr::select({{scenario_vars}}, {{x_axis}}, type1_borrowing,
+    dplyr::select({{scenario_vars}}, {{control_marg_param}}, type1_borrowing,
                   type1_no_borrowing, -{{trt_diff}}) |>
     tidyr::pivot_longer(c(type1_borrowing, type1_no_borrowing),
                         names_prefix = "type1_",
@@ -82,7 +82,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::summarise(h0_prob_borrowing = mean({{h0_prob}}),
               h0_prob_no_borrowing = mean({{h0_prob_no_borrowing}}),
               .groups = "drop") |>
-    dplyr::select({{scenario_vars}}, {{x_axis}}, h0_prob_borrowing, h0_prob_no_borrowing) |>
+    dplyr::select({{scenario_vars}}, {{control_marg_param}}, h0_prob_borrowing, h0_prob_no_borrowing) |>
     tidyr::pivot_longer(c(h0_prob_borrowing, h0_prob_no_borrowing),
                         names_prefix = "h0_prob_",
                         names_to = "borrowing_status", values_to = "Power")
@@ -94,7 +94,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
   # Combine power and type 1 error, then nest each dataset down so there should
   # only be one row per scenario. Dropping where the trt difference is 0
   plot_df <- power |>
-    dplyr::left_join(type1_df, by = dplyr::join_by({{x_axis}}, !!!sc_vars_no_trt_diff, "borrowing_status")) |>
+    dplyr::left_join(type1_df, by = dplyr::join_by({{control_marg_param}}, !!!sc_vars_no_trt_diff, "borrowing_status")) |>
     dplyr::filter({{trt_diff}} != 0) |>
     tidyr::pivot_longer(c("Power", `Type 1 Error`)) |>
     group_by(across({{scenario_vars}})) |>
@@ -119,7 +119,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                       \(x, y) stringr::str_c(x, y, sep = ": ")) |>
         stringr::str_c(collapse = ", ")
 
-      x_vals <- pull(inputs$data, {{x_axis}})
+      x_vals <- pull(inputs$data, {{control_marg_param}})
       colors <- c("#5398BE", "#FFA21F")
 
       ggplot() +
@@ -129,7 +129,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                           # show.legend = TRUE
                           ) +
         ggplot2::geom_line(data = inputs$data,
-                           aes(x = {{x_axis}}, y = value,
+                           aes(x = {{control_marg_param}}, y = value,
                                linetype = borrowing_status, color = name),
                            size = 0.75) +
         ggplot2::scale_y_continuous(name = "Power",
