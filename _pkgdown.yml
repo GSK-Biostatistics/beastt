@@ -63,7 +63,6 @@ reference:
   - int_binary_df
   - int_norm_df
   - int_tte_df
-
-
+  - binary_sim_df
 
 

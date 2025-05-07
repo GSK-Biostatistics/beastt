@@ -8,7 +8,7 @@ sweet_spot_plot(
   .data,
   scenario_vars,
   trt_diff,
-  x_axis,
+  control_marg_param,
   power_prior,
   h0_prob,
   h0_prob_no_borrowing
@@ -25,8 +25,8 @@ columns will generate a separate plot.}
 difference. Used to identify scenarios with null effect (trt_diff = 0) for
 Type I error calculation.}
 
-\item{x_axis}{An unquoted column name to be used as the x-axis in the plots.
-This is typically the control end point of interest ton the marginal scale (Control Response Rate)}
+\item{control_marg_param}{An unquoted column name to be used as the x-axis in the plots.
+This is typically the control end point of interest ton the marginal scale (e.g. Control Response Rate)}
 
 \item{power_prior}{An unquoted column name containing distributional objects
 that represent the power prior distribution.}
@@ -68,7 +68,7 @@ plots <- sweet_spot_plot(
   .data = binary_sim_df,
   scenario_vars = c("population", "marg_trt_eff"),
   trt_diff = marg_trt_eff,
-  x_axis = true_control_RR,
+  control_marg_param = true_control_RR,
   power_prior = pwr_prior,
   h0_prob = reject_H0_yes,
   h0_prob_no_borrowing = no_borrowing_reject_H0_yes

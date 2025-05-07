@@ -2,6 +2,7 @@
 
 S3method(print,prop_scr)
 S3method(tidy,prop_scr)
+export(avg_dist)
 export(bootstrap_cov)
 export(calc_cond_binary)
 export(calc_cond_weibull)

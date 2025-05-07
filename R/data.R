@@ -133,7 +133,7 @@
 #'   \item{marg_trt_eff}{marginal treatment effect}
 #'   \item{true_control_RR}{True control response rate on the marginal scale}
 #'   \item{reject_H0_yes}{probability of rejecting the null hypothesis in the case with borrowing}
-#'   \item{no_borrowing_reject_H0_yes}{probability of rejecting the null hypothesis without borrowing
+#'   \item{no_borrowing_reject_H0_yes}{probability of rejecting the null hypothesis without borrowing}
 #'   \item{pwr_prior}{vector of power priors distributional objects}
 #' }
 "binary_sim_df"

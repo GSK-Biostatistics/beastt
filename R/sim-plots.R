@@ -63,7 +63,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                              ){
 
   data_grouped <- .data |>
-    dplyr::group_by(across({{scenario_vars}}), {{control_marg_param}})
+    dplyr::group_by(dplyr::across({{scenario_vars}}), {{control_marg_param}})
 
   # Calculate type 1 Error for all scenarios
   type1_df <- data_grouped |>
@@ -71,9 +71,9 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::summarise(type1_borrowing = mean({{h0_prob}}),
               type1_no_borrowing = mean({{h0_prob_no_borrowing}}),
               .groups = "drop") |>
-    dplyr::select({{scenario_vars}}, {{control_marg_param}}, type1_borrowing,
-                  type1_no_borrowing, -{{trt_diff}}) |>
-    tidyr::pivot_longer(c(type1_borrowing, type1_no_borrowing),
+    dplyr::select({{scenario_vars}}, {{control_marg_param}}, .data$type1_borrowing,
+                  .data$type1_no_borrowing, -{{trt_diff}}) |>
+    tidyr::pivot_longer(c(.data$type1_borrowing, .data$type1_no_borrowing),
                         names_prefix = "type1_",
                         names_to = "borrowing_status", values_to = "Type 1 Error")
 
@@ -82,8 +82,9 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::summarise(h0_prob_borrowing = mean({{h0_prob}}),
               h0_prob_no_borrowing = mean({{h0_prob_no_borrowing}}),
               .groups = "drop") |>
-    dplyr::select({{scenario_vars}}, {{control_marg_param}}, h0_prob_borrowing, h0_prob_no_borrowing) |>
-    tidyr::pivot_longer(c(h0_prob_borrowing, h0_prob_no_borrowing),
+    dplyr::select({{scenario_vars}}, {{control_marg_param}}, .data$h0_prob_borrowing,
+                  .data$h0_prob_no_borrowing) |>
+    tidyr::pivot_longer(c(.data$h0_prob_borrowing, .data$h0_prob_no_borrowing),
                         names_prefix = "h0_prob_",
                         names_to = "borrowing_status", values_to = "Power")
 
@@ -96,17 +97,17 @@ sweet_spot_plot <- function(.data, scenario_vars,
   plot_df <- power |>
     dplyr::left_join(type1_df, by = dplyr::join_by({{control_marg_param}}, !!!sc_vars_no_trt_diff, "borrowing_status")) |>
     dplyr::filter({{trt_diff}} != 0) |>
-    tidyr::pivot_longer(c("Power", `Type 1 Error`)) |>
-    group_by(across({{scenario_vars}})) |>
-    nest()
+    tidyr::pivot_longer(c("Power", .data$`Type 1 Error`)) |>
+    dplyr::group_by(dplyr::across({{scenario_vars}})) |>
+    tidyr::nest()
 
   # Get the average power prior for each scenario,
   # dropping where the trt difference is 0
   prior <- .data |>
-    dplyr::group_by(across({{scenario_vars}})) |>
+    dplyr::group_by(dplyr::across({{scenario_vars}})) |>
     dplyr::filter({{trt_diff}} != 0) |>
     dplyr::summarise(pwr_prior = avg_dist({{power_prior}}), .groups = "drop_last") |>
-    dplyr::select({{scenario_vars}}, pwr_prior)
+    dplyr::select({{scenario_vars}}, .data$pwr_prior)
 
   # Create a plot fro each scenario
   plot_ls<- plot_df |>
@@ -119,7 +120,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                       \(x, y) stringr::str_c(x, y, sep = ": ")) |>
         stringr::str_c(collapse = ", ")
 
-      x_vals <- pull(inputs$data, {{control_marg_param}})
+      x_vals <- dplyr::pull(inputs$data, {{control_marg_param}})
       colors <- c("#5398BE", "#FFA21F")
 
       ggplot() +
@@ -129,8 +130,8 @@ sweet_spot_plot <- function(.data, scenario_vars,
                           # show.legend = TRUE
                           ) +
         ggplot2::geom_line(data = inputs$data,
-                           aes(x = {{control_marg_param}}, y = value,
-                               linetype = borrowing_status, color = name),
+                           aes(x = {{control_marg_param}}, y = .data$value,
+                               linetype = .data$borrowing_status, color = .data$name),
                            size = 0.75) +
         ggplot2::scale_y_continuous(name = "Power",
                                     sec.axis = ggplot2::sec_axis(~ ., name = "Type 1 Error")) +
@@ -146,7 +147,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                linetype = ggplot2::guide_legend(order = 3)) + # Set the order of the linetype legend
         ggplot2::ggtitle(title) +
         ggplot2::theme_bw() +
-        theme(legend.position = "bottom")
+        ggplot2::theme(legend.position = "bottom")
 
     })
   plot_ls
@@ -207,7 +208,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
 #' )
 #'
 #' avg_dist(mvn_dists) |> parameters()
-
+#' @export
 avg_dist <- function(x){
   if(!distributional::is_distribution(x)){
     cli_abort("{.arg x} must be a distributional object")
