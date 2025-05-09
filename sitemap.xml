@@ -8,7 +8,9 @@
 <url><loc>https://gsk-biostatistics.github.io/beastt/authors.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/index.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/news/index.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/avg_dist.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/beastt-package.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/binary_sim_df.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/bootstrap_cov.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_cond_binary.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/calc_cond_weibull.html</loc></url>
@@ -43,6 +45,7 @@
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/sim_accrual.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/sim_pw_const_haz.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/sim_weib_ph.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/sweet_spot_plot.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/tidy.prop_scr.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/trim_ps.html</loc></url>
 </urlset>

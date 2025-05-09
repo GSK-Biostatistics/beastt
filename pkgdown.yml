@@ -1,11 +1,11 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   binary: binary.html
   continuous: continuous.html
   tte: tte.html
-last_built: 2025-04-28T14:15Z
+last_built: 2025-05-09T13:43Z
 urls:
   reference: https://gsk-biostatistics.github.io/beastt/reference
   article: https://gsk-biostatistics.github.io/beastt/articles
