@@ -264,8 +264,8 @@ sim_output <- all_sims |>
         "irrt_bias_trteff" = mean_trt_diff - marg_trt_eff,         # contribution to bias of mean trt diff at t
         "irrt_mse_trteff" = (mean_trt_diff - marg_trt_eff)^2,      # contribution to MSE of mean trt diff at t
         "irrt_bias_cont" = mean_cont - true_control_surv_prob,     # contribution to bias of mean ctrl surv prob at t
-        "irrt_mse_cont" = (mean_cont - true_control_surv_prob)^2)  # contribution to MSE of mean ctrl surv prob at t
-
+        "irrt_mse_cont" = (mean_cont - true_control_surv_prob)^2,  # contribution to MSE of mean ctrl surv prob at t
+        "pwr_prior" = pwr_prior)                                    # IPW power prior
     })
   } , .options = para_opts
   ) |>
