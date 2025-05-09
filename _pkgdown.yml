@@ -45,12 +45,14 @@ reference:
     - prop_scr_hist
     - prop_scr_love
     - plot_dist
+    - sweet_spot_plot
 
 
 - title: "Utility"
 - contents:
   - mix_means
   - mix_sigmas
+  - avg_dist
   - '`beastt-package`'
 
 - title: "Data"
@@ -61,7 +63,6 @@ reference:
   - int_binary_df
   - int_norm_df
   - int_tte_df
-
-
+  - binary_sim_df
 
 

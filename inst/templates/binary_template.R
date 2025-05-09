@@ -180,43 +180,64 @@ sim_output <- all_sims |>
       samp_trt_diff <- samp_trt - samp_control
       mean_trt_diff <- mean(samp_trt_diff)
 
+      # Test H0: trt diff <= 0 vs. H1: trt diff > 0. Reject H0 if P(trt diff > 0|data) > 1 - alpha
+      trt_diff_prob <- mean(samp_trt_diff > 0)   # posterior probability P(trt diff > 0|data)
+      reject_H0_yes <- trt_diff_prob > .975      # H0 rejection indicator for alpha = 0.025
+
       # Calculate the effective sample size of the posterior distribution of the control RR
       var_no_borrow <- variance(post_control_no_borrow)   # post variance of control RR without borrowing
       var_borrow <- variance(post_control)                # post variance of control RR with borrowing
       ess <- n_int_cont * var_no_borrow / var_borrow      # effective sample size
 
+      # Hypothesis testing for no borrowing
+      samp_control_no_borrow <- generate(x = post_control_no_borrow, times = 100000)[[1]]
+      samp_no_borrow_trt_diff <- samp_trt - samp_control_no_borrow
+      no_borrowing_trt_diff_prob <- mean(samp_no_borrow_trt_diff > 0)   # posterior probability P(trt diff > 0|data)
+      no_borrowing_reject_H0_yes <- no_borrowing_trt_diff_prob > .975      # H0 rejection indicator for alpha = 0.025
+
       # Add any iteration-specific summary statistic to this list of outputs
       list(
-        "scenario" = scenario,
-        "iter_id" = iter_id,
-        "mean_post_cont" = mean_cont,
-        "median_post_cont" = median(post_control),
-        "variance_post_cont" = variance(post_control),
-        # "hdr_post_cont" = hdr(post_control),
-        "q025_post_cont" = quantile(post_control, .025),
-        "p975_post_cont" = quantile(post_control, .975),
-        "post_mix_w" = parameters(post_control)$w[[1]]["informative"],
-        "mean_trt_diff" = mean_trt_diff,
-        "trt_diff_prob" = mean(samp_trt_diff > 0),
-        "ess" = ess,
-        "irrt_bias_trteff" = mean_trt_diff - marg_trt_eff,
-        "irrt_mse_trteff" = (mean_trt_diff - marg_trt_eff)^2,
-        "irrt_bias_cont" = mean_cont - true_control_RR,
-        "irrt_mse_cont" = (mean_cont - true_control_RR)^2,
-        "post_trt" = post_trt,
-        "post_control" = post_control,
-        "post_control_no_borrow" = post_control_no_borrow)
+        "scenario" = scenario,                                     # scenario number
+        "iter_id" = iter_id,                                       # iteration number
+        "mean_post_cont" = mean_cont,                              # posterior mean of ctrl
+        "median_post_cont" = median(samp_control),                 # posterior median of ctrl
+        "variance_post_cont" = variance(samp_control),             # posterior variance of ctrl
+        "q025_post_cont" = quantile(samp_control, .025),           # lower limit of 95% CrI of ctrl
+        "p975_post_cont" = quantile(samp_control, .975),           # upper limit of 95% CrI of ctrl
+        "mean_trt_diff" = mean_trt_diff,                           # posterior mean of the trt difference
+        "post_mix_w" = parameters(post_control)$w[[1]]["informative"], #posterior control weight
+        "trt_diff_prob" = trt_diff_prob,                           # post probability P(trt diff > 0|data)
+        "reject_H0_yes" = reject_H0_yes,                           # H0 rejection indicator
+        "no_borrowing_trt_diff_prob" =no_borrowing_trt_diff_prob,  # post probability P(trt diff > 0|data) under bo borrowing
+        "no_borrowing_reject_H0_yes" = no_borrowing_reject_H0_yes, # H0 rejection indicator under bo borrowing
+        "ess" = ess,                                               # posterior ESS of post dist for ctrl RR
+        "irrt_bias_trteff" = mean_trt_diff - marg_trt_eff,         # contribution to bias of mean trt diff
+        "irrt_mse_trteff" = (mean_trt_diff - marg_trt_eff)^2,      # contribution to MSE of mean trt diff
+        "irrt_bias_cont" = mean_cont - true_control_RR,            # contribution to bias of mean ctrl
+        "irrt_mse_cont" = (mean_cont - true_control_RR)^2,         # contribution to MSE of mean ctrl
+        "pwr_prior" = pwr_prior                                    # IPW power prior
+      )
+
     }
     )
     output
 
-  }, .options = para_opts) |>
+  }, .options = para_opts, .progress = TRUE) |>
   bind_rows()
 
-output <- all_sims |>
+# Combine the output from the scenarios with the parameters of each simulation
+combined_output <- all_sims |>
   left_join(sim_output, by = c("scenario", "iter_id"))
 
-output|>
-  group_by(scenario, marg_trt_eff)|>
-  summarise(across(mean_post_cont:irrt_mse_cont, mean))
+# Get the column names of everything that we want to summarize by (i.e.
+# everything but the iterations)
+grouping_vars <- colnames(all_sims) |>
+  discard(\(x) x == "iter_id")
+
+# Final output
+output <- combined_output |>
+  summarise(across(mean_post_cont:irrt_mse_cont, mean),
+            .by = all_of(grouping_vars))
+
+
 
