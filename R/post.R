@@ -54,7 +54,7 @@
 #' library(dplyr)
 #' post_treated <- calc_post_norm(internal_data = filter(int_norm_df, trt == 1),
 #'                                response = y,
-#'                                prior = dist_normal(50, 10),
+#'                                prior = dist_normal(0.5, 10),
 #'                                internal_sd = 0.15)
 #'
 calc_post_norm<- function(

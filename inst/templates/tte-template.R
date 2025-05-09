@@ -1,9 +1,23 @@
+# Simulation Overview ---------------------------------------------------------
+
+# This script allows users to conduct a simulation study using the IPW BDB
+# methodology for a time-to-event outcome as outlined in Psioda et al. (2025):
+# https://doi.org/10.1080/10543406.2025.2489285
+# Additional details relating to the methodology and the recommended
+# simulation process are discussed in the paper.
+# This script shows what each step would look like in the app while keeping
+# the example runnable. We encourage users to read each commented step of the
+# simulation study carefully and adjust the code as needed.
+
+# Load packages
 library(tidyverse)
 library(beastt)
 library(distributional)
 library(furrr)
 library(survival)
-plan(multisession, workers = 5)
+
+# Set up parallelization where "workers" indicates the number of cores
+plan(multisession, workers = availableCores()-1)
 para_opts <- furrr_options(seed = TRUE)
 
 # Simulation Setup -------------------------------------------------------------
@@ -17,31 +31,65 @@ external_dat <- beastt::ex_tte_df
 # external data
 weibull_ph_mod <- survreg(Surv(y, event) ~ cov1 + cov2 + cov3 + cov4, data = external_dat, dist = "weibull")
 
-# Step 2: Define the underlying population characteristics to vary. The marginal
-# drift and treatment effect are defined as differences in survival probabilities
-# for two populations at a presepcified time t.
+# Step 2: Define the underlying population characteristics to vary. Here, drift
+# is the difference in the marginal control survival probabilities at a
+# prespecified time t between the external and internal trials attributed to
+# unmeasured confounding, and treatment effect is the difference in marginal
+# survival probabilities at time t between the treated and control populations.
 drift_surv_prob <- seq(-0.1, 0.1, by = 0.1)    # Internal vs External (positive drift = internal probability is higher)
 trt_effect_surv_prob <- c(0, .1, .15)          # Treatment vs Control (positive TE = treatment probability is higher)
 
 # Step 3: Convert the drift and treatment effects from marginal to conditional models
 
-# Bootstrap populations corresponding to the internal trial under various
-# scenarios (e.g., same covariate distributions as the external data, imbalanced
-# covariate distributions compared to the external data)
-pop_int_ctrl <- bootstrap_cov(ex_tte_df, n = 100000, imbal_var = cov2,
-                              imbal_prop = 0.25, ref_val = 0) |>
-  select(c(cov1, cov2, cov3, cov4))     # keep only covariate columns
+# Later, we will generate response data for the internal arms using a conditional
+# outcome model (i.e., Weibull PH regression) that assumes a relationship between
+# the covariates and the outcome. To account for the specified drift and treatment
+# effect, we first need to convert these effects from the marginal scale to the
+# conditional scale. For more information about this process, please refer to the
+# function details for `calc_cond_weibull`.
 
-# Convert the marginal drift and treatment effects to conditional
+# 3 a) Bootstrap populations corresponding to the internal trial under various
+# scenarios (e.g., same covariate distributions as the external data, imbalanced
+# covariate distributions compared to the external data). These scenario-specific
+# populations will be used to identify the conditional drift and treatment effects
+# and to later sample the covariate vectors for the internal trial arms.
+pop_size <- 100000     # set "population" size to be very large (e.g., >=100,000)
+ex_dat_cov <- external_dat |>
+  select(cov1, cov2, cov3, cov4)     # keep only covariate columns
+
+# Generate a population without covariate imbalance
+no_imbal_pop <- bootstrap_cov(ex_dat_cov, n = pop_size)
+
+# Generate populations that incorporate covariate imbalance with respect to a single
+# binary covariate ("imbal_var"). Define the degree of imbalanced in the distribution
+# by specifying the proportion of individuals with the reference level ("imbal_prop").
+imbal_pop <- bootstrap_cov(ex_dat_cov, n = pop_size, imbal_var = cov2,
+                           imbal_prop = 0.25, ref_val = 0)
+# pop_int_ctrl <- bootstrap_cov(ex_dat_cov, n = pop_size, imbal_var = cov2,
+#                               imbal_prop = 0.25, ref_val = 0)
+
+# Combine all populations into a list
+pop_ls <- list(no_imbal_pop, imbal_pop)
+# Naming the populations will make them easier to identify later
+names(pop_ls) <- c("no imbalance", "cov2: 0.25")
+
+# 3 b) For each population, identify the conditional drift and treatment effect
+# values that best correspond to the specified values of marginal drift and
+# treatment effect
 surv_prob_time <- 12      # time when marginal survival probabilities should be calculated (t)
+pop_var <- pop_ls |>
+  future_map(calc_cond_weibull, weibull_ph_mod, drift_surv_prob,
+             trt_effect_surv_prob, surv_prob_time) |> # returns a list of data frames
+  bind_rows(.id = "population")  # combines list into 1 data frame with a population column
 pop_var <- calc_cond_weibull(population = pop_int_ctrl, weibull_ph_mod,
                              marg_drift = drift_surv_prob, marg_trt_eff = trt_effect_surv_prob,
                              analysis_time = surv_prob_time)
 
 # Step 4: Create a data frame of all possible simulation scenarios using your
-# population variables as a foundation. Add any additional design variables you
-# would like to vary. If you would like to compare priors, you can make a vector
-# of distributional objects. Simulation scenarios are defined by unique
+# population variables (e.g., "drift_surv_prob", "trt_effect_surv_prob",
+# "imbal_var", "imbal_prop") as a foundation. Add any additional design variables
+# you would like to vary. If you would like to compare priors, you can make a
+# vector of distributional objects. Simulation scenarios are defined by unique
 # combinations of the population variables and design variables. For inputs that
 # require a vector of information (e.g., accrual_periods), put the vector(s) in
 # a list.
@@ -87,7 +135,7 @@ all_sims <- pop_var |>
     # Scale of the half-normal initial prior incorporated into the power prior
     initial_shape_hyperpar = 50,
 
-    # Prior mixture weight associated with the informative component (i.e.
+    # Prior mixture weight associated with the informative component (i.e.,
     # IPW power prior) in the robust mixture prior
     mix_weight = 0.5
   ) |>
@@ -95,10 +143,11 @@ all_sims <- pop_var |>
   crossing(iter_id = c(1:1000))       # Add an iteration ID (within scenario)
 
 # Simulations ------------------------------------------------------------------
+
 # We now iterate over all rows in the simulation data frame and calculate
-# operating characteristics for each scenario. The pmap and
-# list functions make it possible to refer to each column of the data frame by
-# its name. To step through this code, add browser()
+# operating characteristics for each scenario. The pmap and list functions make
+# it possible to refer to each column of the data frame by its name. To step
+# through this code, add browser()
 sim_output <- all_sims |>
   future_pmap(function(...){
     output <- with(list(...), {
