@@ -30,7 +30,8 @@
 #'   \itemize{
 #'     \item Power curves for the cases with and without borrowing
 #'     \item Type I error rates for the cases with and without borrowing
-#'     \item Average Distribution of the power priors
+#'     \item Distribution of the power prior (or the IPW power prior averaged across iterations)
+
 #'   }
 #'
 #' @details The function calculates power and type I error rates for BDB approaches
