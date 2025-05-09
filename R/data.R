@@ -123,17 +123,22 @@
 
 #' Binary Simulation Data
 #'
-#' This is a simulated dataset used to illustrate Bayesian dynamic borrowing
-#' simulations. This was generated based on binary simulation template. In this
-#' simulation only population and marginal treatment effect are being varied
+#' This is an example of output from a simulation study that investigates the
+#' operating characteristics of inverse probability weighted Bayesian dynamic
+#' borrowing for the case with a binary outcome. This output was generated
+#' based on the binary simulation template. For this simulation study, only the
+#' degree of covariate imbalance (as indicated by `population`) and the
+#' marginal treatment effect were varied.
 #'
 #' @format ## `binary_sim_df` A data frame with 255 rows and 6 columns:
 #' \describe{
-#'   \item{population}{Different population imbalances}
-#'   \item{marg_trt_eff}{marginal treatment effect}
+#'   \item{population}{Populations defined by different covariate imbalances}
+#'   \item{marg_trt_eff}{Marginal treatment effect}
 #'   \item{true_control_RR}{True control response rate on the marginal scale}
-#'   \item{reject_H0_yes}{probability of rejecting the null hypothesis in the case with borrowing}
-#'   \item{no_borrowing_reject_H0_yes}{probability of rejecting the null hypothesis without borrowing}
-#'   \item{pwr_prior}{vector of power priors distributional objects}
+#'   \item{reject_H0_yes}{Probability of rejecting the null hypothesis in the case with borrowing}
+#'   \item{no_borrowing_reject_H0_yes}{Probability of rejecting the null hypothesis without borrowing}
+#'   \item{pwr_prior}{Vector of power priors (or some other informative
+#'   prior distribution for the control marginal parameter of interest
+#'   based on the external data) as distributional objects}
 #' }
 "binary_sim_df"

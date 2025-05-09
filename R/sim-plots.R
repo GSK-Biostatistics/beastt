@@ -1,46 +1,61 @@
 #' Create Sweet Spot Plots for Multiple Simulation Scenarios
 #'
-#' Creates visualization plots to help identify the "sweet spot" in borrowing
+#' Create visualization plots to help identify the "sweet spot" in borrowing
 #' strategies across different simulation scenarios. For each unique scenario
 #' defined by the combination of variables in `scenario_vars`, the function
-#' produces a plot showing power, Type I error, and power prior distribution.
+#' produces a plot showing power, Type I error, and the distribution
+#' of the power prior (possibly inverse probability weighted) for
+#' approaches with and without borrowing.
 #'
 #' @param .data A data frame containing iteration-level simulation results.
-#' @param scenario_vars A vector of unquoted column names that define the unique
-#'   scenarios to create plots for. Each unique combination of values in these
-#'   columns will generate a separate plot.
+#' @param scenario_vars A vector of unquoted column names corresponding
+#'   to variables used to define unique simulation scenarios. Each unique
+#'   combination of values in these columns will generate a separate plot.
 #' @param trt_diff An unquoted column name representing the treatment
 #'   difference. Used to identify scenarios with null effect (trt_diff = 0) for
 #'   Type I error calculation.
 #' @param control_marg_param An unquoted column name to be used as the x-axis in the plots.
-#'   This is typically the control end point of interest ton the marginal scale (e.g. Control Response Rate)
+#'   This is typically the control endpoint of interest on the marginal scale (e.g., control response rate).
 #' @param power_prior An unquoted column name containing distributional objects
 #'   that represent the power prior distribution.
 #' @param h0_prob An unquoted column name containing the probability of
-#'   accepting the null hypothesis when using borrowing.
+#'   rejecting the null hypothesis when when borrowing
+#'   external data.
 #' @param h0_prob_no_borrowing An unquoted column name containing the
-#'   probability of accepting the null hypothesis without borrowing.
+#'   probability of rejecting the null hypothesis when not borrowing
+#'   external data.
 #'
 #' @return A list of ggplot objects, one for each unique scenario defined by
 #'   `scenario_vars`. Each plot shows:
 #'   \itemize{
-#'     \item Power curves with (and without borrowing if `h0_prob_no_borrowing` is given)
-#'     \item Type I error rates with (and without borrowing if `h0_prob_no_borrowing` is given)
+#'     \item Power curves for the cases with and without borrowing
+#'     \item Type I error rates for the cases with and without borrowing
 #'     \item Average Distribution of the power priors
 #'   }
 #'
-#' @details The function calculates power and Type I error rates for each
-#' scenario and visualizes them together with the average power prior distribution. This
-#' helps identify the "sweet spot" where borrowing provides power gains while
-#' maintaining acceptable Type I error rates.
+#' @details The function calculates power and type I error rates for BDB approaches
+#' that borrow from external data (e.g., use of a robust mixture prior with positive
+#' weight on the informative component) and an approach that does not
+#' borrow from external data (e.g., use of a vague prior) under each scenario
+#' and visualizes them together as a function of the underlying control marginal
+#' parameter of interest (e.g., control response rate for binary outcomes) that
+#' may vary as a result of drift. This helps identify the "sweet spot" where borrowing
+#' provides power gains while maintaining acceptable type I error rates. The power
+#' prior distribution (or average distribution, if inverse probability weighting is used)
+#' is included in the plot to provide insight into which values of the control marginal
+#' parameter are plausible given the external data. We note that `power_prior` does
+#' not need to correspond to an actual power prior, but more generally can
+#' represent any informative prior that incorporates the external control data (e.g.,
+#' the posterior distribution of the control marginal parameter constructed using
+#' the external data and a vague prior).
 #'
 #' Type I error is calculated using scenarios where `trt_diff` equals 0. Power
-#' is calculated across all scenarios.
+#' is calculated for all scenarios with positive values of `trt_diff`.
 #'
 #'
 #' @examples
 #'
-#' # Assuming sim_results is a data frame with simulation results in the shape of binary template code
+#' # Assuming binary_sim_df is a data frame with simulation results in the shape of binary template code
 #' plots <- sweet_spot_plot(
 #'   .data = binary_sim_df,
 #'   scenario_vars = c("population", "marg_trt_eff"),
@@ -109,7 +124,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::summarise(pwr_prior = avg_dist({{power_prior}}), .groups = "drop_last") |>
     dplyr::select({{scenario_vars}}, .data$pwr_prior)
 
-  # Create a plot fro each scenario
+  # Create a plot for each scenario
   plot_ls<- plot_df |>
     dplyr::left_join(prior, dplyr::join_by(!!!scenario_vars)) |>
     purrr::pmap(\(...){
@@ -158,7 +173,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
 
 #' Calculate Average Distribution from Multiple Distributional Objects
 #'
-#' Computes a single "average" distribution from a vector of distributional
+#' Compute a single "average" distribution from a vector of distributional
 #' objects. This function calculates the mean of each parameter across all
 #' input distributions and returns a new distributional object with these
 #' averaged parameters.
@@ -175,10 +190,10 @@ sweet_spot_plot <- function(.data, scenario_vars,
 #'   \item Beta distributions: Averages the shape1 and shape2 parameters
 #'   \item Normal distributions: Averages the mean and sd parameters
 #'   \item Multivariate normal distributions: Averages the location vectors
-#'     and scale matrices
+#'     and covariance matrices
 #' }
 #'
-#' For multivariate normal distributions, both the location vector and scale
+#' For multivariate normal distributions, both the location vector and covariance
 #' matrix are averaged element-wise.
 #'
 #'

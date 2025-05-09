@@ -213,9 +213,9 @@ sim_output <- all_sims |>
         "ess" = ess,                                               # posterior ESS of post dist for ctrl RR
         "irrt_bias_trteff" = mean_trt_diff - marg_trt_eff,         # contribution to bias of mean trt diff
         "irrt_mse_trteff" = (mean_trt_diff - marg_trt_eff)^2,      # contribution to MSE of mean trt diff
-        "irrt_bias_cont" = mean_cont - true_control_RR,     # contribution to bias of mean ctrl
-        "irrt_mse_cont" = (mean_cont - true_control_RR)^2,  # contribution to MSE of mean ctrl
-        "pwr_prior" = pwr_prior
+        "irrt_bias_cont" = mean_cont - true_control_RR,            # contribution to bias of mean ctrl
+        "irrt_mse_cont" = (mean_cont - true_control_RR)^2,         # contribution to MSE of mean ctrl
+        "pwr_prior" = pwr_prior                                    # IPW power prior
       )
 
     }
@@ -229,7 +229,7 @@ sim_output <- all_sims |>
 combined_output <- all_sims |>
   left_join(sim_output, by = c("scenario", "iter_id"))
 
-# Get the column names of everything that we want to summaries by (i.e.
+# Get the column names of everything that we want to summarize by (i.e.
 # everything but the iterations)
 grouping_vars <- colnames(all_sims) |>
   discard(\(x) x == "iter_id")
