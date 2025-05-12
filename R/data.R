@@ -142,3 +142,25 @@
 #'   based on the external data) as distributional objects}
 #' }
 "binary_sim_df"
+
+
+#' Time to Event Simulation Data
+#'
+#' This is an example of output from a simulation study that investigates the
+#' operating characteristics of inverse probability weighted Bayesian dynamic
+#' borrowing for the case with a time-to-event outcome. This output was generated
+#' based on the time-to-event simulation template. For this simulation study, only the
+#' degree of covariate imbalance (as indicated by `population`) and the
+#' marginal treatment effect were varied.
+#'
+#' @format ## `tte_sim_df` A data frame with 18 rows and 7 columns:
+#' \describe{
+#'   \item{marg_trt_eff}{Marginal treatment effect}
+#'   \item{true_control_surv_prop}{True control survival probability on the marginal scale}
+#'   \item{accrual_periods}{Accrual periods which wer varied across simulations}
+#'   \item{reject_H0_yes}{Probability of rejecting the null hypothesis in the case with borrowing}
+#'   \item{no_borrowing_reject_H0_yes}{Probability of rejecting the null hypothesis without borrowing}
+#'   \item{pwr_prior}{Vector of IPW power priors as distributional objects}
+#'   \item{mix_prior}{Vector of mixture priors, the robustified IPW power priors, as distributional objects}
+#' }
+"tte_sim_df"

@@ -3,6 +3,7 @@ library(beastt)
 library(distributional)
 library(furrr)
 library(survival)
+library(rstan)
 plan(multisession, workers = 5)
 para_opts <- furrr_options(seed = TRUE)
 
@@ -119,13 +120,13 @@ sim_output <- all_sims |>
       int_cont_df <- int_cont_cov_df |>
         mutate(
           subjid = row_number(),
-          accrual_time = simulate_accrual(n = n_int_cont,
+          accrual_time = sim_accrual(n = n_int_cont,
                                           accrual_periods = accrual_periods,
                                           accrual_props= accrual_props),
-          sim_event_time = simulate_tte_weib_ph(weibull_ph_mod, samp_df = int_cont_cov_df,
+          sim_event_time = sim_weib_ph(weibull_ph_mod, samp_df = int_cont_cov_df,
                                                 cond_drift = conditional_drift,
                                                 cond_trt_effect = conditional_trt_eff),
-          sim_censor_time = simulate_tte_pwch(n = n_int_cont,
+          sim_censor_time = sim_pw_const_haz(n = n_int_cont,
                                               hazard_periods = cns_hazard_periods,
                                               hazard_values = cns_hazard_values),
           obs_time = pmin(sim_event_time, sim_censor_time),
@@ -138,13 +139,13 @@ sim_output <- all_sims |>
       int_trt_df <- int_trt_cov_df |>
         mutate(
           subjid = row_number(),
-          accrual_time = simulate_accrual(n = n_int_trt,
+          accrual_time = sim_accrual(n = n_int_trt,
                                           accrual_periods = accrual_periods,
                                           accrual_props= accrual_props),
-          sim_event_time = simulate_tte_weib_ph(weibull_ph_mod, samp_df = int_trt_cov_df,
+          sim_event_time = sim_weib_ph(weibull_ph_mod, samp_df = int_trt_cov_df,
                                                 cond_drift = conditional_drift,
                                                 cond_trt_effect = conditional_trt_eff),
-          sim_censor_time = simulate_tte_pwch(n = n_int_trt,
+          sim_censor_time = sim_pw_const_haz(n = n_int_trt,
                                               hazard_periods = cns_hazard_periods,
                                               hazard_values = cns_hazard_values),
           obs_time = pmin(sim_event_time, sim_censor_time),
@@ -164,7 +165,7 @@ sim_output <- all_sims |>
       # names in the external dataset.
       int_df_admin_cen <- int_df |>
         mutate(
-          analysis_time = calc_analysis_time(
+          analysis_time = calc_study_duration(
             study_time = total_time, observed_time = obs_time,
             event_indicator = event_ind, target_events = target_events,
             target_follow_up = target_follow_time),
@@ -210,7 +211,7 @@ sim_output <- all_sims |>
                                         event = event,
                                         prior = mix_prior,
                                         analysis_time = surv_prob_time)
-      samp_control <- unlist(extract(post_control, pars = c("survProb")))   # posterior sample
+      samp_control <- unlist(rstan::extract(post_control, pars = c("survProb")))   # posterior sample
       mean_cont <- mean(samp_control)    # posterior mean of control survival prob at time t
 
       # Sample from the posterior for the treatment survival probability at time t. We extract
@@ -222,7 +223,7 @@ sim_output <- all_sims |>
                                         event = event,
                                         prior = vague_prior,
                                         analysis_time = surv_prob_time)
-      samp_trt <- unlist(extract(post_treated, pars = c("survProb")))   # posterior sample
+      samp_trt <- unlist(rstan::extract(post_treated, pars = c("survProb")))   # posterior sample
 
       # Sample from the posterior distribution for the control survival probability at time t
       # without borrowing (needed for ESS calculation)
@@ -231,7 +232,7 @@ sim_output <- all_sims |>
                                                   event = event,
                                                   prior = vague_prior,
                                                   analysis_time = surv_prob_time)
-      samp_no_borrow <- unlist(extract(post_control_no_borrow, pars = c("survProb")))  # posterior sample
+      samp_no_borrow <- unlist(rstan::extract(post_control_no_borrow, pars = c("survProb")))  # posterior sample
 
       # Obtain a posterior sample of the marginal treatment effect (difference in treatment
       # and control survival probabilities at time t)
@@ -242,6 +243,11 @@ sim_output <- all_sims |>
       trt_diff_prob <- mean(samp_trt_diff > 0)   # posterior probability P(trt diff > 0|data)
       reject_H0_yes <- trt_diff_prob > .975      # H0 rejection indicator for alpha = 0.025
 
+      samp_trt_diff_no_borrow <- samp_trt - samp_no_borrow
+      mean_trt_diff_no_borrow <- mean(samp_trt_diff_no_borrow)
+
+      trt_diff_prob_no_borrow <- mean(mean_trt_diff_no_borrow > 0)
+      reject_H0_yes_no_borrow <- trt_diff_prob_no_borrow > .975
       # Calculate the effective sample size (ESS) of the posterior distribution of the control
       # survival probability at time t
       var_no_borrow <- variance(samp_no_borrow)         # post variance of control without borrowing
@@ -260,16 +266,19 @@ sim_output <- all_sims |>
         "mean_trt_diff" = mean_trt_diff,                           # posterior mean of the trt difference
         "trt_diff_prob" = trt_diff_prob,                           # post probability P(trt diff > 0|data)
         "reject_H0_yes" = reject_H0_yes,                           # H0 rejection indicator
+        "reject_H0_yes_no_borrow" = reject_H0_yes_no_borrow,       # H0 rejection indicator without borrowing
         "ess" = ess,                                               # posterior ESS of post dist for ctrl RR
         "irrt_bias_trteff" = mean_trt_diff - marg_trt_eff,         # contribution to bias of mean trt diff at t
         "irrt_mse_trteff" = (mean_trt_diff - marg_trt_eff)^2,      # contribution to MSE of mean trt diff at t
         "irrt_bias_cont" = mean_cont - true_control_surv_prob,     # contribution to bias of mean ctrl surv prob at t
         "irrt_mse_cont" = (mean_cont - true_control_surv_prob)^2,  # contribution to MSE of mean ctrl surv prob at t
-        "pwr_prior" = pwr_prior)                                    # IPW power prior
+        "pwr_prior" = pwr_prior,                                   # IPW power prior
+        "mix_prior" = mix_prior)                                   # Mixture prior
     })
-  } , .options = para_opts
-  ) |>
+  } , .options = para_opts, .progress = TRUE) |>
   bind_rows()
 
-
+# Combine the output from the scenarios with the parameters of each simulation
+combined_output <- all_sims |>
+  left_join(sim_output, by = c("scenario", "iter_id"))
 
