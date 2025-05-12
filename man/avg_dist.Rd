@@ -7,18 +7,18 @@
 avg_dist(x)
 }
 \arguments{
-\item{x}{A vector of distributional objects of the same family (beta,
-normal, or multivariate normal).}
+\item{x}{A vector of distributional objects of the same family (beta, normal,
+multivariate normal, or mixtures of these).}
 }
 \value{
-A single distributional object of the same family as the input,
-with parameters set to the average of all input distribution parameters.
+A single distributional object of the same family as the input, with
+parameters set to the average of all input distribution parameters.
 }
 \description{
-Computes a single "average" distribution from a vector of distributional
-objects. This function calculates the mean of each parameter across all
-input distributions and returns a new distributional object with these
-averaged parameters.
+Compute a single "average" distribution from a vector of distributional
+objects. This function calculates the mean of each parameter across all input
+distributions and returns a new distributional object with these averaged
+parameters.
 }
 \details{
 The function supports three distribution families:
@@ -26,11 +26,13 @@ The function supports three distribution families:
 \item Beta distributions: Averages the shape1 and shape2 parameters
 \item Normal distributions: Averages the mean and sd parameters
 \item Multivariate normal distributions: Averages the location vectors
-and scale matrices
+and covariance matrices
+\item Mixture distributions: Same as above for each distribution type, just
+by component. As well as the average weight.
 }
 
-For multivariate normal distributions, both the location vector and scale
-matrix are averaged element-wise.
+For multivariate normal distributions, both the location vector and
+covariance matrix are averaged element-wise.
 }
 \examples{
 library(distributional)

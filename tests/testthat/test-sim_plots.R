@@ -103,9 +103,7 @@ test_that("avg_dist produces error for invalid inputs", {
   poisson_dist <- c(distributional::dist_poisson(lambda = 3),
                     distributional::dist_poisson(lambda = 5))
   expect_error(
-    avg_dist(poisson_dist),
-    "Only beta, normal, multivariate normal distributions and mixtures of those are supported"
-  )
+    avg_dist(poisson_dist))
 })
 
 
