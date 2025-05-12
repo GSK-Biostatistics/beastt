@@ -201,6 +201,7 @@ sim_output <- all_sims |>
       no_borrowing_trt_diff_prob <- mean(samp_no_borrow_trt_diff > 0)   # posterior probability P(trt diff > 0|data)
       no_borrowing_reject_H0_yes <- no_borrowing_trt_diff_prob > .975   # H0 rejection indicator for alpha = 0.025
 
+
       # Add any iteration-specific summary statistic to this list of outputs
       list(
         "scenario" = scenario,                                     # scenario number
@@ -235,7 +236,9 @@ sim_output <- all_sims |>
 combined_output <- all_sims |>
   left_join(sim_output, by = c("scenario", "iter_id"))
 
+
 # Get the column names of everything that we want to summaries by (i.e.
+
 # everything but the iterations)
 grouping_vars <- colnames(all_sims) |>
   discard(\(x) x == "iter_id")

@@ -122,6 +122,9 @@ specified value of \eqn{\Gamma}, which is done by minimizing the following:
 where the first term is the average of the conditional survival functions
 (i.e., the marginal survival probabilities) at time \eqn{t} for the
 internal treated population.
+
+See \href{https://github.com/GSK-Biostatistics/beastt/blob/e2b41fe90f639924d10c0d94ceff04a74d0ce617/inst/templates/tte-template.R}{here}
+for a survival simulation example.
 }
 \examples{
 library(dplyr)
