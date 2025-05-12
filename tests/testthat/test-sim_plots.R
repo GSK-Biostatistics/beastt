@@ -104,6 +104,94 @@ test_that("avg_dist produces error for invalid inputs", {
                     distributional::dist_poisson(lambda = 5))
   expect_error(
     avg_dist(poisson_dist),
-    "Only beta, normal and multivariate normal distributions are supported"
+    "Only beta, normal, multivariate normal distributions and mixtures of those are supported"
   )
 })
+
+
+test_that("approx_mvn_at_time correctly converts multivariate normal to beta", {
+  # Create a simple multivariate normal distribution
+  mvn_dist <- dist_multivariate_normal(
+    mu = list(c(0, -1)),  # log(shape) = 0, log(scale) = -1
+    sigma = list(matrix(c(0.1, 0, 0, 0.1), nrow = 2))
+  )
+
+  # Convert to beta at a specific time
+  set.seed(123)
+  beta_approx <- approx_mvn_at_time(mvn_dist, time = 12)
+
+  # Check output type
+  expect_s3_class(beta_approx, "distribution")
+  expect_equal(family(beta_approx), "beta")
+
+  # Check parameters are reasonable
+  params <- parameters(beta_approx)
+  expect_true(is.numeric(params$shape1))
+  expect_true(is.numeric(params$shape2))
+  expect_true(params$shape1 > 0)
+  expect_true(params$shape2 > 0)
+
+  # For this specific distribution at t=12, we expect survival probabilities
+  # around the exp(-(12*exp(-1))^exp(0)) ≈ exp(-(12*0.368)^1) ≈ 0.012
+  # So the beta distribution should be heavily concentrated near 0
+  mean_survival <- params$shape1 / (params$shape1 + params$shape2)
+  expect_lt(mean_survival, 0.1)  # Mean should be quite small
+})
+
+test_that("approx_mvn_at_time correctly handles vectors of distributions", {
+  # Create two multivariate normal distributions
+  mvn_dist1 <- dist_multivariate_normal(
+    mu = list(c(0, -1)),  # log(shape) = 0, log(scale) = -1
+    sigma = list(matrix(c(0.1, 0, 0, 0.1), nrow = 2))
+  )
+
+  mvn_dist2 <- dist_multivariate_normal(
+    mu = list(c(0.5, -0.5)),  # log(shape) = 0.5, log(scale) = -0.5
+    sigma = list(matrix(c(0.1, 0, 0, 0.1), nrow = 2))
+  )
+
+  # Combine into a vector
+  mvn_vector <- c(mvn_dist1, mvn_dist2)
+
+  # Convert to beta at a specific time
+  set.seed(123)
+  beta_vector <- approx_mvn_at_time(mvn_vector, time = 12)
+
+  # Check output type
+  expect_s3_class(beta_vector, "distribution")
+  expect_equal(length(beta_vector), 2)
+  expect_equal(unique(family(beta_vector)), "beta")
+
+})
+
+test_that("approx_mvn_at_time correctly handles mixture distributions", {
+  # Create two multivariate normal distributions
+  mvn_dist1 <- dist_multivariate_normal(
+    mu = list(c(0, -1)),
+    sigma = list(matrix(c(0.1, 0, 0, 0.1), nrow = 2))
+  )
+
+  mvn_dist2 <- dist_multivariate_normal(
+    mu = list(c(0.5, -0.5)),
+    sigma = list(matrix(c(0.1, 0, 0, 0.1), nrow = 2))
+  )
+
+  # Create a mixture distribution
+  mix_dist <- dist_mixture(mvn_dist1, mvn_dist2, weights = c(0.7, 0.3))
+
+  # Convert to beta at a specific time
+  set.seed(123)
+  beta_mix <- approx_mvn_at_time(mix_dist, time = 12)
+
+  # Check output type
+  expect_s3_class(beta_mix, "distribution")
+  expect_equal(family(beta_mix), "mixture")
+
+  # Check the mixture has the expected components
+  mix_params <- parameters(beta_mix)
+  expect_length(mix_params$dist[[1]], 2)  # Should have 2 component distributions
+  expect_equal(mix_params$w[[1]], c(0.7, 0.3))  # Weights should be preserved
+
+
+})
+
