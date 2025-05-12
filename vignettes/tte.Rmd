@@ -22,9 +22,9 @@ knitr::opts_chunk$set(
 library(beastt)
 ```
 
-## Introduction and Data Description
+## Introduction
 
-In this example, we illustrate how to use Bayesian dynamic borrowing (BDB) with the inclusion of inverse probability weighting to balance baseline covariate distributions between external and internal datasets. This particular example considers a hypothetical trial with a time-to-event outcome which we assume to follow a Weibull distribution; i.e., $Y_i \sim \mbox{Weibull}(\alpha, \sigma)$ where
+In this example, we illustrate how to use Bayesian dynamic borrowing (BDB) with the inclusion of inverse probability weighting to balance baseline covariate distributions between external and internal datasets (Psioda et al., [2025](https://doi.org/10.1080/10543406.2025.2489285)). This particular example considers a hypothetical trial with a time-to-event outcome which we assume to follow a Weibull distribution; i.e., $Y_i \sim \mbox{Weibull}(\alpha, \sigma)$ where
 $$f(y_i \mid \alpha, \sigma) = \left( \frac{\alpha}{\sigma} \right) \left( \frac{y_i}{\sigma}
 \right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma} \right)^\alpha
 \right).$$
@@ -32,18 +32,28 @@ Define $\boldsymbol{\theta} = \{\log(\alpha), \beta\}$ where $\beta = -\log(\sig
 
 Our objective is to use BDB with IPWs to construct a posterior distribution for the probability of surviving past time $t$ in the control arm, $S_C(t | \boldsymbol{\theta})$ (hereafter denoted as $S_C(t)$ for notational convenience). For each treatment arm, we will define our prior distributions with respect to $\boldsymbol{\theta}$ before eventually obtaining MCMC samples from the posterior distributions of $S_C(t)$ and $S_T(t)$ (i.e., the survival probability at time $t$ for the active treatment arm). In this example, suppose we are interested in survival probabilities at $t=12$ months.
 
+## Data Description
+
 We will use simulated internal and external datasets from the package where each dataset has a time-to-event response variable (the observed time at which a participant either had an event or was censored), an event indicator (1: event; 0: censored), the enrollment time in the study, the total time since the start of the study, and four baseline covariates which we will balance.
 
 The external control dataset has a sample size of 150 participants, and the distributions of the four covariates are as follows:
+
 - Covariate 1: normal with a mean and standard deviation of approximately 65 and 10, respectively
+
 - Covariate 2: binary (0 vs. 1) with approximately 30% of participants with level 1
+
 - Covariate 3: binary (0 vs. 1) with approximately 40% of participants with level 1
+
 - Covariate 4: binary (0 vs. 1) with approximately 50% of participants with level 1
 
 The internal dataset has 160 participants with 80 participants in each of the control arm and the active treatment arms. The covariate distributions of each arm are as follows:
+
 - Covariate 1: normal with a mean and standard deviation of approximately 62 and 8, respectively
+
 - Covariate 2: binary (0 vs. 1) with approximately 40% of participants with level 1
+
 - Covariate 3: binary (0 vs. 1) with approximately 40% of participants with level 1
+
 - Covariate 4: binary (0 vs. 1) with approximately 60% of participants with level 1
 
 
@@ -243,4 +253,12 @@ ess <- n_int_ctrl * var_no_brrw / var_brrw        # effective sample size
 ess
 ```
 
+## References
+
+Psioda, M. A., Bean, N. W., Wright, B. A., Lu, Y., Mantero, A., and
+Majumdar, A. (2025). Inverse probability weighted Bayesian dynamic
+borrowing for estimation of marginal treatment effects with application
+to hybrid control arm oncology studies.
+*Journal of Biopharmaceutical Statistics*, 1–23.
+DOI: [10.1080/10543406.2025.2489285](https://doi.org/10.1080/10543406.2025.2489285).
 
