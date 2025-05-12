@@ -156,7 +156,7 @@ calc_power_prior_beta <- function(external_data, response, prior){
 #' # This function can be used directly on the data
 #' calc_power_prior_norm(ex_norm_df,
 #'                       response = y,
-#'                       prior = dist_normal(50, 10),
+#'                       prior = dist_normal(0.5, 10),
 #'                       external_sd = 0.15)
 #'
 #' # Or this function can be used with a propensity score object
@@ -166,7 +166,7 @@ calc_power_prior_beta <- function(external_data, response, prior){
 #'                         model = ~ cov1 + cov2 + cov3 + cov4)
 #' calc_power_prior_norm(ps_obj,
 #'                       response = y,
-#'                       prior = dist_normal(50, 10),
+#'                       prior = dist_normal(0.5, 10),
 #'                       external_sd = 0.15)
 #'
 calc_power_prior_norm <- function(external_data, response, prior = NULL, external_sd = NULL){
