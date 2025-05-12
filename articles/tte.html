@@ -94,14 +94,14 @@
     
     
 <div class="section level2">
-<h2 id="introduction-and-data-description">Introduction and Data Description<a class="anchor" aria-label="anchor" href="#introduction-and-data-description"></a>
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>In this example, we illustrate how to use Bayesian dynamic borrowing
 (BDB) with the inclusion of inverse probability weighting to balance
-baseline covariate distributions between external and internal datasets.
-This particular example considers a hypothetical trial with a
-time-to-event outcome which we assume to follow a Weibull distribution;
-i.e.,
+baseline covariate distributions between external and internal datasets
+(Psioda et al., <a href="https://doi.org/10.1080/10543406.2025.2489285" class="external-link">2025</a>). This
+particular example considers a hypothetical trial with a time-to-event
+outcome which we assume to follow a Weibull distribution; i.e.,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>∼</mo><mtext mathvariant="normal">Weibull</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>α</mi><mo>,</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y_i \sim \mbox{Weibull}(\alpha, \sigma)</annotation></semantics></math>
 where
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>∣</mo><mi>α</mi><mo>,</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>α</mi><mi>σ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>y</mi><mi>i</mi></msub><mi>σ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>α</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>y</mi><mi>i</mi></msub><mi>σ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>α</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">f(y_i \mid \alpha, \sigma) = \left( \frac{\alpha}{\sigma} \right) \left( \frac{y_i}{\sigma}
@@ -135,6 +135,10 @@ for the active treatment arm). In this example, suppose we are
 interested in survival probabilities at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">t=12</annotation></semantics></math>
 months.</p>
+</div>
+<div class="section level2">
+<h2 id="data-description">Data Description<a class="anchor" aria-label="anchor" href="#data-description"></a>
+</h2>
 <p>We will use simulated internal and external datasets from the package
 where each dataset has a time-to-event response variable (the observed
 time at which a participant either had an event or was censored), an
@@ -142,20 +146,30 @@ event indicator (1: event; 0: censored), the enrollment time in the
 study, the total time since the start of the study, and four baseline
 covariates which we will balance.</p>
 <p>The external control dataset has a sample size of 150 participants,
-and the distributions of the four covariates are as follows: - Covariate
-1: normal with a mean and standard deviation of approximately 65 and 10,
-respectively - Covariate 2: binary (0 vs. 1) with approximately 30% of
-participants with level 1 - Covariate 3: binary (0 vs. 1) with
-approximately 40% of participants with level 1 - Covariate 4: binary (0
-vs. 1) with approximately 50% of participants with level 1</p>
+and the distributions of the four covariates are as follows:</p>
+<ul>
+<li><p>Covariate 1: normal with a mean and standard deviation of
+approximately 65 and 10, respectively</p></li>
+<li><p>Covariate 2: binary (0 vs. 1) with approximately 30% of
+participants with level 1</p></li>
+<li><p>Covariate 3: binary (0 vs. 1) with approximately 40% of
+participants with level 1</p></li>
+<li><p>Covariate 4: binary (0 vs. 1) with approximately 50% of
+participants with level 1</p></li>
+</ul>
 <p>The internal dataset has 160 participants with 80 participants in
 each of the control arm and the active treatment arms. The covariate
-distributions of each arm are as follows: - Covariate 1: normal with a
-mean and standard deviation of approximately 62 and 8, respectively -
-Covariate 2: binary (0 vs. 1) with approximately 40% of participants
-with level 1 - Covariate 3: binary (0 vs. 1) with approximately 40% of
-participants with level 1 - Covariate 4: binary (0 vs. 1) with
-approximately 60% of participants with level 1</p>
+distributions of each arm are as follows:</p>
+<ul>
+<li><p>Covariate 1: normal with a mean and standard deviation of
+approximately 62 and 8, respectively</p></li>
+<li><p>Covariate 2: binary (0 vs. 1) with approximately 40% of
+participants with level 1</p></li>
+<li><p>Covariate 3: binary (0 vs. 1) with approximately 40% of
+participants with level 1</p></li>
+<li><p>Covariate 4: binary (0 vs. 1) with approximately 60% of
+participants with level 1</p></li>
+</ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/" class="external-link">tibble</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pkg.mitchelloharawild.com/distributional/" class="external-link">distributional</a></span><span class="op">)</span></span>
@@ -581,6 +595,15 @@ vague prior).</p>
 <span><span class="va">ess</span> <span class="op">&lt;-</span> <span class="va">n_int_ctrl</span> <span class="op">*</span> <span class="va">var_no_brrw</span> <span class="op">/</span> <span class="va">var_brrw</span>        <span class="co"># effective sample size</span></span>
 <span><span class="va">ess</span></span>
 <span><span class="co">#&gt; [1] 123.4881</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Psioda, M. A., Bean, N. W., Wright, B. A., Lu, Y., Mantero, A., and
+Majumdar, A. (2025). Inverse probability weighted Bayesian dynamic
+borrowing for estimation of marginal treatment effects with application
+to hybrid control arm oncology studies. <em>Journal of Biopharmaceutical
+Statistics</em>, 1–23. DOI: <a href="https://doi.org/10.1080/10543406.2025.2489285" class="external-link">10.1080/10543406.2025.2489285</a>.</p>
 </div>
   </div>
 

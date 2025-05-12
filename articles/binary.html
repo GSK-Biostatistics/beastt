@@ -94,33 +94,48 @@
     
     
 <div class="section level2">
-<h2 id="introduction-and-data-description">Introduction and Data Description<a class="anchor" aria-label="anchor" href="#introduction-and-data-description"></a>
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>In this example, we illustrate how to use Bayesian dynamic borrowing
 (BDB) with the inclusion of inverse probability weighting to balance
-baseline covariate distributions between external and internal datasets.
-This particular example considers a hypothetical trial with a binary
-outcome, and our objective is to use BDB with IPWs to construct a
-posterior distribution for the control response rate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>.
-We will use simulated internal and external datasets from the package
+baseline covariate distributions between external and internal datasets
+(Psioda et al., <a href="https://doi.org/10.1080/10543406.2025.2489285" class="external-link">2025</a>). This
+particular example considers a hypothetical trial with a binary outcome,
+and our objective is to use BDB with IPWs to construct a posterior
+distribution for the control response rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>C</mi></msub><annotation encoding="application/x-tex">\theta_C</annotation></semantics></math>.</p>
+</div>
+<div class="section level2">
+<h2 id="data-description">Data Description<a class="anchor" aria-label="anchor" href="#data-description"></a>
+</h2>
+<p>We will use simulated internal and external datasets from the package
 where each dataset has a binary response variable (1: positive response;
 0: otherwise) and four baseline covariates which we will balance.</p>
 <p>The external control dataset has a sample size of 150 participants,
-and the distributions of the four covariates are as follows: - Covariate
-1: normal with a mean and standard deviation of approximately 65 and 10,
-respectively - Covariate 2: binary (0 vs. 1) with approximately 30% of
-participants with level 1 - Covariate 3: binary (0 vs. 1) with
-approximately 40% of participants with level 1 - Covariate 4: binary (0
-vs. 1) with approximately 50% of participants with level 1</p>
+and the distributions of the four covariates are as follows:</p>
+<ul>
+<li><p>Covariate 1: normal with a mean and standard deviation of
+approximately 65 and 10, respectively</p></li>
+<li><p>Covariate 2: binary (0 vs. 1) with approximately 30% of
+participants with level 1</p></li>
+<li><p>Covariate 3: binary (0 vs. 1) with approximately 40% of
+participants with level 1</p></li>
+<li><p>Covariate 4: binary (0 vs. 1) with approximately 50% of
+participants with level 1</p></li>
+</ul>
 <p>The internal dataset has 160 participants with 80 participants in
 each of the control arm and the active treatment arms. The covariate
-distributions of each arm are as follows: - Covariate 1: normal with a
-mean and standard deviation of approximately 62 and 8, respectively -
-Covariate 2: binary (0 vs. 1) with approximately 40% of participants
-with level 1 - Covariate 3: binary (0 vs. 1) with approximately 40% of
-participants with level 1 - Covariate 4: binary (0 vs. 1) with
-approximately 60% of participants with level 1</p>
+distributions of each arm are as follows:</p>
+<ul>
+<li><p>Covariate 1: normal with a mean and standard deviation of
+approximately 62 and 8, respectively</p></li>
+<li><p>Covariate 2: binary (0 vs. 1) with approximately 40% of
+participants with level 1</p></li>
+<li><p>Covariate 3: binary (0 vs. 1) with approximately 40% of
+participants with level 1</p></li>
+<li><p>Covariate 4: binary (0 vs. 1) with approximately 60% of
+participants with level 1</p></li>
+</ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gsk-biostatistics.github.io/beastt/">beastt</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pkg.mitchelloharawild.com/distributional/" class="external-link">distributional</a></span><span class="op">)</span></span>
@@ -498,6 +513,15 @@ vague prior).</p>
 <span><span class="va">ess</span> <span class="op">&lt;-</span> <span class="va">n_int_ctrl</span> <span class="op">*</span> <span class="va">var_no_brrw</span> <span class="op">/</span> <span class="va">var_brrw</span>       <span class="co"># effective sample size</span></span>
 <span><span class="va">ess</span></span>
 <span><span class="co">#&gt; [1] 142.9097</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Psioda, M. A., Bean, N. W., Wright, B. A., Lu, Y., Mantero, A., and
+Majumdar, A. (2025). Inverse probability weighted Bayesian dynamic
+borrowing for estimation of marginal treatment effects with application
+to hybrid control arm oncology studies. <em>Journal of Biopharmaceutical
+Statistics</em>, 1–23. DOI: <a href="https://doi.org/10.1080/10543406.2025.2489285" class="external-link">10.1080/10543406.2025.2489285</a>.</p>
 </div>
   </div>
 
