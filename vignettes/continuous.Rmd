@@ -21,20 +21,32 @@ knitr::opts_chunk$set(
 library(beastt)
 ```
 
-## Introduction and Data Description
+## Introduction
 
-In this example, we illustrate how to use Bayesian dynamic borrowing (BDB) with the inclusion of inverse probability weighting to balance baseline covariate distributions between external and internal datasets. This particular example considers a hypothetical trial with a cross sectional normal outcome and a known standard deviation (SD) in each treatment arm (external control arm and both internal arms), and our objective is to use BDB with IPWs to construct a posterior distribution for the control mean $\theta_C$. We will use simulated internal and external datasets from the package where each dataset has a normally distributed response variable and four baseline covariates which we will balance.
+In this example, we illustrate how to use Bayesian dynamic borrowing (BDB) with the inclusion of inverse probability weighting to balance baseline covariate distributions between external and internal datasets (Psioda et al., [2025](https://doi.org/10.1080/10543406.2025.2489285)). This particular example considers a hypothetical trial with a cross sectional normal outcome and a known standard deviation (SD) in each treatment arm (external control arm and both internal arms), and our objective is to use BDB with IPWs to construct a posterior distribution for the control mean $\theta_C$.
+
+## Data Description
+
+We will use simulated internal and external datasets from the package where each dataset has a normally distributed response variable and four baseline covariates which we will balance.
 
 The external control dataset has a sample size of 150 participants, and the distributions of the four covariates are as follows:
+
 - Covariate 1: normal with a mean and standard deviation of approximately 50 and 10, respectively
+
 - Covariate 2: binary (0 vs. 1) with approximately 20% of participants with level 1
+
 - Covariate 3: binary (0 vs. 1) with approximately 60% of participants with level 1
+
 - Covariate 4: binary (0 vs. 1) with approximately 30% of participants with level 1
 
 The internal dataset has 120 participants with 60 participants in each of the control and active treatment arms. The covariate distributions of each arm are as follows:
+
 - Covariate 1: normal with a mean and standard deviation of approximately 55 and 8, respectively
+
 - Covariate 2: binary (0 vs. 1) with approximately 30% of participants with level 1
+
 - Covariate 3: binary (0 vs. 1) with approximately 50% of participants with level 1
+
 - Covariate 4: binary (0 vs. 1) with approximately 30% of participants with level 1
 
 We assume the standard deviations of both the external and internal response data are known and equal to 0.15.
@@ -272,4 +284,13 @@ var_brrw <- variance(post_control)                  # post variance of theta_C w
 ess <- n_int_ctrl * var_no_brrw / var_brrw          # effective sample size
 ess
 ```
+
+## References
+
+Psioda, M. A., Bean, N. W., Wright, B. A., Lu, Y., Mantero, A., and
+Majumdar, A. (2025). Inverse probability weighted Bayesian dynamic
+borrowing for estimation of marginal treatment effects with application
+to hybrid control arm oncology studies.
+*Journal of Biopharmaceutical Statistics*, 1–23.
+DOI: [10.1080/10543406.2025.2489285](https://doi.org/10.1080/10543406.2025.2489285).
 

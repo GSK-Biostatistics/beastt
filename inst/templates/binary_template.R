@@ -1,10 +1,24 @@
+# Simulation Overview ---------------------------------------------------------
+
+# This script allows users to conduct a simulation study using the IPW BDB
+# methodology for a binary outcome as outlined in Psioda et al. (2025):
+# https://doi.org/10.1080/10543406.2025.2489285
+# Additional details relating to the methodology and the recommended
+# simulation process are discussed in the paper.
+# This script shows what each step would look like in the app while keeping
+# the example runnable. We encourage users to read each commented step of the
+# simulation study carefully and adjust the code as needed.
+
+# Load packages
 library(tidyverse)
 library(beastt)
 library(distributional)
 library(furrr)
+
+# Set up parallelization where "workers" indicates the number of cores
 plan(multisession, workers = availableCores()-1)
 para_opts <- furrr_options(seed = TRUE)
-# Note, I have tried to include what each step would look like in the app while keeping the runable example for you
+
 # Simulation Setup -------------------------------------------------------------
 
 # Step 1: Read in external control data
@@ -12,16 +26,18 @@ external_dat <- beastt::ex_binary_df
 # external_dat <- read_csv("Location of the external data")
 
 # Model "true" regression coefficients corresponding to intercept and covariates
-# effects using the external data
+# effects using a logistic regression model with the external data
 logit_mod <- glm(y ~ cov1 + cov2 + cov3 + cov4, data = external_dat, family = binomial)
 # logit_mod <- glm(#YOUR MODEL HERE,
 #                  data = external_dat, family = binomial)
 
-# Step 2: Define the underlying population characteristics to vary
-# Here, drift is the difference in the marginal control response rates (RR) between the
-# external and internal trials attributed to unmeasured confounding
-drift_RR = seq(-0.16, 0.16, by = 0.02)      # values of marginal drift (change in RR)
-trt_effect_RR = c(0, .1, .15)               # values of marginal trt effect (change in RR)
+# Step 2: Define the underlying population characteristics to vary. Here, drift
+# is the difference in the marginal control response rates (RR) between the
+# external and internal trials attributed to unmeasured confounding, and
+# treatment effect is the difference in marginal RRs between the treated and
+# control populations.
+drift_RR = seq(-0.16, 0.16, by = 0.02)   # Internal vs External (positive drift = internal RR is higher)
+trt_effect_RR = c(0, .1, .15)            # Treatment vs Control (positive TE = treatment RR is higher)
 
 
 # Step 3: Convert the drift and treatment effects from marginal to conditional models
@@ -30,26 +46,17 @@ trt_effect_RR = c(0, .1, .15)               # values of marginal trt effect (cha
 # outcome model (i.e., logistic regression) that assumes a relationship between
 # the covariates and the response. To account for the specified drift and treatment
 # effect, we first need to convert these effects from the marginal scale to the
-# conditional scale. We do so by bootstraping covariate vectors from the external
-# data to construct a "population" that corresponds to both the internal trial
-# (possibly incorporating intentional covariate imbalance) and the external trial
-# AFTER standardizing it to match the coviariate distributions of the internal trial
-# (allowing us to controlling for measured confounding from potential imbalance in
-# the covariate distributions). The conditional drift is then identified via
-# optimization as the value that, when added as an additional term in the logistic
-# regression (i.e., change in the intercept) for each individual in the population,
-# increases/decreases the population-averaged conditional probabilities of response
-# by an amount approximately equal to the specified marginal drift. A similar process
-# is done to obtain the conditional treatment that approximately corresponds to the
-# specified marginal treatment effect.
-# For more information, see Psioda et al. (2025) [INCLUDE DOI URL HERE ONCE AVAILABLE]
+# conditional scale. For more information about this process, please refer to the
+# function details for `calc_cond_binary`.
 
-# 3 a) Bootstrap a population corresponding to the internal trial. This will be
-# used to identify the conditional drift and treatment effects and to later
-# sample the covariate vectors for the internal trial arms.
-pop_size <- 100000
+# 3 a) Bootstrap populations corresponding to the internal trial under various
+# scenarios (e.g., same covariate distributions as the external data, imbalanced
+# covariate distributions compared to the external data). These scenario-specific
+# populations will be used to identify the conditional drift and treatment effects
+# and to later sample the covariate vectors for the internal trial arms.
+pop_size <- 100000     # set "population" size to be very large (e.g., >=100,000)
 ex_dat_cov <- external_dat |>
-  select(-subjid, -y)  # removing all columns that aren't covariates
+  select(cov1, cov2, cov3, cov4)     # keep only covariate columns
 
 # Generate a population without covariate imbalance
 no_imbal_pop <- bootstrap_cov(ex_dat_cov, n = pop_size)
@@ -57,17 +64,13 @@ no_imbal_pop <- bootstrap_cov(ex_dat_cov, n = pop_size)
 # Generate populations that incorporate covariate imbalance with respect to a single
 # binary covariate ("imbal_var"). Define the degree of imbalanced in the distribution
 # by specifying the proportion of individuals with the reference level ("imbal_prop").
-
-# Generate populations that incorporate covariate imbalance with respect to a single
-# binary covariate, and define the degree of imbalanced in the distribution by
-# specifying the proportion of individuals with the reference level.
-imbal_pop_1 <- bootstrap_cov(ex_dat_cov, pop_size, imbal_var = cov2, imbal_prop = c(0.3, 0.4, 0.5))
+imbal_pop_1 <- bootstrap_cov(ex_dat_cov, pop_size, imbal_var = cov2, imbal_prop = c(0.25, 0.5, 0.75))
 imbal_pop_2 <- bootstrap_cov(ex_dat_cov, pop_size, imbal_var = cov4, imbal_prop = 0.5)
 
 # Combine all populations into a list
-pop_ls <- c(list(no_imbal_pop, imbal_pop_2),imbal_pop_1)
+pop_ls <- c(list(no_imbal_pop, imbal_pop_2), imbal_pop_1)
 # Naming the populations will make them easier to identify later
-names(pop_ls) <- c("no imbalance", "cov4: 0.5", "cov2: 0.3", "cov2: 0.4", "cov2: 0.5")
+names(pop_ls) <- c("no imbalance", "cov4: 0.5", "cov2: 0.25", "cov2: 0.5", "cov2: 0.75")
 
 # 3 b) For each population, identify the conditional drift and treatment effect values
 # that best correspond to the specified values of marginal drift and treatment effect
@@ -90,13 +93,15 @@ all_sims <- pop_var |>
     # Internal treatment sample size
     n_int_trt = 130,
 
-    # Initial prior for power prior
+    # Initial beta prior incorporated into the power prior
     initial_prior = dist_beta(0.5, 0.5),
 
-    # Vague prior for the control RMP and trt RR
+    # Vague prior incorporated into the RMP for the control RR and the posterior
+    # distribution for the treatment RR
     vague_prior = dist_beta(0.5, 0.5),
 
-    # Informative component mixture weight
+    # Prior mixture weight associated with the informative component (i.e.,
+    # IPW power prior) in the robust mixture prior
     mix_weight = 0.5
   ) |>
   mutate(scenario = row_number()) |>  # Add a scenario ID
@@ -104,17 +109,19 @@ all_sims <- pop_var |>
 
 
 # Simulations ------------------------------------------------------------------
+
 # We now iterate over all rows in the simulation data frame and calculate
-# operating characteristics for each scenario. The pmap and
-# list functions make it possible to refer to each column of the data frame by
-# its name. To step through this code, add browser()
+# operating characteristics for each scenario. The pmap and list functions make
+# it possible to refer to each column of the data frame by its name. To step
+# through this code, add browser()
 sim_output <- all_sims |>
   future_pmap(function(...){
     output <- with(list(...), {
 
+      # Simulate data ----------------------------------------------------------
       # Sample covariates from the scenario-specific population for the internal arms
       int_cont_df <- slice_sample(pop_ls[[population]], n = n_int_cont)  # control
-      int_trt_df <-  slice_sample(pop_ls[[population]], n = n_int_trt)   # treatment
+      int_trt_df <- slice_sample(pop_ls[[population]], n = n_int_trt)    # treatment
 
       # Using the logistic model previously fit to the external control data, predict
       # the probability of response on the logit scale and adjust for the conditional
@@ -161,8 +168,7 @@ sim_output <- all_sims |>
       post_control <- calc_post_beta(int_cont_df,
                                      response = y,
                                      prior = mix_prior)
-
-      mean_cont <- mean(post_control)
+      mean_cont <- mean(post_control)     # posterior mean of the control RR
 
       # Calculate the posterior distribution for the control RR without borrowing
       post_control_no_borrow <- calc_post_beta(int_cont_df,
@@ -193,7 +199,8 @@ sim_output <- all_sims |>
       samp_control_no_borrow <- generate(x = post_control_no_borrow, times = 100000)[[1]]
       samp_no_borrow_trt_diff <- samp_trt - samp_control_no_borrow
       no_borrowing_trt_diff_prob <- mean(samp_no_borrow_trt_diff > 0)   # posterior probability P(trt diff > 0|data)
-      no_borrowing_reject_H0_yes <- no_borrowing_trt_diff_prob > .975      # H0 rejection indicator for alpha = 0.025
+      no_borrowing_reject_H0_yes <- no_borrowing_trt_diff_prob > .975   # H0 rejection indicator for alpha = 0.025
+
 
       # Add any iteration-specific summary statistic to this list of outputs
       list(
@@ -229,7 +236,9 @@ sim_output <- all_sims |>
 combined_output <- all_sims |>
   left_join(sim_output, by = c("scenario", "iter_id"))
 
-# Get the column names of everything that we want to summarize by (i.e.
+
+# Get the column names of everything that we want to summaries by (i.e.
+
 # everything but the iterations)
 grouping_vars <- colnames(all_sims) |>
   discard(\(x) x == "iter_id")
