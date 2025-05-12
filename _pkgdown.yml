@@ -53,6 +53,7 @@ reference:
   - mix_means
   - mix_sigmas
   - avg_dist
+  - approx_mvn_at_time
   - '`beastt-package`'
 
 - title: "Data"
