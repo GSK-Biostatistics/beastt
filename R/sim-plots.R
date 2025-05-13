@@ -120,6 +120,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
 
   # Remove the treatment difference from the scenario vector if there
   sc_vars_no_trt_diff <- .data |>
+    dplyr::ungroup() |>
     dplyr::select({{scenario_vars}}, {{trt_diff}}) |>
     dplyr::select(-{{trt_diff}}) |>
     colnames()
@@ -160,20 +161,40 @@ sweet_spot_plot <- function(.data, scenario_vars,
 
       x_vals <- dplyr::pull(inputs$data, {{control_marg_param}})
       colors <- c("#5398BE", "#FFA21F")
-      browser()
 
+      type1_range <- inputs$data |>
+        dplyr::filter(.data$name == "Type 1 Error") |>
+        dplyr::pull() |>
+        range()
+
+      power_range <- inputs$data |>
+        dplyr::filter(.data$name == "Power") |>
+        dplyr::pull() |>
+        range()
+
+      # For when there is an inflated type 1 error
+      inflate_fct = min(power_range / type1_range)/2
+      inflate_fct = ifelse(all(power_range > type1_range), inflate_fct, 1)
+
+      test <- inputs$data |>
+        dplyr::mutate(
+          value = dplyr::case_when(
+            .data$name == "Type 1 Error" ~  .data$value*inflate_fct,
+            TRUE ~ .data$value
+          )
+        )
       ggplot() +
         ggdist::stat_slab(aes(xdist = inputs$pwr_prior, fill = "Power Prior"),
                           alpha = 0.6,
                           color = "grey80", size = 0.25,
                           # show.legend = TRUE
                           ) +
-        ggplot2::geom_line(data = inputs$data,
+        ggplot2::geom_line(data = test,
                            aes(x = {{control_marg_param}}, y = .data$value,
                                linetype = .data$borrowing_status, color = .data$name),
                            size = 0.75) +
         ggplot2::scale_y_continuous(name = "Power",
-                                    sec.axis = ggplot2::sec_axis(~ ., name = "Type 1 Error")) +
+                                    sec.axis = ggplot2::sec_axis(~ ./inflate_fct, name = "Type 1 Error")) +
         ggplot2::scale_x_continuous(limits = c(min(x_vals), max(x_vals))) +
         ggplot2::scale_color_manual(values = colors, name = "") +
         ggplot2::scale_linetype_manual(name = "",
@@ -305,7 +326,7 @@ avg_dist <- function(x){
 #' @param x A vector of distributional objects that must be either multivariate normal
 #'   distributions or mixtures of multivariate normal distributions. For Weibull models,
 #'   these represent distributions of the log(shape) and log(scale) parameters.
-#' @param time A numeric value specifying the time point at which to calculate the
+#' @param time A numeric value specifying survival time at which to calculate the
 #'   survival probability.
 #'
 #' @return A vector of beta distributional (or mixture of beta distributional)
