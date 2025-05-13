@@ -184,7 +184,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
           )
         )
       ggplot() +
-        ggdist::stat_slab(aes(xdist = inputs$pwr_prior, fill = "Power Prior"),
+        ggdist::stat_slab(aes(xdist = inputs$pwr_prior, fill = "Prior"),
                           alpha = 0.6,
                           color = "grey80", size = 0.25,
                           # show.legend = TRUE
