@@ -294,7 +294,7 @@ sim_output <- all_sims |>
       samp_trt_diff_no_borrow <- samp_trt - samp_no_borrow
       mean_trt_diff_no_borrow <- mean(samp_trt_diff_no_borrow)
 
-      trt_diff_prob_no_borrow <- mean(mean_trt_diff_no_borrow > 0)
+      trt_diff_prob_no_borrow <- mean(samp_trt_diff_no_borrow > 0)
       reject_H0_yes_no_borrow <- trt_diff_prob_no_borrow > .975
       # Calculate the effective sample size (ESS) of the posterior distribution of the control
       # survival probability at time t
