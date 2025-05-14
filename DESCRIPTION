@@ -67,7 +67,6 @@ Depends:
     R (>= 4.1.0)
 LazyData: true
 Language: en-US
-Biarch: true
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
