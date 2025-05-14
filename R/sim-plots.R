@@ -133,7 +133,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                      .groups = "drop") |>
     dplyr::select({{scenario_vars}}, {{control_marg_param}}, .data$type1_borrowing,
                   .data$type1_no_borrowing, -{{trt_diff}}) |>
-    tidyr::pivot_longer(c(.data$type1_borrowing, .data$type1_no_borrowing),
+    tidyr::pivot_longer(c(type1_borrowing, type1_no_borrowing),
                         names_prefix = "type1_",
                         names_to = "borrowing_status", values_to = "Type I Error")
 
@@ -144,7 +144,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                      .groups = "drop") |>
     dplyr::select({{scenario_vars}}, {{control_marg_param}}, {{trt_diff}},
                   .data$h0_prob_borrowing, .data$h0_prob_no_borrowing) |>
-    tidyr::pivot_longer(c(.data$h0_prob_borrowing, .data$h0_prob_no_borrowing),
+    tidyr::pivot_longer(c(h0_prob_borrowing, h0_prob_no_borrowing),
                         names_prefix = "h0_prob_",
                         names_to = "borrowing_status", values_to = "Power")
 
@@ -160,7 +160,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
   plot_df <- power |>
     dplyr::left_join(type1_df, by = dplyr::join_by({{control_marg_param}}, !!!sc_vars_no_trt_diff, "borrowing_status")) |>
     dplyr::filter({{trt_diff}} != 0) |>
-    tidyr::pivot_longer(c("Power", .data$`Type I Error`)) |>
+    tidyr::pivot_longer(c("Power", `Type I Error`)) |>
     dplyr::group_by(dplyr::across({{scenario_vars}})) |>
     tidyr::nest()
 
@@ -261,10 +261,10 @@ sweet_spot_plot <- function(.data, scenario_vars,
         ggplot2::theme(legend.position = "bottom")
 
       if(highlight){
-        # Reshape to make borrowing and no-borrowing seperate columns
+        # Reshape to make borrowing and no-borrowing separate columns
         reshaped_df <- scaled_df |>
-          tidyr::pivot_wider(id_cols = c({{control_marg_param}}, .data$name),
-                      names_from = .data$borrowing_status)
+          tidyr::pivot_wider(id_cols = c({{control_marg_param}}, name),
+                      names_from = borrowing_status)
 
         # For each point, calculate the slope from the previous point to that one
         # Then calculate the intercept to determine when the borrowing and no borrowing line would cross
@@ -295,7 +295,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
           dplyr::filter(.data$borrowing > .data$no_borrowing) |>
           dplyr::filter({{control_marg_param}} == check_fx({{control_marg_param}})) |>
           dplyr::select(.data$name, .data$line_cross) |>
-          tidyr::pivot_wider(names_from = .data$name, values_from = .data$line_cross)
+          tidyr::pivot_wider(names_from = name, values_from = line_cross)
 
         sweet_spot_check <- ifelse(dirction_test == "positive",
                       highlight_range$Power > highlight_range$`Type I Error`,
@@ -494,7 +494,7 @@ approx_mvn_at_time <- function(x, time){
       surv_prob_pp <- exp(-(time * exp(samples[,2]))^exp(samples[,1]) )
       # Approximate the IPW power prior for the control survival probability at time
       # t with a beta distribution
-      IPW_pp_mean <- stats::mean(surv_prob_pp)
+      IPW_pp_mean <- mean(surv_prob_pp)
       IPW_pp_var <- stats::var(surv_prob_pp)
       IPW_pp_shape1 <- ((1 - IPW_pp_mean) / IPW_pp_var - 1 / IPW_pp_mean) * IPW_pp_mean^2
       IPW_pp_shape2 <- IPW_pp_shape1 * (1 / IPW_pp_mean - 1)
