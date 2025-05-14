@@ -124,7 +124,7 @@ where the first term is the average of the conditional survival functions
 internal treated population.
 
 See \href{https://github.com/GSK-Biostatistics/beastt/blob/e2b41fe90f639924d10c0d94ceff04a74d0ce617/inst/templates/tte-template.R}{here}
-for a survival simulation example.
+for a simulation example with a time-to-event outcome.
 }
 \examples{
 library(dplyr)

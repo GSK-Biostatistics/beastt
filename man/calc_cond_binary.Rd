@@ -109,7 +109,7 @@ of response (i.e., the marginal response rate) of the internal
 treated population.
 
 See \href{https://github.com/GSK-Biostatistics/beastt/blob/e2b41fe90f639924d10c0d94ceff04a74d0ce617/inst/templates/binary_template.R}{here}
-for a binary simulation example.
+for a simulation example with a binary outcome.
 }
 \examples{
 library(dplyr)

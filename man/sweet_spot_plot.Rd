@@ -18,23 +18,17 @@ sweet_spot_plot(
 \arguments{
 \item{.data}{A data frame containing iteration-level simulation results.}
 
-\item{scenario_vars}{A vector of unquoted column names corresponding to
-variables used to define unique simulation scenarios. Each unique
+\item{scenario_vars}{A vector of quoted column names corresponding
+to variables used to define unique simulation scenarios. Each unique
 combination of values in these columns will generate a separate plot.}
 
 \item{trt_diff}{An unquoted column name representing the treatment
 difference. Used to identify scenarios with null effect (trt_diff = 0) for
-Type I error calculation.}
+type I error calculation.}
 
 \item{control_marg_param}{An unquoted column name to be used as the x-axis in
 the plots. This is typically the control endpoint of interest on the
 marginal scale (e.g., control response rate).}
-
-\item{prior}{An unquoted column name containing distributional objects that
-represent the prior (either IPW power prior or robustified mixture prior)
-distribution.For multivariate normal distributions, they must first be
-approximated as beta distributions at a given time point.
-\code{\link[=approx_mvn_at_time]{approx_mvn_at_time()}} will do this approximation.}
 
 \item{h0_prob}{An unquoted column name containing the probability of
 rejecting the null hypothesis when when borrowing external data.}
@@ -46,6 +40,13 @@ data.}
 \item{highlight}{Logical value to indicate if you want sweet spot
 highlighting or not. If \code{TRUE} the sweet spot (where borrowing increase
 power and reduces type 1 error) will be highlighted.}
+
+\item{design_prior}{An unquoted column name containing distributional objects
+that represent the design prior distribution for the control marginal
+parameter (e.g., posterior distribution using the external control data).
+Used to aid visualization of which values of the control marginal parameter
+are assumed to be plausible. Default is \code{NULL}, in which case no design
+prior is plotted. See Details for more information.}
 }
 \value{
 A list of ggplot objects, one for each unique scenario defined by
@@ -53,37 +54,48 @@ A list of ggplot objects, one for each unique scenario defined by
 \itemize{
 \item Power curves for the cases with and without borrowing
 \item Type I error rates for the cases with and without borrowing
-\item Distribution of the power prior (or the IPW power prior averaged across iterations)
+\item Distribution of the design prior (if \code{design_prior} is specified)
 }
 }
 \description{
 Create visualization plots to help identify the "sweet spot" in borrowing
 strategies across different simulation scenarios. For each unique scenario
 defined by the combination of variables in \code{scenario_vars}, the function
-produces a plot showing power, Type I error, and the distribution of the
-power prior (possibly inverse probability weighted) for approaches with and
+produces a plot showing power, type I error, and the distribution of the
+design prior for the control marginal parameter for approaches with and
 without borrowing.
 }
 \details{
-The function calculates power and type I error rates for BDB
-approaches that borrow from external data (e.g., use of a robust mixture
-prior with positive weight on the informative component) and an approach
-that does not borrow from external data (e.g., use of a vague prior) under
-each scenario and visualizes them together as a function of the underlying
-control marginal parameter of interest (e.g., control response rate for
-binary outcomes) that may vary as a result of drift. This helps identify
-the "sweet spot" where borrowing provides power gains while maintaining
-acceptable type I error rates. The power prior distribution (or average
-distribution, if inverse probability weighting is used) is included in the
-plot to provide insight into which values of the control marginal parameter
-are plausible given the external data. We note that \code{prior} does not need
-to correspond to an actual power prior, but more generally can represent
-any informative prior that incorporates the external control data (e.g.,
-the posterior distribution of the control marginal parameter constructed
-using the external data and a vague prior).
-
-Type I error is calculated using scenarios where \code{trt_diff} equals 0. Power
+The function calculates power and type I error rates for BDB approaches
+that borrow from external data (e.g., use of a robust mixture prior with positive
+weight on the informative component) and an approach that does not
+borrow from external data (e.g., use of a vague prior) under each scenario
+and visualizes them together as a function of the underlying control marginal
+parameter of interest (e.g., control response rate for binary outcomes) that
+may vary as a result of drift. This helps identify the "sweet spot" where borrowing
+results in higher power and lower type I error rates compared to not borrowing.
+Type I error is calculated using scenarios where \code{trt_diff} equals 0, and power
 is calculated for all scenarios with positive values of \code{trt_diff}.
+
+If \code{design_prior} is non-\code{NULL}, the design prior distribution is included
+in the plot to provide insight into which values of the control marginal
+parameter are plausible given this assumed design prior. We note that
+\code{design_prior} can represent any informative prior that potentially
+incorporates the external control data (e.g., the posterior distribution of
+the control marginal parameter constructed using the external data and a
+vague prior). Each element of the vector corresponding to \code{design_prior} must
+be a distributional object with a family equal to "beta", "normal", or
+"mixture" (where each component is either "beta" or "normal"). For the
+time-to-event case in which a multivariate normal prior is assumed for the
+control log-shape and intercept of a Weibull proportional hazards model,
+this distribution must first be translated into a univariate beta design
+prior for the control survival probability at some prespecified time.
+This approximation can be done using \code{\link[=approx_mvn_at_time]{approx_mvn_at_time()}}. If the
+design priors in the vector indicated by \code{design_prior} differ across
+iterations within a given scenario (e.g., using the IPW power prior as the
+iteration-specific design prior), then the average distribution will be
+plotted (i.e., a distribution of the same family with the hyperparameters
+averaged across iterations).
 }
 \examples{
 library(dplyr)
@@ -114,4 +126,10 @@ tte_plots <- tte_sim_df |>
 
 tte_plots[[1]]
 
+}
+\references{
+Best, N., Ajimi, M., Neuenschwander, B., Saint-Hilary, G., & Wandel, S.
+(2024). Beyond the Classical Type I Error: Bayesian Metrics for Bayesian
+Designs Using Informative Priors. \emph{Statistics in Biopharmaceutical Research},
+17(2), 183–196. \doi{10.1080/19466315.2024.2342817}
 }
