@@ -93,18 +93,11 @@
 #' @export
 sweet_spot_plot <- function(.data, scenario_vars,
                             trt_diff, control_marg_param,
-                            design_prior,
+                            design_prior = NULL,
                             h0_prob, h0_prob_no_borrowing,
                             highlight = TRUE
 ){
-  prior_col <- .data |> dplyr::pull({{design_prior}})
-  if(!distributional::is_distribution(prior_col)){
-    cli_abort("`design_prior` must be a column of distributional objects")
-  }
-  all_fam <- unique(family(prior_col))
-  if(all_fam %in% c("mvnorm")){
-    cli_abort("Multivariate `design_prior` need to be approximated as a beta, see `approx_mvn_at_time()`")
-  }
+
   if(nrow(dplyr::filter(.data, {{trt_diff}} == 0)) == 0){
     cli_abort("Unable to calculate Type 1 Error without a scenario where `trt_diff` equals 0")
   }
@@ -153,19 +146,32 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::group_by(dplyr::across({{scenario_vars}})) |>
     tidyr::nest()
 
-  # Get the average design prior for each scenario,
-  # dropping where the trt difference is 0
-  prior <- .data |>
-    dplyr::group_by(dplyr::across({{scenario_vars}})) |>
-    dplyr::filter({{trt_diff}} != 0) |>
-    dplyr::summarise(des_prior = avg_dist({{design_prior}}), .groups = "drop_last") |>
-    dplyr::select({{scenario_vars}}, .data$des_prior)
+  if(!is.null(design_prior)){
+    prior_col <- .data |> dplyr::pull({{design_prior}})
+    if(!distributional::is_distribution(prior_col)){
+      cli_abort("`design_prior` must be a column of distributional objects")
+    }
+    all_fam <- unique(family(prior_col))
+    if(all_fam %in% c("mvnorm")){
+      cli_abort("Multivariate `design_prior` need to be approximated as a beta, see `approx_mvn_at_time()`")
+    }
 
-  # Create a plot for each scenario
-  quite_join <- purrr::quietly(dplyr::left_join)
-  plot_ls<- plot_df |>
-    quite_join(prior) |>
-    _$result |>
+    # Get the average design prior for each scenario,
+    # dropping where the trt difference is 0
+    prior <- .data |>
+      dplyr::group_by(dplyr::across({{scenario_vars}})) |>
+      dplyr::filter({{trt_diff}} != 0) |>
+      dplyr::summarise(des_prior = avg_dist({{design_prior}}), .groups = "drop_last") |>
+      dplyr::select({{scenario_vars}}, .data$des_prior)
+
+    # Create a plot for each scenario
+    quite_join <- purrr::quietly(dplyr::left_join)
+    plot_df <- plot_df |>
+      quite_join(prior) |>
+      _$result
+  }
+
+  plot_ls<-  plot_df |>
     purrr::pmap(\(...){
       inputs <- list(...)
 
@@ -202,11 +208,18 @@ sweet_spot_plot <- function(.data, scenario_vars,
             TRUE ~ .data$value
           )
         )
-      plot <- ggplot() +
-        ggdist::stat_slab(aes(xdist = inputs$des_prior, fill = "Prior"),
-                          alpha = 0.5,
-                          color = "grey80", linewidth = 0.25
-        ) +
+
+      if(!is.null(design_prior)){
+        plot <- ggplot() +
+          ggdist::stat_slab(aes(xdist = inputs$des_prior, fill = "Design Prior"),
+                            alpha = 0.5,
+                            color = "grey80", linewidth = 0.25
+          )
+      } else {
+        plot <- ggplot()
+      }
+
+      plot <- plot +
         ggplot2::geom_line(data = scaled_df,
                            aes(x = {{control_marg_param}}, y = .data$value,
                                linetype = .data$borrowing_status, color = .data$name),
