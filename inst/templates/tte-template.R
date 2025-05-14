@@ -95,45 +95,45 @@ all_sims <- pop_var |>
   crossing(
     # Internal control sample size
     n_int_cont = 65,
-    
+
     # Internal treatment sample size
     n_int_trt = 130,
-    
+
     # Right time points defining accrual intervals
     # Include in a list if input is a vector (i.e., >1 accrual period defined)
     accrual_periods = list(c(0.5, 1.0, 2.0)),
-    
+
     # Proportion of participants expected to be enrolled during each accrual period
     # Include in a list if input is a vector (i.e., >1 accrual period defined)
     accrual_props = list(c(0.1, 0.25, 0.65)),
-    
+
     # Time-to-censorship hazard values assuming piecewise constant hazard model
     # Include in a list if input is a vector (i.e., >1 censorship periods)
     cns_hazard_values  = list(c(0.004, 0.005)),
-    
+
     # Time-to-censorship hazard break points for piecewise constant hazard model
     # Include in a list if input is a vector (i.e., >1 break points)
     cns_hazard_periods = c(6),
-    
+
     # Target number of events when analysis should be triggered. Leave commented
     # out if analysis time is determined only by target follow-up time.
     # target_events = NULL,
-    
+
     # Target follow-up time when analysis should be triggered. Analysis is
     # conducted when all participants in the risk set reach the target follow-up
     # time OR when the target number of events is reached (if applicable),
     # whichever occurs first.
     target_follow_time = 12,
-    
+
     # Initial prior for the intercept (log of the inverse scale hyperparameter)
     # in the Weibull PH regression model, incorporated into the power prior.
     # Must be a normal distributional object(s).
     initial_prior_intercept = dist_normal(0, 10),
-    
+
     # Scale of the half-normal initial prior for the Weibull shape hyperparameter
     # incorporated into the power prior
     initial_shape_hyperpar = 50,
-    
+
     # Prior mixture weight associated with the informative component (i.e.,
     # IPW power prior) in the robust mixture prior
     mix_weight = 0.5
@@ -150,12 +150,12 @@ all_sims <- pop_var |>
 sim_output <- all_sims |>
   future_pmap(function(...){
     output <- with(list(...), {
-      
+
       # Simulate data ----------------------------------------------------------
       # Sample covariates from the scenario-specific population for the internal arms
       int_cont_cov_df <- slice_sample(pop_ls[[population]], n = n_int_cont)  # control
       int_trt_cov_df <- slice_sample(pop_ls[[population]], n = n_int_trt)    # treatment
-      
+
       # For each participant, simulate the following:
       #   (1) accrual time (uniform within each accrual period),
       #   (2) theoretical event time (Weibull PH regression, using the Weibull
@@ -180,7 +180,7 @@ sim_output <- all_sims |>
           total_time = accrual_time + obs_time,
           trt = 0
         )
-      
+
       # For the treatment arm, do the same as above, but add both conditional
       # drift and conditional treatment effects when simulating the theoretical
       # event times
@@ -201,10 +201,10 @@ sim_output <- all_sims |>
           total_time = accrual_time + obs_time,
           trt = 1
         )
-      
+
       # Combine data for internal control and treatment arms
       int_df <- bind_rows(int_cont_df, int_trt_df)
-      
+
       # Determine when the analysis time will be based on the target number of
       # events and/or target follow-up time. Then administratively censor
       # participants in the risk set with observed event/censoring times after
@@ -229,7 +229,7 @@ sim_output <- all_sims |>
                y = obs_time,       # renaming to match name in external data
                event = event_ind,
                trt, starts_with("cov"))
-      
+
       # Analysis ---------------------------------------------------------------
       # Calculate the propensity scores and inverse probability weights for all control
       # participants (external and internal)
@@ -238,7 +238,7 @@ sim_output <- all_sims |>
                               id_col = subjid,
                               # model = #YOUR MODEL HERE
                               model = ~ cov1 + cov2 + cov3 + cov4)
-      
+
       # Approximate the inverse probability weighted (IPW) power prior for the log(shape)
       # and intercept of the Weibull PH regression model as a bivariate normal distribution
       pwr_prior <- calc_power_prior_weibull(ps_obj,
@@ -247,14 +247,14 @@ sim_output <- all_sims |>
                                             intercept = initial_prior_intercept,
                                             shape = initial_shape_hyperpar,
                                             approximation = "Laplace")
-      
+
       # "Robustify" the power prior by mixing it with the a vague prior to create an
       # inverse probability weighted robust mixture prior (IPW RMP). Weight the IPW
       # power prior (i.e., the informative component) using the specified mixture weight
       r_external <- sum(external_dat$event)   # number of observed events in external control data
       mix_prior <- robustify_mvnorm(pwr_prior, r_external,
                                     weights = c(mix_weight, 1 - mix_weight))   # IPW RMP
-      
+
       # Using the RMP, sample from the posterior for the control survival probability at time t.
       # We first construct the posterior for the control log(shape) and intercept, and then
       # from this we derive the posterior distribution of the survival probability.
@@ -265,7 +265,7 @@ sim_output <- all_sims |>
                                         analysis_time = surv_prob_time)
       samp_control <- unlist(rstan::extract(post_control, pars = c("survProb")))   # posterior sample
       mean_cont <- mean(samp_control)    # posterior mean of control survival prob at time t
-      
+
       # Sample from the posterior for the treatment survival probability at time t. We extract
       # the vague portion of the RMP and use this as the prior for the log(shape) and intercept.
       vague_prior <- dist_multivariate_normal(mu = list(mix_means(mix_prior)[[2]]),
@@ -276,7 +276,7 @@ sim_output <- all_sims |>
                                         prior = vague_prior,
                                         analysis_time = surv_prob_time)
       samp_trt <- unlist(rstan::extract(post_treated, pars = c("survProb")))   # posterior sample
-      
+
       # Sample from the posterior distribution for the control survival probability at time t
       # without borrowing (needed for ESS calculation)
       post_control_no_borrow <- calc_post_weibull(filter(int_df_admin_cen, trt == 0),
@@ -285,27 +285,27 @@ sim_output <- all_sims |>
                                                   prior = vague_prior,
                                                   analysis_time = surv_prob_time)
       samp_no_borrow <- unlist(rstan::extract(post_control_no_borrow, pars = c("survProb")))  # posterior sample
-      
+
       # Obtain a posterior sample of the marginal treatment effect (difference in treatment
       # and control survival probabilities at time t)
       samp_trt_diff <- samp_trt - samp_control
       mean_trt_diff <- mean(samp_trt_diff)
-      
+
       # Test H0: trt diff <= 0 vs. H1: trt diff > 0. Reject H0 if P(trt diff > 0|data) > 1 - alpha
       trt_diff_prob <- mean(samp_trt_diff > 0)   # posterior probability P(trt diff > 0|data)
       reject_H0_yes <- trt_diff_prob > .975      # H0 rejection indicator for alpha = 0.025
-      
+
       # Hypothesis testing for no borrowing
       samp_trt_diff_no_borrow <- samp_trt - samp_no_borrow
       trt_diff_prob_no_borrow <- mean(samp_trt_diff_no_borrow > 0)   # posterior probability P(trt diff > 0|data)
       reject_H0_yes_no_borrow <- trt_diff_prob_no_borrow > .975      # H0 rejection indicator for alpha = 0.025
-      
+
       # Calculate the effective sample size (ESS) of the posterior distribution of the control
       # survival probability at time t
       var_no_borrow <- variance(samp_no_borrow)         # post variance of control without borrowing
       var_borrow <- variance(samp_control)              # post variance of control with borrowing
       ess <- n_int_cont * var_no_borrow / var_borrow    # effective sample size
-      
+
       # Add any iteration-specific summary statistic to this list of outputs
       list(
         "scenario" = scenario,                                     # scenario number
@@ -328,11 +328,11 @@ sim_output <- all_sims |>
         "pwr_prior" = pwr_prior,                                   # IPW power prior
         "mix_prior" = mix_prior                                    # mixture prior
       )
-      
+
     }
     )
     output
-    
+
   }, .options = para_opts, .progress = TRUE) |>
   bind_rows()
 

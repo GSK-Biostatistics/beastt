@@ -9,67 +9,91 @@ sweet_spot_plot(
   scenario_vars,
   trt_diff,
   control_marg_param,
-  power_prior,
+  prior,
   h0_prob,
-  h0_prob_no_borrowing
+  h0_prob_no_borrowing,
+  highlight = TRUE
 )
 }
 \arguments{
 \item{.data}{A data frame containing iteration-level simulation results.}
 
-\item{scenario_vars}{A vector of unquoted column names that define the unique
-scenarios to create plots for. Each unique combination of values in these
-columns will generate a separate plot.}
+\item{scenario_vars}{A vector of unquoted column names corresponding to
+variables used to define unique simulation scenarios. Each unique
+combination of values in these columns will generate a separate plot.}
 
 \item{trt_diff}{An unquoted column name representing the treatment
 difference. Used to identify scenarios with null effect (trt_diff = 0) for
 Type I error calculation.}
 
-\item{control_marg_param}{An unquoted column name to be used as the x-axis in the plots.
-This is typically the control end point of interest ton the marginal scale (e.g. Control Response Rate)}
+\item{control_marg_param}{An unquoted column name to be used as the x-axis in
+the plots. This is typically the control endpoint of interest on the
+marginal scale (e.g., control response rate).}
 
-\item{power_prior}{An unquoted column name containing distributional objects
-that represent the power prior distribution.}
+\item{prior}{An unquoted column name containing distributional objects that
+represent the prior (either IPW power prior or robustified mixture prior)
+distribution.For multivariate normal distributions, they must first be
+approximated as beta distributions at a given time point.
+\code{\link[=approx_mvn_at_time]{approx_mvn_at_time()}} will do this approximation.}
 
 \item{h0_prob}{An unquoted column name containing the probability of
-accepting the null hypothesis when using borrowing.}
+rejecting the null hypothesis when when borrowing external data.}
 
 \item{h0_prob_no_borrowing}{An unquoted column name containing the
-probability of accepting the null hypothesis without borrowing.}
+probability of rejecting the null hypothesis when not borrowing external
+data.}
+
+\item{highlight}{Logical value to indicate if you want sweet spot
+highlighting or not. If \code{TRUE} the sweet spot (where borrowing increase
+power and reduces type 1 error) will be highlighted.}
 }
 \value{
 A list of ggplot objects, one for each unique scenario defined by
 \code{scenario_vars}. Each plot shows:
 \itemize{
-\item Power curves with (and without borrowing if \code{h0_prob_no_borrowing} is given)
-\item Type I error rates with (and without borrowing if \code{h0_prob_no_borrowing} is given)
-\item Average Distribution of the power priors
+\item Power curves for the cases with and without borrowing
+\item Type I error rates for the cases with and without borrowing
+\item Distribution of the power prior (or the IPW power prior averaged across iterations)
 }
 }
 \description{
-Creates visualization plots to help identify the "sweet spot" in borrowing
+Create visualization plots to help identify the "sweet spot" in borrowing
 strategies across different simulation scenarios. For each unique scenario
 defined by the combination of variables in \code{scenario_vars}, the function
-produces a plot showing power, Type I error, and power prior distribution.
+produces a plot showing power, Type I error, and the distribution of the
+power prior (possibly inverse probability weighted) for approaches with and
+without borrowing.
 }
 \details{
-The function calculates power and Type I error rates for each
-scenario and visualizes them together with the average power prior distribution. This
-helps identify the "sweet spot" where borrowing provides power gains while
-maintaining acceptable Type I error rates.
+The function calculates power and type I error rates for BDB
+approaches that borrow from external data (e.g., use of a robust mixture
+prior with positive weight on the informative component) and an approach
+that does not borrow from external data (e.g., use of a vague prior) under
+each scenario and visualizes them together as a function of the underlying
+control marginal parameter of interest (e.g., control response rate for
+binary outcomes) that may vary as a result of drift. This helps identify
+the "sweet spot" where borrowing provides power gains while maintaining
+acceptable type I error rates. The power prior distribution (or average
+distribution, if inverse probability weighting is used) is included in the
+plot to provide insight into which values of the control marginal parameter
+are plausible given the external data. We note that \code{prior} does not need
+to correspond to an actual power prior, but more generally can represent
+any informative prior that incorporates the external control data (e.g.,
+the posterior distribution of the control marginal parameter constructed
+using the external data and a vague prior).
 
 Type I error is calculated using scenarios where \code{trt_diff} equals 0. Power
-is calculated across all scenarios.
+is calculated for all scenarios with positive values of \code{trt_diff}.
 }
 \examples{
-
-# Assuming sim_results is a data frame with simulation results in the shape of binary template code
+library(dplyr)
+# Assuming binary_sim_df is a data frame with simulation results in the shape of binary template code
 plots <- sweet_spot_plot(
   .data = binary_sim_df,
   scenario_vars = c("population", "marg_trt_eff"),
   trt_diff = marg_trt_eff,
   control_marg_param = true_control_RR,
-  power_prior = pwr_prior,
+  prior = pwr_prior,
   h0_prob = reject_H0_yes,
   h0_prob_no_borrowing = no_borrowing_reject_H0_yes
 )
@@ -77,5 +101,17 @@ plots <- sweet_spot_plot(
 # Display the first plot
 plots[[1]]
 
+tte_plots <- tte_sim_df |>
+ mutate(beta_appox = approx_mvn_at_time(mix_prior, time = 12)) |>
+ sweet_spot_plot(
+   scenario_vars = c("population", "marg_trt_eff"),
+   trt_diff = marg_trt_eff,
+   control_marg_param = true_control_surv_prob,
+   prior = beta_appox,
+   h0_prob = reject_H0_yes,
+   h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+ )
+
+tte_plots[[1]]
 
 }

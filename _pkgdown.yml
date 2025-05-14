@@ -53,6 +53,7 @@ reference:
   - mix_means
   - mix_sigmas
   - avg_dist
+  - approx_mvn_at_time
   - '`beastt-package`'
 
 - title: "Data"
@@ -64,5 +65,6 @@ reference:
   - int_norm_df
   - int_tte_df
   - binary_sim_df
+  - tte_sim_df
 
 
