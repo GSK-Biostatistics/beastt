@@ -11,7 +11,7 @@ approx_mvn_at_time(x, time)
 distributions or mixtures of multivariate normal distributions. For Weibull models,
 these represent distributions of the log(shape) and log(scale) parameters.}
 
-\item{time}{A numeric value specifying the time point at which to calculate the
+\item{time}{A numeric value specifying survival time at which to calculate the
 survival probability.}
 }
 \value{
