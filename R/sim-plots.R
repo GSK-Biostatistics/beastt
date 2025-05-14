@@ -3,24 +3,28 @@
 #' Create visualization plots to help identify the "sweet spot" in borrowing
 #' strategies across different simulation scenarios. For each unique scenario
 #' defined by the combination of variables in `scenario_vars`, the function
-#' produces a plot showing power, Type I error, and the distribution
-#' of the power prior (possibly inverse probability weighted) for
-#' approaches with and without borrowing.
+#' produces a plot showing power, type I error, and the distribution of the
+#' design prior for the control marginal parameter for approaches with and
+#' without borrowing.
 #'
 #' @param .data A data frame containing iteration-level simulation results.
-#' @param scenario_vars A vector of unquoted column names corresponding
+#' @param scenario_vars A vector of quoted column names corresponding
 #'   to variables used to define unique simulation scenarios. Each unique
 #'   combination of values in these columns will generate a separate plot.
 #' @param trt_diff An unquoted column name representing the treatment
 #'   difference. Used to identify scenarios with null effect (trt_diff = 0) for
-#'   Type I error calculation.
-#' @param control_marg_param An unquoted column name to be used as the x-axis in the plots.
-#'   This is typically the control endpoint of interest on the marginal scale (e.g., control response rate).
-#' @param power_prior An unquoted column name containing distributional objects
-#'   that represent the power prior distribution.
+#'   type I error calculation.
+#' @param control_marg_param An unquoted column name to be used as the x-axis in
+#'   the plots. This is typically the control endpoint of interest on the
+#'   marginal scale (e.g., control response rate).
+#' @param design_prior An unquoted column name containing distributional objects
+#'   that represent the design prior distribution for the control marginal
+#'   parameter (e.g., posterior distribution using the external control data).
+#'   Used to aid visualization of which values of the control marginal parameter
+#'   are assumed to be plausible. Default is `NULL`, in which case no design
+#'   prior is plotted. See Details for more information.
 #' @param h0_prob An unquoted column name containing the probability of
-#'   rejecting the null hypothesis when when borrowing
-#'   external data.
+#'   rejecting the null hypothesis when when borrowing external data.
 #' @param h0_prob_no_borrowing An unquoted column name containing the
 #'   probability of rejecting the null hypothesis when not borrowing
 #'   external data.
@@ -30,8 +34,7 @@
 #'   \itemize{
 #'     \item Power curves for the cases with and without borrowing
 #'     \item Type I error rates for the cases with and without borrowing
-#'     \item Distribution of the power prior (or the IPW power prior averaged across iterations)
-
+#'     \item Distribution of the design prior (if `design_prior` is specified)
 #'   }
 #'
 #' @details The function calculates power and type I error rates for BDB approaches
@@ -41,18 +44,35 @@
 #' and visualizes them together as a function of the underlying control marginal
 #' parameter of interest (e.g., control response rate for binary outcomes) that
 #' may vary as a result of drift. This helps identify the "sweet spot" where borrowing
-#' provides power gains while maintaining acceptable type I error rates. The power
-#' prior distribution (or average distribution, if inverse probability weighting is used)
-#' is included in the plot to provide insight into which values of the control marginal
-#' parameter are plausible given the external data. We note that `power_prior` does
-#' not need to correspond to an actual power prior, but more generally can
-#' represent any informative prior that incorporates the external control data (e.g.,
-#' the posterior distribution of the control marginal parameter constructed using
-#' the external data and a vague prior).
-#'
-#' Type I error is calculated using scenarios where `trt_diff` equals 0. Power
+#' results in higher power and lower type I error rates compared to not borrowing.
+#' Type I error is calculated using scenarios where `trt_diff` equals 0, and power
 #' is calculated for all scenarios with positive values of `trt_diff`.
 #'
+#' If `design_prior` is non-`NULL`, the design prior distribution is included
+#' in the plot to provide insight into which values of the control marginal
+#' parameter are plausible given this assumed design prior. We note that
+#' `design_prior` can represent any informative prior that potentially
+#' incorporates the external control data (e.g., the posterior distribution of
+#' the control marginal parameter constructed using the external data and a
+#' vague prior). Each element of the vector corresponding to `design_prior` must
+#' be a distributional object with a family equal to "beta", "normal", or
+#' "mixture" (where each component is either "beta" or "normal"). For the
+#' time-to-event case in which a multivariate normal prior is assumed for the
+#' control log-shape and intercept of a Weibull proportional hazards model,
+#' this distribution must first be translated into a univariate beta design
+#' prior for the control survival probability at some prespecified time.
+#' This approximation can be done using [approx_mvn_at_time()]. If the
+#' design priors in the vector indicated by `design_prior` differ across
+#' iterations within a given scenario (e.g., using the IPW power prior as the
+#' iteration-specific design prior), then the average distribution will be
+#' plotted (i.e., a distribution of the same family with the hyperparameters
+#' averaged across iterations).
+#'
+#' @references
+#' Best, N., Ajimi, M., Neuenschwander, B., Saint-Hilary, G., & Wandel, S.
+#' (2024). Beyond the Classical Type I Error: Bayesian Metrics for Bayesian
+#' Designs Using Informative Priors. \emph{Statistics in Biopharmaceutical Research},
+#' 17(2), 183–196. \doi{10.1080/19466315.2024.2342817}
 #'
 #' @examples
 #'
@@ -91,7 +111,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                   .data$type1_no_borrowing, -{{trt_diff}}) |>
     tidyr::pivot_longer(c(.data$type1_borrowing, .data$type1_no_borrowing),
                         names_prefix = "type1_",
-                        names_to = "borrowing_status", values_to = "Type 1 Error")
+                        names_to = "borrowing_status", values_to = "Type I Error")
 
   # Calculate power for all scenarios
   power <- data_grouped |>
@@ -113,7 +133,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
   plot_df <- power |>
     dplyr::left_join(type1_df, by = dplyr::join_by({{control_marg_param}}, !!!sc_vars_no_trt_diff, "borrowing_status")) |>
     dplyr::filter({{trt_diff}} != 0) |>
-    tidyr::pivot_longer(c("Power", .data$`Type 1 Error`)) |>
+    tidyr::pivot_longer(c("Power", .data$`Type I Error`)) |>
     dplyr::group_by(dplyr::across({{scenario_vars}})) |>
     tidyr::nest()
 
@@ -150,7 +170,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                                linetype = .data$borrowing_status, color = .data$name),
                            size = 0.75) +
         ggplot2::scale_y_continuous(name = "Power",
-                                    sec.axis = ggplot2::sec_axis(~ ., name = "Type 1 Error")) +
+                                    sec.axis = ggplot2::sec_axis(~ ., name = "Type I Error")) +
         ggplot2::scale_x_continuous(limits = c(min(x_vals), max(x_vals))) +
         ggplot2::scale_color_manual(values = colors, name = "") +
         ggplot2::scale_linetype_manual(name = "",
@@ -175,23 +195,27 @@ sweet_spot_plot <- function(.data, scenario_vars,
 #' Calculate Average Distribution from Multiple Distributional Objects
 #'
 #' Compute a single "average" distribution from a vector of distributional
-#' objects. This function calculates the mean of each parameter across all
-#' input distributions and returns a new distributional object with these
-#' averaged parameters.
+#' objects. This function calculates the mean of each hyperparameter across all
+#' input distributions and returns a new distributional object of the same
+#' family with these averaged hyperparameters.
 #'
 #' @param x A vector of distributional objects of the same family (beta,
-#'   normal, or multivariate normal).
+#'   normal, multivariate normal, or mixture).
 #'
 #' @return A single distributional object of the same family as the input,
-#'   with parameters set to the average of all input distribution parameters.
+#'   with hyperparameters set equal to the average of all input distribution
+#'   hyperparameters.
 #'
 #' @details
-#' The function supports three distribution families:
+#' The function supports four distribution families:
 #' \itemize{
-#'   \item Beta distributions: Averages the shape1 and shape2 parameters
-#'   \item Normal distributions: Averages the mean and sd parameters
+#'   \item Beta distributions: Averages the shape1 and shape2 hyperparameters
+#'   \item Normal distributions: Averages the mean and standard deviation
+#'     hyperparameters
 #'   \item Multivariate normal distributions: Averages the location vectors
 #'     and covariance matrices
+#'   \item Mixture distributions: Same as above for each distribution type,
+#'     where averaging is done by component. Also averages the mixture weight.
 #' }
 #'
 #' For multivariate normal distributions, both the location vector and covariance
@@ -207,7 +231,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
 #'   dist_beta(shape1 = 3, shape2 = 3),
 #'   dist_beta(shape1 = 4, shape2 = 2)
 #' )
-#' avg_dist(beta_dists)
+#' avg_dist(beta_dists) |> parameters()
 #'
 #' # Normal distributions
 #' norm_dists <- c(
@@ -222,8 +246,8 @@ sweet_spot_plot <- function(.data, scenario_vars,
 #'   dist_multivariate_normal(mu = list(c(0, 0)), sigma = list(matrix(c(1, 0, 0, 1), nrow = 2))),
 #'   dist_multivariate_normal(mu = list(c(1, 1)), sigma = list(matrix(c(2, 0, 0, 2), nrow = 2)))
 #' )
-#'
 #' avg_dist(mvn_dists) |> parameters()
+#'
 #' @export
 avg_dist <- function(x){
   if(!distributional::is_distribution(x)){

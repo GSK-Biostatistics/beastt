@@ -1,4 +1,3 @@
-
 #' Bootstrap Covariate Data
 #'
 #' @param external_dat Data frame of the external data from which to bootstrap
@@ -208,7 +207,7 @@ bootstrap_cov <- function(external_dat, n,
 #'   treated population.
 #'
 #'   See [here](https://github.com/GSK-Biostatistics/beastt/blob/e2b41fe90f639924d10c0d94ceff04a74d0ce617/inst/templates/binary_template.R)
-#'   for a binary simulation example.
+#'   for a simulation example with a binary outcome.
 #'
 #' @returns tibble of all combinations of the marginal drift and treatment
 #'   effect. For each row the conditional drift and treatment effect has been
