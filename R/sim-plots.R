@@ -146,7 +146,9 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::group_by(dplyr::across({{scenario_vars}})) |>
     tidyr::nest()
 
-  if(!is.null(design_prior)){
+  design_prior_test <- !rlang::quo_is_null(rlang::enquo(design_prior))
+
+  if(design_prior_test){
     prior_col <- .data |> dplyr::pull({{design_prior}})
     if(!distributional::is_distribution(prior_col)){
       cli_abort("`design_prior` must be a column of distributional objects")
@@ -209,7 +211,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
           )
         )
 
-      if(!is.null(design_prior)){
+      if(design_prior_test){
         plot <- ggplot() +
           ggdist::stat_slab(aes(xdist = inputs$des_prior, fill = "Design Prior"),
                             alpha = 0.5,

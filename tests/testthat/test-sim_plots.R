@@ -262,6 +262,8 @@ test_that("sweet_spot_plot can handel a null prior",{
                            h0_prob_no_borrowing = no_borrowing_reject_H0_yes
   )
 
+  vdiffr::expect_doppelganger("plot-sweet_spot_bin_null_prior", plots[[1]])
+
 })
 
 test_that("sweet_spot_plot errors with multivariate normal prior without approximation", {
