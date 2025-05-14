@@ -17,12 +17,6 @@
 #' @param control_marg_param An unquoted column name to be used as the x-axis in
 #'   the plots. This is typically the control endpoint of interest on the
 #'   marginal scale (e.g., control response rate).
-#' @param design_prior An unquoted column name containing distributional objects
-#'   that represent the design prior distribution for the control marginal
-#'   parameter (e.g., posterior distribution using the external control data).
-#'   Used to aid visualization of which values of the control marginal parameter
-#'   are assumed to be plausible. Default is `NULL`, in which case no design
-#'   prior is plotted. See Details for more information.
 #' @param h0_prob An unquoted column name containing the probability of
 #'   rejecting the null hypothesis when when borrowing external data.
 #' @param h0_prob_no_borrowing An unquoted column name containing the
@@ -31,6 +25,12 @@
 #' @param highlight Logical value to indicate if you want sweet spot
 #'   highlighting or not. If `TRUE` the sweet spot (where borrowing increase
 #'   power and reduces type 1 error) will be highlighted.
+#' @param design_prior An unquoted column name containing distributional objects
+#'   that represent the design prior distribution for the control marginal
+#'   parameter (e.g., posterior distribution using the external control data).
+#'   Used to aid visualization of which values of the control marginal parameter
+#'   are assumed to be plausible. Default is `NULL`, in which case no design
+#'   prior is plotted. See Details for more information.
 #'
 #' @return A list of ggplot objects, one for each unique scenario defined by
 #'   `scenario_vars`. Each plot shows:
@@ -80,15 +80,16 @@
 #'
 #' @examples
 #' library(dplyr)
-#' # Assuming binary_sim_df is a data frame with simulation results in the shape of binary template code
+#' # Assuming binary_sim_df is a data frame with simulation results in the shape
+#' # of binary template code
 #' plots <- sweet_spot_plot(
 #'   .data = binary_sim_df,
 #'   scenario_vars = c("population", "marg_trt_eff"),
 #'   trt_diff = marg_trt_eff,
 #'   control_marg_param = true_control_RR,
-#'   prior = pwr_prior,
 #'   h0_prob = reject_H0_yes,
-#'   h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+#'   h0_prob_no_borrowing = no_borrowing_reject_H0_yes,
+#'   design_prior = pwr_prior
 #' )
 #'
 #' # Display the first plot
@@ -100,9 +101,9 @@
 #'    scenario_vars = c("population", "marg_trt_eff"),
 #'    trt_diff = marg_trt_eff,
 #'    control_marg_param = true_control_surv_prob,
-#'    prior = beta_appox,
 #'    h0_prob = reject_H0_yes,
-#'    h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+#'    h0_prob_no_borrowing = no_borrowing_reject_H0_yes,
+#'    design_prior = beta_appox
 #'  )
 #'
 #' tte_plots[[1]]
@@ -110,8 +111,8 @@
 #' @export
 sweet_spot_plot <- function(.data, scenario_vars,
                             trt_diff, control_marg_param,
-                            design_prior = NULL,
                             h0_prob, h0_prob_no_borrowing,
+                            design_prior = NULL,
                             highlight = TRUE
 ){
 
@@ -262,39 +263,39 @@ sweet_spot_plot <- function(.data, scenario_vars,
       if(highlight){
         # Reshape to make borrowing and no-borrowing seperate columns
         reshaped_df <- scaled_df |>
-          tidyr::pivot_wider(id_cols = c({{control_marg_param}}, name),
-                      names_from = borrowing_status)
+          tidyr::pivot_wider(id_cols = c({{control_marg_param}}, .data$name),
+                      names_from = .data$borrowing_status)
 
         # For each point, calculate the slope from the previous point to that one
         # Then calculate the intercept to determine when the borrowing and no borrowing line would cross
         line_cross_df <- reshaped_df |>
-          dplyr::group_by(name) |>
+          dplyr::group_by(.data$name) |>
           dplyr::mutate(
             dplyr::across(c(borrowing, no_borrowing), \(x){
               slope = (x - dplyr::lag(x)) / ({{control_marg_param}} - dplyr::lag({{control_marg_param}}))
             }, .names = "{.col}_slope"),
-            int_borrowing = borrowing - borrowing_slope*{{control_marg_param}},
-            int_no_borrowing = no_borrowing - no_borrowing_slope*{{control_marg_param}},
-            line_cross = (int_borrowing - int_no_borrowing) / (no_borrowing_slope - borrowing_slope))
+            int_borrowing = .data$borrowing - .data$borrowing_slope*{{control_marg_param}},
+            int_no_borrowing = .data$no_borrowing - .data$no_borrowing_slope*{{control_marg_param}},
+            line_cross = (.data$int_borrowing - .data$int_no_borrowing) / (.data$no_borrowing_slope - .data$borrowing_slope))
 
         # Get the minimum point when borrowing is greater than no borrowing for type 1 and power
         # These values represent the min and max value
         edge_vec <- line_cross_df |>
-          dplyr::filter(name == "Power",
+          dplyr::filter(.data$name == "Power",
                         {{control_marg_param}} %in% c(min({{control_marg_param}}), max({{control_marg_param}}))
                         ) |>
-          dplyr::pull(borrowing)
+          dplyr::pull(.data$borrowing)
         dirction_test <- ifelse(edge_vec[1] < edge_vec[2], "positive", "negative")
 
         check_fx <- switch(dirction_test,
                            "positive" = min,
                            "negative" = max)
         highlight_range <- line_cross_df |>
-          dplyr::group_by(name) |>
-          dplyr::filter(borrowing > no_borrowing) |>
+          dplyr::group_by(.data$name) |>
+          dplyr::filter(.data$borrowing > .data$no_borrowing) |>
           dplyr::filter({{control_marg_param}} == check_fx({{control_marg_param}})) |>
-          dplyr::select(name, line_cross) |>
-          tidyr::pivot_wider(names_from = name, values_from = line_cross)
+          dplyr::select(.data$name, .data$line_cross) |>
+          tidyr::pivot_wider(names_from = .data$name, values_from = .data$line_cross)
 
         sweet_spot_check <- ifelse(dirction_test == "positive",
                       highlight_range$Power > highlight_range$`Type I Error`,
@@ -493,8 +494,8 @@ approx_mvn_at_time <- function(x, time){
       surv_prob_pp <- exp(-(time * exp(samples[,2]))^exp(samples[,1]) )
       # Approximate the IPW power prior for the control survival probability at time
       # t with a beta distribution
-      IPW_pp_mean <- mean(surv_prob_pp)
-      IPW_pp_var <- var(surv_prob_pp)
+      IPW_pp_mean <- stats::mean(surv_prob_pp)
+      IPW_pp_var <- stats::var(surv_prob_pp)
       IPW_pp_shape1 <- ((1 - IPW_pp_mean) / IPW_pp_var - 1 / IPW_pp_mean) * IPW_pp_mean^2
       IPW_pp_shape2 <- IPW_pp_shape1 * (1 / IPW_pp_mean - 1)
       dist_beta(shape1 = IPW_pp_shape1, shape2 = IPW_pp_shape2)
