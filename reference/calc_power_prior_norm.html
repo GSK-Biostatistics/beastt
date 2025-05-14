@@ -160,7 +160,7 @@ deviation is known (unknown).</p>
 <span class="r-in"><span><span class="co"># This function can be used directly on the data</span></span></span>
 <span class="r-in"><span><span class="fu">calc_power_prior_norm</span><span class="op">(</span><span class="va">ex_norm_df</span>,</span></span>
 <span class="r-in"><span>                      response <span class="op">=</span> <span class="va">y</span>,</span></span>
-<span class="r-in"><span>                      prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                      prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                      external_sd <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;distribution[1]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] N(0.59, 0.00015)</span>
@@ -172,7 +172,7 @@ deviation is known (unknown).</p>
 <span class="r-in"><span>                        model <span class="op">=</span> <span class="op">~</span> <span class="va">cov1</span> <span class="op">+</span> <span class="va">cov2</span> <span class="op">+</span> <span class="va">cov3</span> <span class="op">+</span> <span class="va">cov4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">calc_power_prior_norm</span><span class="op">(</span><span class="va">ps_obj</span>,</span></span>
 <span class="r-in"><span>                      response <span class="op">=</span> <span class="va">y</span>,</span></span>
-<span class="r-in"><span>                      prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                      prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                      external_sd <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;distribution[1]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] N(0.69, 0.00037)</span>

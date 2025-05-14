@@ -8,6 +8,7 @@
 <url><loc>https://gsk-biostatistics.github.io/beastt/authors.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/index.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/news/index.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/approx_mvn_at_time.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/avg_dist.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/beastt-package.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/binary_sim_df.html</loc></url>
@@ -48,5 +49,6 @@
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/sweet_spot_plot.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/tidy.prop_scr.html</loc></url>
 <url><loc>https://gsk-biostatistics.github.io/beastt/reference/trim_ps.html</loc></url>
+<url><loc>https://gsk-biostatistics.github.io/beastt/reference/tte_sim_df.html</loc></url>
 </urlset>
 
