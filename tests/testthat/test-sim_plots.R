@@ -193,3 +193,158 @@ test_that("approx_mvn_at_time correctly handles mixture distributions", {
 
 })
 
+
+test_that("Test highlight warning", {
+
+  # Subset population
+  binary_sim_rev <- binary_sim_df |>
+    dplyr::filter(population == "no imbalance" & marg_trt_eff %in% c(0, .15)) |>
+    dplyr::group_by(marg_trt_eff) |>
+    dplyr::mutate(
+      reject_H0_yes = dplyr::case_when(
+        marg_trt_eff == 0 ~ reject_H0_yes,
+        TRUE ~ rev(reject_H0_yes)
+      ),
+      no_borrowing_reject_H0_yes =
+        dplyr::case_when(
+          marg_trt_eff == 0 ~ no_borrowing_reject_H0_yes,
+          TRUE ~ rev(no_borrowing_reject_H0_yes))
+
+    )
+
+  expect_warning(
+    sweet_spot_plot(
+      .data = binary_sim_rev,
+      scenario_vars = c("marg_trt_eff"),
+      trt_diff = marg_trt_eff,
+      control_marg_param = true_control_RR,
+      prior = pwr_prior,
+      h0_prob = reject_H0_yes,
+      h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+    )
+  )
+
+})
+
+test_that("sweet_spot_plot errors with non-distributional prior column", {
+  # Create test data with non-distributional prior column
+  test_data <- data.frame(
+    drift = rep(c(-0.1, 0, 0.1), each = 100),
+    treatment_effect = rep(c(0, 0.1), each = 50, times = 3),
+    control_param = runif(300, 0.1, 0.5),
+    prob_accept_h0 = runif(300),
+    prob_accept_h0_no_borrow = runif(300),
+    prior_not_dist = runif(300)  # Non-distributional prior
+  )
+
+  # Should error because prior is not a distributional object
+  expect_error(
+    sweet_spot_plot(
+      .data = test_data,
+      scenario_vars = c(drift),
+      trt_diff = treatment_effect,
+      control_marg_param = control_param,
+      prior = prior_not_dist,
+      h0_prob = prob_accept_h0,
+      h0_prob_no_borrowing = prob_accept_h0_no_borrow
+    ),
+    "`prior` must be a column of distributional objects"
+  )
+})
+
+test_that("sweet_spot_plot errors with multivariate normal prior without approximation", {
+  # Create test data with multivariate normal prior
+  set.seed(123)
+  mvn_prior <- replicate(300,
+                         dist_multivariate_normal(
+                           mu = list(c(0, -1)),
+                           sigma = list(matrix(c(0.1, 0, 0, 0.1), nrow = 2))
+                         ))
+  class(mvn_prior) <- c("distribution", "vctrs_vctr", "list")
+
+  test_data <- dplyr::tibble(
+    drift = rep(c(-0.1, 0, 0.1), each = 100),
+    treatment_effect = rep(c(0, 0.1), each = 50, times = 3),
+    control_param = runif(300, 0.1, 0.5),
+    prob_accept_h0 = runif(300),
+    prob_accept_h0_no_borrow = runif(300),
+    mvn_prior = mvn_prior
+  )
+
+  # Should error because multivariate normal priors need to be approximated
+  expect_error(
+    sweet_spot_plot(
+      .data = test_data,
+      scenario_vars = c(drift),
+      trt_diff = treatment_effect,
+      control_marg_param = control_param,
+      prior = mvn_prior,
+      h0_prob = prob_accept_h0,
+      h0_prob_no_borrowing = prob_accept_h0_no_borrow
+    )
+  )
+})
+
+test_that("sweet_spot_plot handles case where no scenarios have trt_diff = 0", {
+  # Create test data without any null scenarios
+  binary_sim_no_0 <- binary_sim_df |>
+    dplyr::filter(marg_trt_eff == .15)
+
+  expect_error(
+    sweet_spot_plot(
+      .data = binary_sim_no_0,
+      scenario_vars = c("marg_trt_eff"),
+      trt_diff = marg_trt_eff,
+      control_marg_param = true_control_RR,
+      prior = pwr_prior,
+      h0_prob = reject_H0_yes,
+      h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+    ),
+    "Unable to calculate Type 1 Error without a scenario where `trt_diff` equals 0"
+  )
+})
+
+test_that("snapshot plot",{
+  # Assuming binary_sim_df is a data frame with simulation results in the shape of binary template code  plots <- sweet_spot_plot(
+  plots <- sweet_spot_plot(.data = binary_sim_df,
+    scenario_vars = c("population", "marg_trt_eff"),
+    trt_diff = marg_trt_eff,
+    control_marg_param = true_control_RR,
+    prior = pwr_prior,
+    h0_prob = reject_H0_yes,
+    h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+  )
+
+  # test the binary plot
+  vdiffr::expect_doppelganger("plot-sweet_spot_bin", plots[[1]])
+
+  tte_plots <- tte_sim_df |>
+   mutate(beta_appox = approx_mvn_at_time(mix_prior, time = 12)) |>
+   sweet_spot_plot(
+     scenario_vars = c("population", "marg_trt_eff"),
+     trt_diff = marg_trt_eff,
+     control_marg_param = true_control_surv_prob,
+     prior = beta_appox,
+     h0_prob = reject_H0_yes,
+     h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+   )
+
+  vdiffr::expect_doppelganger("plot-sweet_spot_tte", tte_plots[[1]])
+
+  # Test without highlight
+  plots_no_highlight <- sweet_spot_plot(.data = binary_sim_df,
+                           scenario_vars = c("population", "marg_trt_eff"),
+                           trt_diff = marg_trt_eff,
+                           control_marg_param = true_control_RR,
+                           prior = pwr_prior,
+                           h0_prob = reject_H0_yes,
+                           h0_prob_no_borrowing = no_borrowing_reject_H0_yes,
+                           highlight = FALSE
+  )
+
+  # test the binary plot
+  vdiffr::expect_doppelganger("plot-sweet_spot_bin_no_high", plots_no_highlight[[1]])
+
+
+})
+

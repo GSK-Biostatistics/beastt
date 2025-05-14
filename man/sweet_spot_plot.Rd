@@ -11,14 +11,15 @@ sweet_spot_plot(
   control_marg_param,
   prior,
   h0_prob,
-  h0_prob_no_borrowing
+  h0_prob_no_borrowing,
+  highlight = TRUE
 )
 }
 \arguments{
 \item{.data}{A data frame containing iteration-level simulation results.}
 
-\item{scenario_vars}{A vector of unquoted column names corresponding
-to variables used to define unique simulation scenarios. Each unique
+\item{scenario_vars}{A vector of unquoted column names corresponding to
+variables used to define unique simulation scenarios. Each unique
 combination of values in these columns will generate a separate plot.}
 
 \item{trt_diff}{An unquoted column name representing the treatment
@@ -31,15 +32,20 @@ marginal scale (e.g., control response rate).}
 
 \item{prior}{An unquoted column name containing distributional objects that
 represent the prior (either IPW power prior or robustified mixture prior)
-distribution.}
+distribution.For multivariate normal distributions, they must first be
+approximated as beta distributions at a given time point.
+\code{\link[=approx_mvn_at_time]{approx_mvn_at_time()}} will do this approximation.}
 
 \item{h0_prob}{An unquoted column name containing the probability of
-rejecting the null hypothesis when when borrowing
-external data.}
+rejecting the null hypothesis when when borrowing external data.}
 
 \item{h0_prob_no_borrowing}{An unquoted column name containing the
-probability of rejecting the null hypothesis when not borrowing
-external data.}
+probability of rejecting the null hypothesis when not borrowing external
+data.}
+
+\item{highlight}{Logical value to indicate if you want sweet spot
+highlighting or not. If \code{TRUE} the sweet spot (where borrowing increase
+power and reduces type 1 error) will be highlighted.}
 }
 \value{
 A list of ggplot objects, one for each unique scenario defined by
@@ -54,9 +60,9 @@ A list of ggplot objects, one for each unique scenario defined by
 Create visualization plots to help identify the "sweet spot" in borrowing
 strategies across different simulation scenarios. For each unique scenario
 defined by the combination of variables in \code{scenario_vars}, the function
-produces a plot showing power, Type I error, and the distribution
-of the power prior (possibly inverse probability weighted) for
-approaches with and without borrowing.
+produces a plot showing power, Type I error, and the distribution of the
+power prior (possibly inverse probability weighted) for approaches with and
+without borrowing.
 }
 \details{
 The function calculates power and type I error rates for BDB
@@ -80,7 +86,7 @@ Type I error is calculated using scenarios where \code{trt_diff} equals 0. Power
 is calculated for all scenarios with positive values of \code{trt_diff}.
 }
 \examples{
-
+library(dplyr)
 # Assuming binary_sim_df is a data frame with simulation results in the shape of binary template code
 plots <- sweet_spot_plot(
   .data = binary_sim_df,
@@ -95,5 +101,17 @@ plots <- sweet_spot_plot(
 # Display the first plot
 plots[[1]]
 
+tte_plots <- tte_sim_df |>
+ mutate(beta_appox = approx_mvn_at_time(mix_prior, time = 12)) |>
+ sweet_spot_plot(
+   scenario_vars = c("population", "marg_trt_eff"),
+   trt_diff = marg_trt_eff,
+   control_marg_param = true_control_surv_prob,
+   prior = beta_appox,
+   h0_prob = reject_H0_yes,
+   h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+ )
+
+tte_plots[[1]]
 
 }

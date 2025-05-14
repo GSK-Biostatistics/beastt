@@ -3,13 +3,13 @@
 #' Create visualization plots to help identify the "sweet spot" in borrowing
 #' strategies across different simulation scenarios. For each unique scenario
 #' defined by the combination of variables in `scenario_vars`, the function
-#' produces a plot showing power, Type I error, and the distribution
-#' of the power prior (possibly inverse probability weighted) for
-#' approaches with and without borrowing.
+#' produces a plot showing power, Type I error, and the distribution of the
+#' power prior (possibly inverse probability weighted) for approaches with and
+#' without borrowing.
 #'
 #' @param .data A data frame containing iteration-level simulation results.
-#' @param scenario_vars A vector of unquoted column names corresponding
-#'   to variables used to define unique simulation scenarios. Each unique
+#' @param scenario_vars A vector of unquoted column names corresponding to
+#'   variables used to define unique simulation scenarios. Each unique
 #'   combination of values in these columns will generate a separate plot.
 #' @param trt_diff An unquoted column name representing the treatment
 #'   difference. Used to identify scenarios with null effect (trt_diff = 0) for
@@ -19,13 +19,17 @@
 #'   marginal scale (e.g., control response rate).
 #' @param prior An unquoted column name containing distributional objects that
 #'   represent the prior (either IPW power prior or robustified mixture prior)
-#'   distribution.
+#'   distribution.For multivariate normal distributions, they must first be
+#'   approximated as beta distributions at a given time point.
+#'   [approx_mvn_at_time()] will do this approximation.
 #' @param h0_prob An unquoted column name containing the probability of
-#'   rejecting the null hypothesis when when borrowing
-#'   external data.
+#'   rejecting the null hypothesis when when borrowing external data.
 #' @param h0_prob_no_borrowing An unquoted column name containing the
-#'   probability of rejecting the null hypothesis when not borrowing
-#'   external data.
+#'   probability of rejecting the null hypothesis when not borrowing external
+#'   data.
+#' @param highlight Logical value to indicate if you want sweet spot
+#'   highlighting or not. If `TRUE` the sweet spot (where borrowing increase
+#'   power and reduces type 1 error) will be highlighted.
 #'
 #' @return A list of ggplot objects, one for each unique scenario defined by
 #'   `scenario_vars`. Each plot shows:
@@ -58,7 +62,7 @@
 #'
 #'
 #' @examples
-#'
+#' library(dplyr)
 #' # Assuming binary_sim_df is a data frame with simulation results in the shape of binary template code
 #' plots <- sweet_spot_plot(
 #'   .data = binary_sim_df,
@@ -73,21 +77,37 @@
 #' # Display the first plot
 #' plots[[1]]
 #'
+#' tte_plots <- tte_sim_df |>
+#'  mutate(beta_appox = approx_mvn_at_time(mix_prior, time = 12)) |>
+#'  sweet_spot_plot(
+#'    scenario_vars = c("population", "marg_trt_eff"),
+#'    trt_diff = marg_trt_eff,
+#'    control_marg_param = true_control_surv_prob,
+#'    prior = beta_appox,
+#'    h0_prob = reject_H0_yes,
+#'    h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+#'  )
+#'
+#' tte_plots[[1]]
 #'
 #' @export
 sweet_spot_plot <- function(.data, scenario_vars,
-                             trt_diff, control_marg_param,
-                             prior,
-                             h0_prob, h0_prob_no_borrowing
-                             ){
+                            trt_diff, control_marg_param,
+                            prior,
+                            h0_prob, h0_prob_no_borrowing,
+                            highlight = TRUE
+){
 
   prior_col <- .data |> pull({{prior}})
   if(!distributional::is_distribution(prior_col)){
-    cli_abort("{.arg prior} must be a distributional object")
+    cli_abort("`prior` must be a column of distributional objects")
   }
   all_fam <- unique(family(prior_col))
   if(all_fam %in% c("mvnorm")){
-    cli_abort("Multivariate {.arg prior} need to be approximated as a beta, see `approx_mvn_at_time()`")
+    cli_abort("Multivariate `prior` need to be approximated as a beta, see `approx_mvn_at_time()`")
+  }
+  if(nrow(dplyr::filter(.data, {{trt_diff}} == 0)) == 0){
+    cli_abort("Unable to calculate Type 1 Error without a scenario where `trt_diff` equals 0")
   }
 
   data_grouped <- .data |>
@@ -99,8 +119,8 @@ sweet_spot_plot <- function(.data, scenario_vars,
   type1_df <- data_grouped |>
     dplyr::filter({{trt_diff}} == 0) |>
     dplyr::summarise(type1_borrowing = mean({{h0_prob}}),
-              type1_no_borrowing = mean({{h0_prob_no_borrowing}}),
-              .groups = "drop") |>
+                     type1_no_borrowing = mean({{h0_prob_no_borrowing}}),
+                     .groups = "drop") |>
     dplyr::select({{scenario_vars}}, {{control_marg_param}}, .data$type1_borrowing,
                   .data$type1_no_borrowing, -{{trt_diff}}) |>
     tidyr::pivot_longer(c(.data$type1_borrowing, .data$type1_no_borrowing),
@@ -110,8 +130,8 @@ sweet_spot_plot <- function(.data, scenario_vars,
   # Calculate power for all scenarios
   power <- data_grouped |>
     dplyr::summarise(h0_prob_borrowing = mean({{h0_prob}}),
-              h0_prob_no_borrowing = mean({{h0_prob_no_borrowing}}),
-              .groups = "drop") |>
+                     h0_prob_no_borrowing = mean({{h0_prob_no_borrowing}}),
+                     .groups = "drop") |>
     dplyr::select({{scenario_vars}}, {{control_marg_param}}, {{trt_diff}},
                   .data$h0_prob_borrowing, .data$h0_prob_no_borrowing) |>
     tidyr::pivot_longer(c(.data$h0_prob_borrowing, .data$h0_prob_no_borrowing),
@@ -152,11 +172,11 @@ sweet_spot_plot <- function(.data, scenario_vars,
 
       scenarios_cols <- inputs[!names(inputs) %in% c("data", "pwr_prior")]
       title = purrr::map2_chr(names(scenarios_cols), scenarios_cols,
-                      \(x, y) {
-                        y_one <- stringr::str_c(y, collapse = ", ")
-                        stringr::str_c(x, y_one, sep = ": ")
+                              \(x, y) {
+                                y_one <- stringr::str_c(y, collapse = ", ")
+                                stringr::str_c(x, y_one, sep = ": ")
 
-                        }) |>
+                              }) |>
         stringr::str_c(collapse = ", ")
 
       x_vals <- dplyr::pull(inputs$data, {{control_marg_param}})
@@ -176,23 +196,22 @@ sweet_spot_plot <- function(.data, scenario_vars,
       inflate_fct = min(power_range / type1_range)/2
       inflate_fct = ifelse(all(power_range > type1_range), inflate_fct, 1)
 
-      test <- inputs$data |>
+      scaled_df <- inputs$data |>
         dplyr::mutate(
           value = dplyr::case_when(
             .data$name == "Type 1 Error" ~  .data$value*inflate_fct,
             TRUE ~ .data$value
           )
         )
-      ggplot() +
+      plot <- ggplot() +
         ggdist::stat_slab(aes(xdist = inputs$pwr_prior, fill = "Prior"),
-                          alpha = 0.6,
-                          color = "grey80", size = 0.25,
-                          # show.legend = TRUE
-                          ) +
-        ggplot2::geom_line(data = test,
+                          alpha = 0.5,
+                          color = "grey80", linewidth = 0.25
+        ) +
+        ggplot2::geom_line(data = scaled_df,
                            aes(x = {{control_marg_param}}, y = .data$value,
                                linetype = .data$borrowing_status, color = .data$name),
-                           size = 0.75) +
+                           linewidth = 0.75) +
         ggplot2::scale_y_continuous(name = "Power",
                                     sec.axis = ggplot2::sec_axis(~ ./inflate_fct, name = "Type 1 Error")) +
         ggplot2::scale_x_continuous(limits = c(min(x_vals), max(x_vals))) +
@@ -203,12 +222,54 @@ sweet_spot_plot <- function(.data, scenario_vars,
                                        labels = c("Borrowing", "No Borrowing")) +
         ggplot2::scale_fill_manual(name = "", values = "grey85") +
         ggplot2::guides(fill = ggplot2::guide_legend(order = 1),  # Set the order of the fill legend
-               color = ggplot2::guide_legend(order = 2),  # Set the order of the color legend
-               linetype = ggplot2::guide_legend(order = 3)) + # Set the order of the linetype legend
+                        color = ggplot2::guide_legend(order = 2),  # Set the order of the color legend
+                        linetype = ggplot2::guide_legend(order = 3)) + # Set the order of the linetype legend
         ggplot2::ggtitle(title) +
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = "bottom")
 
+      if(highlight){
+        # Reshape to make borrowing and no-borrowing seperate columns
+        reshaped_df <- scaled_df |>
+          tidyr::pivot_wider(id_cols = c({{control_marg_param}}, name),
+                      names_from = borrowing_status)
+
+        # For each point, calculate the slope from the previous point to that one
+        # Then calculate the intercept to determine when the borrowing and no borrowing line would cross
+        line_cross_df <- reshaped_df |>
+          dplyr::group_by(name) |>
+          dplyr::mutate(
+            dplyr::across(c(borrowing, no_borrowing), \(x){
+              slope = (x - dplyr::lag(x)) / ({{control_marg_param}} - dplyr::lag({{control_marg_param}}))
+            }, .names = "{.col}_slope"),
+            int_borrowing = borrowing - borrowing_slope*{{control_marg_param}},
+            int_no_borrowing = no_borrowing - no_borrowing_slope*{{control_marg_param}},
+            line_cross = (int_borrowing - int_no_borrowing) / (no_borrowing_slope - borrowing_slope))
+
+        # Get the minimum point when borrowing is greater than no borrowing for type 1 and power
+        # These values represent the min and max value
+        highlight_range <- line_cross_df |>
+          dplyr::group_by(name) |>
+          dplyr::filter(borrowing > no_borrowing) |>
+          dplyr::filter({{control_marg_param}} == min({{control_marg_param}})) |>
+          dplyr::select(name, line_cross) |>
+          tidyr::pivot_wider(names_from = name, values_from = line_cross)
+
+        if(
+          (is.na(highlight_range$Power) | is.na(highlight_range$`Type 1 Error`)) ||
+          highlight_range$Power > highlight_range$`Type 1 Error`) {
+          cli::cli_warn("No sweet spot avaliable to highlight")
+        } else {
+          plot <- plot +
+            ggplot2::geom_rect(aes(xmin = highlight_range$Power,
+                               xmax = highlight_range$`Type 1 Error`,
+                               ymin = 0, ymax = 1),
+                               alpha = 0.25, fill = "#93A646"
+                               )
+
+          }
+      }
+      plot
     })
   plot_ls
 
@@ -303,9 +364,9 @@ avg_dist <- function(x){
       })
     avg_params <- c(comp_dists, weights = list(correct_weights(avg_weights)))
 
-    } else {
+  } else {
     avg_params <- colMeans(dist_params) |> as.list()
-    }
+  }
   dist_fx <- switch(all_fam,
                     "beta" = distributional::dist_beta,
                     "mvnorm" = distributional::dist_multivariate_normal,

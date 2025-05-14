@@ -4,8 +4,10 @@
 skip_on_cran()
 ### Source R script with Stan code and compile Stan models
 source("code_for_normal_tests_Stan.R")
+
 # compile Stan model - sigma2 known
 stan_mod_sigma2_known <- rstan::stan_model(model_code = BDB_stan_sigma2_known)
+print("test")
 # compile Stan model - sigma2 unknown
 stan_mod_sigma2_unknown <- rstan::stan_model(model_code = BDB_stan_sigma2_unknown)
 
