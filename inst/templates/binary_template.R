@@ -252,5 +252,6 @@ output <- combined_output |>
             .by = all_of(grouping_vars))
 
 # Save aggregate results for each scenario
-# save(output, "Location where results should be saved.rda")
+# save(output, file = "Location where results should be saved.rda")
+
 
