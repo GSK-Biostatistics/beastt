@@ -345,6 +345,26 @@ test_that("snapshot plot",{
   # test the binary plot
   vdiffr::expect_doppelganger("plot-sweet_spot_bin_no_high", plots_no_highlight[[1]])
 
+  # Test negative plot
+  # reverse everything
+  # Subset population
+  binary_sim_all_rev <- binary_sim_df |>
+    dplyr::filter(population == "no imbalance" & marg_trt_eff %in% c(0, .15)) |>
+    dplyr::group_by(marg_trt_eff) |>
+    dplyr::mutate(
+      reject_H0_yes = rev(reject_H0_yes),
+      no_borrowing_reject_H0_yes = rev(no_borrowing_reject_H0_yes))
 
+  neg_plot <- sweet_spot_plot(
+    .data = binary_sim_all_rev,
+    scenario_vars = c("marg_trt_eff"),
+    trt_diff = marg_trt_eff,
+    control_marg_param = true_control_RR,
+    design_prior = pwr_prior,
+    h0_prob = reject_H0_yes,
+    h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+  )
+
+  vdiffr::expect_doppelganger("plot-sweet_spot_bin_neg_plot", neg_plot)
 })
 
