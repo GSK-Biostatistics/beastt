@@ -8,9 +8,9 @@
 \subsection{\code{tte_sim_df} A data frame with 18 rows and 7 columns:}{
 
 \describe{
+\item{population}{Populations defined by different covariate imbalances}
 \item{marg_trt_eff}{Marginal treatment effect}
 \item{true_control_surv_prop}{True control survival probability on the marginal scale}
-\item{accrual_periods}{Accrual periods which wer varied across simulations}
 \item{reject_H0_yes}{Probability of rejecting the null hypothesis in the case with borrowing}
 \item{no_borrowing_reject_H0_yes}{Probability of rejecting the null hypothesis without borrowing}
 \item{pwr_prior}{Vector of IPW power priors as distributional objects}
