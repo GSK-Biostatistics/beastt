@@ -218,7 +218,7 @@ test_that("Test highlight warning", {
       scenario_vars = c("marg_trt_eff"),
       trt_diff = marg_trt_eff,
       control_marg_param = true_control_RR,
-      prior = pwr_prior,
+      design_prior = pwr_prior,
       h0_prob = reject_H0_yes,
       h0_prob_no_borrowing = no_borrowing_reject_H0_yes
     )
@@ -244,12 +244,26 @@ test_that("sweet_spot_plot errors with non-distributional prior column", {
       scenario_vars = c(drift),
       trt_diff = treatment_effect,
       control_marg_param = control_param,
-      prior = prior_not_dist,
+      design_prior = prior_not_dist,
       h0_prob = prob_accept_h0,
       h0_prob_no_borrowing = prob_accept_h0_no_borrow
     ),
-    "`prior` must be a column of distributional objects"
+    "`design_prior` must be a column of distributional objects"
   )
+})
+
+test_that("sweet_spot_plot can handel a null prior",{
+  plots <- sweet_spot_plot(.data = binary_sim_df,
+                           scenario_vars = c("population", "marg_trt_eff"),
+                           trt_diff = marg_trt_eff,
+                           control_marg_param = true_control_RR,
+                           design_prior = NULL,
+                           h0_prob = reject_H0_yes,
+                           h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+  )
+
+  vdiffr::expect_doppelganger("plot-sweet_spot_bin_null_prior", plots[[1]])
+
 })
 
 test_that("sweet_spot_plot errors with multivariate normal prior without approximation", {
@@ -278,7 +292,7 @@ test_that("sweet_spot_plot errors with multivariate normal prior without approxi
       scenario_vars = c(drift),
       trt_diff = treatment_effect,
       control_marg_param = control_param,
-      prior = mvn_prior,
+      design_prior = mvn_prior,
       h0_prob = prob_accept_h0,
       h0_prob_no_borrowing = prob_accept_h0_no_borrow
     )
@@ -296,7 +310,7 @@ test_that("sweet_spot_plot handles case where no scenarios have trt_diff = 0", {
       scenario_vars = c("marg_trt_eff"),
       trt_diff = marg_trt_eff,
       control_marg_param = true_control_RR,
-      prior = pwr_prior,
+      design_prior = pwr_prior,
       h0_prob = reject_H0_yes,
       h0_prob_no_borrowing = no_borrowing_reject_H0_yes
     ),
@@ -310,7 +324,7 @@ test_that("snapshot plot",{
     scenario_vars = c("population", "marg_trt_eff"),
     trt_diff = marg_trt_eff,
     control_marg_param = true_control_RR,
-    prior = pwr_prior,
+    design_prior = pwr_prior,
     h0_prob = reject_H0_yes,
     h0_prob_no_borrowing = no_borrowing_reject_H0_yes
   )
@@ -324,7 +338,7 @@ test_that("snapshot plot",{
      scenario_vars = c("population", "marg_trt_eff"),
      trt_diff = marg_trt_eff,
      control_marg_param = true_control_surv_prob,
-     prior = beta_appox,
+     design_prior = beta_appox,
      h0_prob = reject_H0_yes,
      h0_prob_no_borrowing = no_borrowing_reject_H0_yes
    )
@@ -336,7 +350,7 @@ test_that("snapshot plot",{
                            scenario_vars = c("population", "marg_trt_eff"),
                            trt_diff = marg_trt_eff,
                            control_marg_param = true_control_RR,
-                           prior = pwr_prior,
+                           design_prior = pwr_prior,
                            h0_prob = reject_H0_yes,
                            h0_prob_no_borrowing = no_borrowing_reject_H0_yes,
                            highlight = FALSE
@@ -345,6 +359,26 @@ test_that("snapshot plot",{
   # test the binary plot
   vdiffr::expect_doppelganger("plot-sweet_spot_bin_no_high", plots_no_highlight[[1]])
 
+  # Test negative plot
+  # reverse everything
+  # Subset population
+  binary_sim_all_rev <- binary_sim_df |>
+    dplyr::filter(population == "no imbalance" & marg_trt_eff %in% c(0, .15)) |>
+    dplyr::group_by(marg_trt_eff) |>
+    dplyr::mutate(
+      reject_H0_yes = rev(reject_H0_yes),
+      no_borrowing_reject_H0_yes = rev(no_borrowing_reject_H0_yes))
 
+  neg_plot <- sweet_spot_plot(
+    .data = binary_sim_all_rev,
+    scenario_vars = c("marg_trt_eff"),
+    trt_diff = marg_trt_eff,
+    control_marg_param = true_control_RR,
+    design_prior = pwr_prior,
+    h0_prob = reject_H0_yes,
+    h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+  )
+
+  vdiffr::expect_doppelganger("plot-sweet_spot_bin_neg_plot", neg_plot)
 })
 

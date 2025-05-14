@@ -110,19 +110,11 @@
 #' @export
 sweet_spot_plot <- function(.data, scenario_vars,
                             trt_diff, control_marg_param,
-                            prior,
+                            design_prior = NULL,
                             h0_prob, h0_prob_no_borrowing,
                             highlight = TRUE
 ){
 
-  prior_col <- .data |> pull({{prior}})
-  if(!distributional::is_distribution(prior_col)){
-    cli_abort("`prior` must be a column of distributional objects")
-  }
-  all_fam <- unique(family(prior_col))
-  if(all_fam %in% c("mvnorm")){
-    cli_abort("Multivariate `prior` need to be approximated as a beta, see `approx_mvn_at_time()`")
-  }
   if(nrow(dplyr::filter(.data, {{trt_diff}} == 0)) == 0){
     cli_abort("Unable to calculate Type 1 Error without a scenario where `trt_diff` equals 0")
   }
@@ -171,23 +163,38 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::group_by(dplyr::across({{scenario_vars}})) |>
     tidyr::nest()
 
-  # Get the average power prior for each scenario,
-  # dropping where the trt difference is 0
-  prior <- .data |>
-    dplyr::group_by(dplyr::across({{scenario_vars}})) |>
-    dplyr::filter({{trt_diff}} != 0) |>
-    dplyr::summarise(pwr_prior = avg_dist({{prior}}), .groups = "drop_last") |>
-    dplyr::select({{scenario_vars}}, .data$pwr_prior)
+  design_prior_test <- !rlang::quo_is_null(rlang::enquo(design_prior))
 
-  # Create a plot for each scenario
-  quite_join <- purrr::quietly(dplyr::left_join)
-  plot_ls<- plot_df |>
-    quite_join(prior) |>
-    _$result |>
+  if(design_prior_test){
+    prior_col <- .data |> dplyr::pull({{design_prior}})
+    if(!distributional::is_distribution(prior_col)){
+      cli_abort("`design_prior` must be a column of distributional objects")
+    }
+    all_fam <- unique(family(prior_col))
+    if(all_fam %in% c("mvnorm")){
+      cli_abort("Multivariate `design_prior` need to be approximated as a beta, see `approx_mvn_at_time()`")
+    }
+
+    # Get the average design prior for each scenario,
+    # dropping where the trt difference is 0
+    prior <- .data |>
+      dplyr::group_by(dplyr::across({{scenario_vars}})) |>
+      dplyr::filter({{trt_diff}} != 0) |>
+      dplyr::summarise(des_prior = avg_dist({{design_prior}}), .groups = "drop_last") |>
+      dplyr::select({{scenario_vars}}, .data$des_prior)
+
+    # Create a plot for each scenario
+    quite_join <- purrr::quietly(dplyr::left_join)
+    plot_df <- plot_df |>
+      quite_join(prior) |>
+      _$result
+  }
+
+  plot_ls<-  plot_df |>
     purrr::pmap(\(...){
       inputs <- list(...)
 
-      scenarios_cols <- inputs[!names(inputs) %in% c("data", "pwr_prior")]
+      scenarios_cols <- inputs[!names(inputs) %in% c("data", "des_prior")]
       title = purrr::map2_chr(names(scenarios_cols), scenarios_cols,
                               \(x, y) {
                                 y_one <- stringr::str_c(y, collapse = ", ")
@@ -220,11 +227,18 @@ sweet_spot_plot <- function(.data, scenario_vars,
             TRUE ~ .data$value
           )
         )
-      plot <- ggplot() +
-        ggdist::stat_slab(aes(xdist = inputs$pwr_prior, fill = "Prior"),
-                          alpha = 0.5,
-                          color = "grey80", linewidth = 0.25
-        ) +
+
+      if(design_prior_test){
+        plot <- ggplot() +
+          ggdist::stat_slab(aes(xdist = inputs$des_prior, fill = "Design Prior"),
+                            alpha = 0.5,
+                            color = "grey80", linewidth = 0.25
+          )
+      } else {
+        plot <- ggplot()
+      }
+
+      plot <- plot +
         ggplot2::geom_line(data = scaled_df,
                            aes(x = {{control_marg_param}}, y = .data$value,
                                linetype = .data$borrowing_status, color = .data$name),
@@ -265,16 +279,29 @@ sweet_spot_plot <- function(.data, scenario_vars,
 
         # Get the minimum point when borrowing is greater than no borrowing for type 1 and power
         # These values represent the min and max value
+        edge_vec <- line_cross_df |>
+          dplyr::filter(name == "Power",
+                        {{control_marg_param}} %in% c(min({{control_marg_param}}), max({{control_marg_param}}))
+                        ) |>
+          dplyr::pull(borrowing)
+        dirction_test <- ifelse(edge_vec[1] < edge_vec[2], "positive", "negative")
+
+        check_fx <- switch(dirction_test,
+                           "positive" = min,
+                           "negative" = max)
         highlight_range <- line_cross_df |>
           dplyr::group_by(name) |>
           dplyr::filter(borrowing > no_borrowing) |>
-          dplyr::filter({{control_marg_param}} == min({{control_marg_param}})) |>
+          dplyr::filter({{control_marg_param}} == check_fx({{control_marg_param}})) |>
           dplyr::select(name, line_cross) |>
           tidyr::pivot_wider(names_from = name, values_from = line_cross)
 
-        if(
-          (is.na(highlight_range$Power) | is.na(highlight_range$`Type 1 Error`)) ||
-          highlight_range$Power > highlight_range$`Type 1 Error`) {
+        sweet_spot_check <- ifelse(dirction_test == "positive",
+                      highlight_range$Power > highlight_range$`Type 1 Error`,
+                      highlight_range$Power < highlight_range$`Type 1 Error`)
+        if((is.na(highlight_range$Power) | is.na(highlight_range$`Type 1 Error`)) ||
+          sweet_spot_check
+          ) {
           cli::cli_warn("No sweet spot avaliable to highlight")
         } else {
           plot <- plot +
