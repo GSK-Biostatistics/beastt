@@ -27,7 +27,7 @@ Description: Bayesian dynamic borrowing with covariate adjustment via inverse pr
   weighting for simulations and data analyses in clinical trials. This makes it easy to use
   propensity score methods to balance covariate distributions between external and internal 
   data. This is based on the Psioda, M. A., Bean, N. W., Wright, B. A., Lu, Y., Mantero, A., and
-Majumdar, A. (2025) [10.1080/10543406.2025.2489285](https://doi.org/10.1080/10543406.2025.2489285) paper.
+  Majumdar, A. (2025) <a href="https://doi.org/10.1080/10543406.2025.2489285">doi:10.1080/10543406.2025.2489285</a> paper.
 License: GPL (>= 3)
 URL: https://gsk-biostatistics.github.io/beastt/, https://github.com/GSK-Biostatistics/beastt
 BugReports: https://github.com/GSK-Biostatistics/beastt/issues
@@ -67,7 +67,6 @@ Depends:
     R (>= 4.1.0)
 LazyData: true
 Language: en-US
-Biarch: true
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

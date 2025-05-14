@@ -324,7 +324,8 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
 
     # Construct design matrix (with intercept) for the large sample ("population")
     # corresponding to the internal control (IC) population
-    X_IC = as.matrix(cbind(int = 1, select(population,cov_vec)))
+    X_IC = as.matrix(cbind(int = 1, dplyr::select(population,
+                                           dplyr::all_of(cov_vec))))
 
     # Marginal survival probability (SP) at the analysis time for the external control
     # (EC) population AFTER standardizing it to match the covariate distributions

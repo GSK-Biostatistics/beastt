@@ -343,6 +343,7 @@ combined_output <- all_sims |>
 # Save results for all iterations
 # save(combined_output, file = "Location where results should be saved.rda")
 
+
 # Get the column names of everything that we want to summaries by (i.e.,
 # everything but the iterations)
 grouping_vars <- colnames(all_sims) |>

@@ -2,6 +2,7 @@
 
 S3method(print,prop_scr)
 S3method(tidy,prop_scr)
+export(approx_mvn_at_time)
 export(avg_dist)
 export(bootstrap_cov)
 export(calc_cond_binary)

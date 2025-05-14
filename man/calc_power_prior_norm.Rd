@@ -77,7 +77,7 @@ library(dplyr)
 # This function can be used directly on the data
 calc_power_prior_norm(ex_norm_df,
                       response = y,
-                      prior = dist_normal(50, 10),
+                      prior = dist_normal(0.5, 10),
                       external_sd = 0.15)
 
 # Or this function can be used with a propensity score object
@@ -87,7 +87,7 @@ ps_obj <- calc_prop_scr(internal_df = filter(int_norm_df, trt == 0),
                         model = ~ cov1 + cov2 + cov3 + cov4)
 calc_power_prior_norm(ps_obj,
                       response = y,
-                      prior = dist_normal(50, 10),
+                      prior = dist_normal(0.5, 10),
                       external_sd = 0.15)
 
 }
