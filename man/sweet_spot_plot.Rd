@@ -9,7 +9,7 @@ sweet_spot_plot(
   scenario_vars,
   trt_diff,
   control_marg_param,
-  prior,
+  design_prior = NULL,
   h0_prob,
   h0_prob_no_borrowing,
   highlight = TRUE
@@ -30,6 +30,13 @@ type I error calculation.}
 the plots. This is typically the control endpoint of interest on the
 marginal scale (e.g., control response rate).}
 
+\item{design_prior}{An unquoted column name containing distributional objects
+that represent the design prior distribution for the control marginal
+parameter (e.g., posterior distribution using the external control data).
+Used to aid visualization of which values of the control marginal parameter
+are assumed to be plausible. Default is \code{NULL}, in which case no design
+prior is plotted. See Details for more information.}
+
 \item{h0_prob}{An unquoted column name containing the probability of
 rejecting the null hypothesis when when borrowing external data.}
 
@@ -40,13 +47,6 @@ data.}
 \item{highlight}{Logical value to indicate if you want sweet spot
 highlighting or not. If \code{TRUE} the sweet spot (where borrowing increase
 power and reduces type 1 error) will be highlighted.}
-
-\item{design_prior}{An unquoted column name containing distributional objects
-that represent the design prior distribution for the control marginal
-parameter (e.g., posterior distribution using the external control data).
-Used to aid visualization of which values of the control marginal parameter
-are assumed to be plausible. Default is \code{NULL}, in which case no design
-prior is plotted. See Details for more information.}
 }
 \value{
 A list of ggplot objects, one for each unique scenario defined by

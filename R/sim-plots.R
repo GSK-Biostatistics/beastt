@@ -207,7 +207,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
       colors <- c("#5398BE", "#FFA21F")
 
       type1_range <- inputs$data |>
-        dplyr::filter(.data$name == "Type 1 Error") |>
+        dplyr::filter(.data$name == "Type I Error") |>
         dplyr::pull() |>
         range()
 
@@ -223,7 +223,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
       scaled_df <- inputs$data |>
         dplyr::mutate(
           value = dplyr::case_when(
-            .data$name == "Type 1 Error" ~  .data$value*inflate_fct,
+            .data$name == "Type I Error" ~  .data$value*inflate_fct,
             TRUE ~ .data$value
           )
         )
@@ -297,16 +297,17 @@ sweet_spot_plot <- function(.data, scenario_vars,
           tidyr::pivot_wider(names_from = name, values_from = line_cross)
 
         sweet_spot_check <- ifelse(dirction_test == "positive",
-                      highlight_range$Power > highlight_range$`Type 1 Error`,
-                      highlight_range$Power < highlight_range$`Type 1 Error`)
-        if((is.na(highlight_range$Power) | is.na(highlight_range$`Type 1 Error`)) ||
+                      highlight_range$Power > highlight_range$`Type I Error`,
+                      highlight_range$Power < highlight_range$`Type I Error`)
+
+        if((is.na(highlight_range$Power) | is.na(highlight_range$`Type I Error`)) ||
           sweet_spot_check
           ) {
           cli::cli_warn("No sweet spot avaliable to highlight")
         } else {
           plot <- plot +
             ggplot2::geom_rect(aes(xmin = highlight_range$Power,
-                               xmax = highlight_range$`Type 1 Error`,
+                               xmax = highlight_range$`Type I Error`,
                                ymin = 0, ymax = 1),
                                alpha = 0.25, fill = "#93A646"
                                )

@@ -82,24 +82,24 @@
 <text x='362.45' y='529.04' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='80.10px' lengthAdjust='spacingAndGlyphs'>true_control_RR</text>
 <text transform='translate(13.05,264.35) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='31.19px' lengthAdjust='spacingAndGlyphs'>Power</text>
 <text transform='translate(706.95,264.35) rotate(90)' text-anchor='middle' style='font-size: 11.00px; font-family: sans;' textLength='61.14px' lengthAdjust='spacingAndGlyphs'>Type 1 Error</text>
-<rect x='156.84' y='542.28' width='87.62' height='28.24' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<rect x='167.80' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<rect x='168.16' y='548.12' width='16.57' height='16.57' style='stroke-width: 0.53; stroke: #CCCCCC; stroke-linecap: butt; stroke-linejoin: miter; fill: #D9D9D9; fill-opacity: 0.50;' />
-<text x='190.56' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='48.42px' lengthAdjust='spacingAndGlyphs'>Design Prior</text>
-<rect x='255.42' y='542.28' width='141.29' height='28.24' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<rect x='266.38' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<line x1='268.11' y1='556.40' x2='281.93' y2='556.40' style='stroke-width: 1.60; stroke: #5398BE; stroke-linecap: butt;' />
-<rect x='319.57' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<line x1='321.30' y1='556.40' x2='335.12' y2='556.40' style='stroke-width: 1.60; stroke: #FFA21F; stroke-linecap: butt;' />
-<text x='289.14' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='24.95px' lengthAdjust='spacingAndGlyphs'>Power</text>
-<text x='342.33' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='48.91px' lengthAdjust='spacingAndGlyphs'>Type 1 Error</text>
-<rect x='407.68' y='542.28' width='160.38' height='28.24' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<rect x='418.63' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<line x1='420.36' y1='556.40' x2='434.19' y2='556.40' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<rect x='486.49' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<line x1='488.22' y1='556.40' x2='502.05' y2='556.40' style='stroke-width: 1.60; stroke-dasharray: 8.54,8.54; stroke-linecap: butt;' />
-<text x='441.39' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='39.62px' lengthAdjust='spacingAndGlyphs'>Borrowing</text>
-<text x='509.25' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='53.32px' lengthAdjust='spacingAndGlyphs'>No Borrowing</text>
+<rect x='158.07' y='542.28' width='87.62' height='28.24' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<rect x='169.03' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<rect x='169.38' y='548.12' width='16.57' height='16.57' style='stroke-width: 0.53; stroke: #CCCCCC; stroke-linecap: butt; stroke-linejoin: miter; fill: #D9D9D9; fill-opacity: 0.50;' />
+<text x='191.79' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='48.42px' lengthAdjust='spacingAndGlyphs'>Design Prior</text>
+<rect x='256.65' y='542.28' width='138.84' height='28.24' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<rect x='267.61' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<line x1='269.34' y1='556.40' x2='283.16' y2='556.40' style='stroke-width: 1.60; stroke: #5398BE; stroke-linecap: butt;' />
+<rect x='320.79' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<line x1='322.52' y1='556.40' x2='336.35' y2='556.40' style='stroke-width: 1.60; stroke: #FFA21F; stroke-linecap: butt;' />
+<text x='290.37' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='24.95px' lengthAdjust='spacingAndGlyphs'>Power</text>
+<text x='343.55' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='46.46px' lengthAdjust='spacingAndGlyphs'>Type I Error</text>
+<rect x='406.45' y='542.28' width='160.38' height='28.24' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<rect x='417.41' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<line x1='419.14' y1='556.40' x2='432.96' y2='556.40' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<rect x='485.27' y='547.76' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<line x1='487.00' y1='556.40' x2='500.82' y2='556.40' style='stroke-width: 1.60; stroke-dasharray: 8.54,8.54; stroke-linecap: butt;' />
+<text x='440.17' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='39.62px' lengthAdjust='spacingAndGlyphs'>Borrowing</text>
+<text x='508.03' y='559.43' style='font-size: 8.80px; font-family: sans;' textLength='53.32px' lengthAdjust='spacingAndGlyphs'>No Borrowing</text>
 <text x='40.13' y='14.56' style='font-size: 13.20px; font-family: sans;' textLength='226.02px' lengthAdjust='spacingAndGlyphs'>population: cov2: 0.3, marg_trt_eff: 0.1</text>
 </g>
 </svg>
