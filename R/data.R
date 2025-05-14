@@ -144,7 +144,7 @@
 "binary_sim_df"
 
 
-#' Time to Event Simulation Data
+#' Time-to-Event Simulation Data
 #'
 #' This is an example of output from a simulation study that investigates the
 #' operating characteristics of inverse probability weighted Bayesian dynamic
