@@ -161,6 +161,6 @@
 #'   \item{reject_H0_yes}{Probability of rejecting the null hypothesis in the case with borrowing}
 #'   \item{no_borrowing_reject_H0_yes}{Probability of rejecting the null hypothesis without borrowing}
 #'   \item{pwr_prior}{Vector of IPW power priors as distributional objects}
-#'   \item{mix_prior}{Vector of mixture priors, the robustified IPW power priors, as distributional objects}
+#'   \item{mix_prior}{Vector of mixture priors (i.e., the robustified IPW power priors) as distributional objects}
 #' }
 "tte_sim_df"
