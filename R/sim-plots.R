@@ -264,14 +264,14 @@ sweet_spot_plot <- function(.data, scenario_vars,
         # Reshape to make borrowing and no-borrowing separate columns
         reshaped_df <- scaled_df |>
           tidyr::pivot_wider(id_cols = c({{control_marg_param}}, "name"),
-                      names_from = borrowing_status)
+                      names_from = "borrowing_status")
 
         # For each point, calculate the slope from the previous point to that one
         # Then calculate the intercept to determine when the borrowing and no borrowing line would cross
         line_cross_df <- reshaped_df |>
           dplyr::group_by(.data$name) |>
           dplyr::mutate(
-            dplyr::across(c(borrowing, no_borrowing), \(x){
+            dplyr::across(c("borrowing", "no_borrowing"), \(x){
               slope = (x - dplyr::lag(x)) / ({{control_marg_param}} - dplyr::lag({{control_marg_param}}))
             }, .names = "{.col}_slope"),
             int_borrowing = .data$borrowing - .data$borrowing_slope*{{control_marg_param}},
