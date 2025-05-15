@@ -186,9 +186,9 @@ sweet_spot_plot <- function(.data, scenario_vars,
 
     # Create a plot for each scenario
     quite_join <- purrr::quietly(dplyr::left_join)
-    plot_df <- plot_df |>
-      quite_join(prior) |>
-      _$result
+    plot_df_combo<- plot_df |>
+      quite_join(prior)
+    plot_df <- plot_df_combo$result
   }
 
   plot_ls<-  plot_df |>
