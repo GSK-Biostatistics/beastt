@@ -131,8 +131,8 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::summarise(type1_borrowing = mean({{h0_prob}}),
                      type1_no_borrowing = mean({{h0_prob_no_borrowing}}),
                      .groups = "drop") |>
-    dplyr::select({{scenario_vars}}, {{control_marg_param}}, .data$type1_borrowing,
-                  .data$type1_no_borrowing, -{{trt_diff}}) |>
+    dplyr::select({{scenario_vars}}, {{control_marg_param}}, "type1_borrowing",
+                  "type1_no_borrowing", -{{trt_diff}}) |>
     tidyr::pivot_longer(c("type1_borrowing", "type1_no_borrowing"),
                         names_prefix = "type1_",
                         names_to = "borrowing_status", values_to = "Type I Error")
@@ -143,7 +143,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
                      h0_prob_no_borrowing = mean({{h0_prob_no_borrowing}}),
                      .groups = "drop") |>
     dplyr::select({{scenario_vars}}, {{control_marg_param}}, {{trt_diff}},
-                  .data$h0_prob_borrowing, .data$h0_prob_no_borrowing) |>
+                  "h0_prob_borrowing", "h0_prob_no_borrowing") |>
     tidyr::pivot_longer(c("h0_prob_borrowing", "h0_prob_no_borrowing"),
                         names_prefix = "h0_prob_",
                         names_to = "borrowing_status", values_to = "Power")
@@ -182,7 +182,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
       dplyr::group_by(dplyr::across({{scenario_vars}})) |>
       dplyr::filter({{trt_diff}} != 0) |>
       dplyr::summarise(des_prior = avg_dist({{design_prior}}), .groups = "drop_last") |>
-      dplyr::select({{scenario_vars}}, .data$des_prior)
+      dplyr::select({{scenario_vars}}, "des_prior")
 
     # Create a plot for each scenario
     quite_join <- purrr::quietly(dplyr::left_join)
@@ -284,7 +284,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
           dplyr::filter(.data$name == "Power",
                         {{control_marg_param}} %in% c(min({{control_marg_param}}), max({{control_marg_param}}))
                         ) |>
-          dplyr::pull(.data$borrowing)
+          dplyr::pull("borrowing")
         dirction_test <- ifelse(edge_vec[1] < edge_vec[2], "positive", "negative")
 
         check_fx <- switch(dirction_test,
@@ -294,7 +294,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
           dplyr::group_by(.data$name) |>
           dplyr::filter(.data$borrowing > .data$no_borrowing) |>
           dplyr::filter({{control_marg_param}} == check_fx({{control_marg_param}})) |>
-          dplyr::select(.data$name, .data$line_cross) |>
+          dplyr::select("name", "line_cross") |>
           tidyr::pivot_wider(names_from = "name", values_from = "line_cross")
 
         sweet_spot_check <- ifelse(dirction_test == "positive",
