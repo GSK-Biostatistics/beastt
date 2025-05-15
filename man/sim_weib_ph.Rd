@@ -2,8 +2,8 @@
 % Please edit documentation in R/tte-sim.R
 \name{sim_weib_ph}
 \alias{sim_weib_ph}
-\title{Simulate event times for each participant from a Weibull proportional hazards
-regression model}
+\title{Simulate Event Times for Each Participant from a Weibull Proportional Hazards
+Regression Model}
 \usage{
 sim_weib_ph(weibull_ph_mod, samp_df, cond_drift = 0, cond_trt_effect = 0)
 }
@@ -30,8 +30,35 @@ Vector of simulated event times from a Weibull proportional hazards
 regression model
 }
 \description{
-Simulate event times for each participant from a Weibull proportional hazards
-regression model
+Simulate Event Times for Each Participant from a Weibull Proportional Hazards
+Regression Model
+}
+\details{
+Simulate the event times for each participant using a Weibull
+proportional hazards (PH) regression model. The "true" parameter values
+for the Weibull shape \eqn{\alpha} and the regression coefficients
+\eqn{\boldsymbol{\beta}} are assumed to be equal to the parameter estimates
+from a \code{survreg} object (\code{weibull_ph_mod}) fit using external data (note
+that the Weibull shape parameter \eqn{\alpha} is defined as the inverse of
+the scale parameter reported by \code{survreg}).
+
+For participant \eqn{i}, let \eqn{y_i} denote the time-to-event random
+variable and \eqn{\boldsymbol{x}_i = \{x_{i,1}, \ldots, x_{i,p}\}} the
+vector of \eqn{p} covariates (row \eqn{i} of \code{samp_df}) that correspond
+to the \eqn{(p+1)}-dimensional vector of regression coefficients
+\eqn{\boldsymbol{\beta}}. The density function of the Weibull PH regression
+model is
+
+\deqn{f(y_i \mid \boldsymbol{x}_i, \alpha, \boldsymbol{\beta}, \delta, \gamma)
+  = \left( \frac{\alpha}{\sigma_i} \right) \left( \frac{y_i}{\sigma_i}
+  \right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma_i} \right)^\alpha \right),}
+
+where \eqn{-\log(\sigma_i) = \beta_0 + \beta_1 x_{i,1} + \ldots +
+  \beta_p x_{i,p} + \delta + \gamma}. Here, \eqn{\delta} and \eqn{\gamma}
+denote the conditional drift (\code{cond_drift}) and conditional treatment
+effect (\code{cond_trt_effect}), respectively, that can be calculated using
+\code{\link[=calc_cond_weibull]{calc_cond_weibull()}} for desired values of the marginal drift and marginal
+treatment effect.
 }
 \examples{
 library(dplyr)

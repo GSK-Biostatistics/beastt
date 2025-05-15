@@ -1,11 +1,20 @@
-#' Simulate participant accrual times
+#' Simulate Participant Accrual Times
 #'
 #' @param n Number of participants
 #' @param accrual_periods Vector of right endpoints defining the time periods of
 #'   accrual, e.g., c(6,8) defines 0<=x<6, 6<=x<8.
 #' @param accrual_props Vector indicating the proportion of participants that are
-#'   expected to be enrolled during each of the defined accrual periods. Must sum
-#'   to 1.
+#'   expected to be enrolled during each of the defined accrual periods. Should
+#'   sum to 1, otherwise these proportions will be normalized.
+#'
+#' @details Simulate the accrual times for each participant, where
+#'   `accrual_periods` defines the right time points for each accrual period
+#'   (with the last element corresponding to the end of accrual), and
+#'   `accrual_props` defines the proportion of study participants who are
+#'   enrolled during each of these periods. The simulated accrual times for
+#'   participants within a given accrual period are assumed to be uniformly
+#'   distributed.
+#'
 #' @return Vector of accrual times corresponding to when each participant enters
 #'   the study
 #' @export
@@ -22,8 +31,11 @@ sim_accrual <- function(n, accrual_periods, accrual_props){
   # Calculate accrual probabilities for each period
   accrual_periods <- c(0, accrual_periods)
 
+  # Normalize accrual probabilities to ensure they add up to 1 (if they don't already)
+  accrual_props_norm <- accrual_props / sum(accrual_props)
+
   # Randomly sample period during which each patient is enrolled
-  periods <- sample(1:(length(accrual_periods) - 1), n, replace = TRUE, prob = accrual_props)
+  periods <- sample(1:(length(accrual_periods) - 1), n, replace = TRUE, prob = accrual_props_norm)
 
   # Randomly sample accrual time within specified interval for each patient
   t <- runif(n, min = accrual_periods[periods], accrual_periods[periods + 1])
@@ -31,13 +43,20 @@ sim_accrual <- function(n, accrual_periods, accrual_props){
 
 }
 
-#' Simulate event times for each individual from a piecewise constant hazard model
+#' Simulate Event Times for Each Individual from a Piecewise Constant Hazard Model
 #'
 #' @param n Number of individuals
 #' @param hazard_periods Vector of break points between time periods with separate constant
 #'        hazards, e.g., c(6,8) defines [0,6), [6,8), [8, infinity). Leave as NULL if
 #'        defining only one hazard period.
 #' @param hazard_values Vector of constant hazard values associated with the time intervals
+#'
+#' @details Simulate the event or censoring times for each participant using a
+#'   piecewise constant hazard model where each time period is defined to have
+#'   a different constant hazard. Here, `hazard_periods` defines the right
+#'   time points for each time period (with the exception of the last time
+#'   period which extends to infinity), and `hazard_values` defines the constant
+#'   hazards for each time period.
 #'
 #' @return Vector of simulated times from the time-to-event distribution
 #' @export
@@ -70,8 +89,8 @@ sim_pw_const_haz <- function(n, hazard_periods = NULL, hazard_values){
 
 }
 
-#' Simulate event times for each participant from a Weibull proportional hazards
-#' regression model
+#' Simulate Event Times for Each Participant from a Weibull Proportional Hazards
+#' Regression Model
 #'
 #' @param weibull_ph_mod `survreg` object corresponding to a Weibull
 #'   proportional hazards model fit using the external data
@@ -86,6 +105,32 @@ sim_pw_const_haz <- function(n, hazard_periods = NULL, hazard_values){
 #'   which the intercept in the Weibull proportional hazards regression model
 #'   should be increased/decreased if simulating event data for a treated arm.
 #'   Default is 0.
+#'
+#' @details Simulate the event times for each participant using a Weibull
+#'   proportional hazards (PH) regression model. The "true" parameter values
+#'   for the Weibull shape \eqn{\alpha} and the regression coefficients
+#'   \eqn{\boldsymbol{\beta}} are assumed to be equal to the parameter estimates
+#'   from a `survreg` object (`weibull_ph_mod`) fit using external data (note
+#'   that the Weibull shape parameter \eqn{\alpha} is defined as the inverse of
+#'   the scale parameter reported by `survreg`).
+#'
+#'   For participant \eqn{i}, let \eqn{y_i} denote the time-to-event random
+#'   variable and \eqn{\boldsymbol{x}_i = \{x_{i,1}, \ldots, x_{i,p}\}} the
+#'   vector of \eqn{p} covariates (row \eqn{i} of `samp_df`) that correspond
+#'   to the \eqn{(p+1)}-dimensional vector of regression coefficients
+#'   \eqn{\boldsymbol{\beta}}. The density function of the Weibull PH regression
+#'   model is
+#'
+#'   \deqn{f(y_i \mid \boldsymbol{x}_i, \alpha, \boldsymbol{\beta}, \delta, \gamma)
+#'   = \left( \frac{\alpha}{\sigma_i} \right) \left( \frac{y_i}{\sigma_i}
+#'   \right)^{\alpha - 1} \exp \left( -\left( \frac{y_i}{\sigma_i} \right)^\alpha \right),}
+#'
+#'   where \eqn{-\log(\sigma_i) = \beta_0 + \beta_1 x_{i,1} + \ldots +
+#'   \beta_p x_{i,p} + \delta + \gamma}. Here, \eqn{\delta} and \eqn{\gamma}
+#'   denote the conditional drift (`cond_drift`) and conditional treatment
+#'   effect (`cond_trt_effect`), respectively, that can be calculated using
+#'   [calc_cond_weibull()] for desired values of the marginal drift and marginal
+#'   treatment effect.
 #'
 #' @return Vector of simulated event times from a Weibull proportional hazards
 #'   regression model
@@ -227,7 +272,7 @@ sim_weib_ph <- function(weibull_ph_mod, samp_df, cond_drift = 0,
 #'   internal treated population.
 #'
 #'   See [here](https://github.com/GSK-Biostatistics/beastt/blob/e2b41fe90f639924d10c0d94ceff04a74d0ce617/inst/templates/tte-template.R)
-#'   for a survival simulation example.
+#'   for a simulation example with a time-to-event outcome.
 #'
 #' @returns tibble of all combinations of the marginal drift and treatment
 #'   effect. For each row the conditional drift and treatment effect has been
@@ -368,39 +413,59 @@ calc_cond_weibull <- function(population, weibull_ph_mod, marg_drift, marg_trt_e
 
 }
 
-#' Calculate the analysis time based on a target number of events
+#' Calculate the Analysis Time Based on a Target Number of Events and/or Target
+#' Follow-up Time
 #'
-#' @param study_time Vector of study (accrual + observed) times
-#' @param observed_time Vector of observed times
-#' @param event_indicator Vector of boolean values (True/False or 1/0) indicating if the observed time value is an event or censoring
-#' @param target_events Number of target events, if only using target follow-up time leave NULL
-#' @param target_follow_up Target follow-up for each subject, if only using target events leave NULL
+#' @param study_time Vector of study times (accrual time + observed time)
+#' @param observed_time Vector of observed times (event time or censoring time)
+#' @param event_indicator Vector of boolean values (TRUE/FALSE or 1/0)
+#'   indicating if the observed time value is an event or censoring time
+#' @param target_events Target number of events, where the analysis time is
+#'   determined once this number of events is reached. Default is `NULL`, in
+#'   which case `target_follow_up` must be specified.
+#' @param target_follow_up Target follow-up for each participant, where the
+#'   analysis time is determined once each participant in the risk set is
+#'   followed up for this amount of time (i.e., minimum follow-up time). Default
+#'   is `NULL`, in which case `target_events` must be specified.
+#'
+#' @details This function calculates the analysis time for a study with a
+#'   time-to-event endpoint for which the target number of events
+#'   (`target_events`) and/or target follow-up time (`target_follow_up`) are
+#'   specified. If only `target_events` is specified, the analysis will occur
+#'   at the time when the target number of events has been reached. If only
+#'   `target_follow_up` is specified, the analysis will occur once the
+#'   last-enrolled participant who is still in the risk set has been followed up
+#'   for this amount of time. If both `target_events` and `target_follow_up` are
+#'   specified, the analysis time will be based on whichever occurs first.
 #'
 #' @returns Time of analysis
 #' @export
 #'
 #' @examples
 #' library(dplyr)
-#' # Determining analysis time by reaching a number of events
+#'
+#' # Determining analysis time by reaching a target number of events
 #' ex_tte_df |> mutate(
 #'   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
-#'                                      event_indicator = event, target_events = 30)
+#'                                       event_indicator = event, target_events = 30)
 #' )
-#' # Determining analysis time by minimum follow-up time
+#'
+#' # Determining analysis time by a target follow-up time
 #' ex_tte_df |> mutate(
 #'   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
-#'                                      event_indicator = event, target_follow_up = 12)
+#'                                       event_indicator = event, target_follow_up = 12)
 #' )
-#' # Or use both and whichever happens first
+#'
+#' # Or use both (whichever happens first)
 #' ex_tte_df |> mutate(
 #'   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
-#'                                      event_indicator = event,
-#'                                      target_events = 30, target_follow_up = 12)
+#'                                       event_indicator = event,
+#'                                       target_events = 30, target_follow_up = 12)
 #' )
 calc_study_duration <- function(study_time, observed_time, event_indicator,
                                target_events = NULL, target_follow_up = NULL){
   if(is.null(target_events) & is.null(target_follow_up)){
-    cli_abort("Either {.arg target_events} or {.arg target_follow_up} need to be not NULL")
+    cli_abort("{.arg target_events} or {.arg target_follow_up} cannot both be NULL")
   }
   analy_time <- max(study_time) # Maximum time
   event_indicator <- as.logical(event_indicator)

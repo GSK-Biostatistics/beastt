@@ -3,25 +3,20 @@
 #' Create visualization plots to help identify the "sweet spot" in borrowing
 #' strategies across different simulation scenarios. For each unique scenario
 #' defined by the combination of variables in `scenario_vars`, the function
-#' produces a plot showing power, Type I error, and the distribution of the
-#' power prior (possibly inverse probability weighted) for approaches with and
+#' produces a plot showing power, type I error, and the distribution of the
+#' design prior for the control marginal parameter for approaches with and
 #' without borrowing.
 #'
 #' @param .data A data frame containing iteration-level simulation results.
-#' @param scenario_vars A vector of unquoted column names corresponding to
-#'   variables used to define unique simulation scenarios. Each unique
+#' @param scenario_vars A vector of quoted column names corresponding
+#'   to variables used to define unique simulation scenarios. Each unique
 #'   combination of values in these columns will generate a separate plot.
 #' @param trt_diff An unquoted column name representing the treatment
 #'   difference. Used to identify scenarios with null effect (trt_diff = 0) for
-#'   Type I error calculation.
+#'   type I error calculation.
 #' @param control_marg_param An unquoted column name to be used as the x-axis in
 #'   the plots. This is typically the control endpoint of interest on the
 #'   marginal scale (e.g., control response rate).
-#' @param prior An unquoted column name containing distributional objects that
-#'   represent the prior (either IPW power prior or robustified mixture prior)
-#'   distribution.For multivariate normal distributions, they must first be
-#'   approximated as beta distributions at a given time point.
-#'   [approx_mvn_at_time()] will do this approximation.
 #' @param h0_prob An unquoted column name containing the probability of
 #'   rejecting the null hypothesis when when borrowing external data.
 #' @param h0_prob_no_borrowing An unquoted column name containing the
@@ -30,48 +25,71 @@
 #' @param highlight Logical value to indicate if you want sweet spot
 #'   highlighting or not. If `TRUE` the sweet spot (where borrowing increase
 #'   power and reduces type 1 error) will be highlighted.
+#' @param design_prior An unquoted column name containing distributional objects
+#'   that represent the design prior distribution for the control marginal
+#'   parameter (e.g., posterior distribution using the external control data).
+#'   Used to aid visualization of which values of the control marginal parameter
+#'   are assumed to be plausible. Default is `NULL`, in which case no design
+#'   prior is plotted. See Details for more information.
 #'
 #' @return A list of ggplot objects, one for each unique scenario defined by
 #'   `scenario_vars`. Each plot shows:
 #'   \itemize{
 #'     \item Power curves for the cases with and without borrowing
 #'     \item Type I error rates for the cases with and without borrowing
-#'     \item Distribution of the power prior (or the IPW power prior averaged across iterations)
-
+#'     \item Distribution of the design prior (if `design_prior` is specified)
 #'   }
 #'
-#' @details The function calculates power and type I error rates for BDB
-#'   approaches that borrow from external data (e.g., use of a robust mixture
-#'   prior with positive weight on the informative component) and an approach
-#'   that does not borrow from external data (e.g., use of a vague prior) under
-#'   each scenario and visualizes them together as a function of the underlying
-#'   control marginal parameter of interest (e.g., control response rate for
-#'   binary outcomes) that may vary as a result of drift. This helps identify
-#'   the "sweet spot" where borrowing provides power gains while maintaining
-#'   acceptable type I error rates. The power prior distribution (or average
-#'   distribution, if inverse probability weighting is used) is included in the
-#'   plot to provide insight into which values of the control marginal parameter
-#'   are plausible given the external data. We note that `prior` does not need
-#'   to correspond to an actual power prior, but more generally can represent
-#'   any informative prior that incorporates the external control data (e.g.,
-#'   the posterior distribution of the control marginal parameter constructed
-#'   using the external data and a vague prior).
+#' @details The function calculates power and type I error rates for BDB approaches
+#' that borrow from external data (e.g., use of a robust mixture prior with positive
+#' weight on the informative component) and an approach that does not
+#' borrow from external data (e.g., use of a vague prior) under each scenario
+#' and visualizes them together as a function of the underlying control marginal
+#' parameter of interest (e.g., control response rate for binary outcomes) that
+#' may vary as a result of drift. This helps identify the "sweet spot" where borrowing
+#' results in higher power and lower type I error rates compared to not borrowing.
+#' Type I error is calculated using scenarios where `trt_diff` equals 0, and power
+#' is calculated for all scenarios with positive values of `trt_diff`.
 #'
-#'   Type I error is calculated using scenarios where `trt_diff` equals 0. Power
-#'   is calculated for all scenarios with positive values of `trt_diff`.
+#' If `design_prior` is non-`NULL`, the design prior distribution is included
+#' in the plot to provide insight into which values of the control marginal
+#' parameter are plausible given this assumed design prior. We note that
+#' `design_prior` can represent any informative prior that potentially
+#' incorporates the external control data (e.g., the posterior distribution of
+#' the control marginal parameter constructed using the external data and a
+#' vague prior). Each element of the vector corresponding to `design_prior` must
+#' be a distributional object with a family equal to "beta", "normal", or
+#' "mixture" (where each component is either "beta" or "normal"). For the
+#' time-to-event case in which a multivariate normal prior is assumed for the
+#' control log-shape and intercept of a Weibull proportional hazards model,
+#' this distribution must first be translated into a univariate beta design
+#' prior for the control survival probability at some prespecified time.
+#' This approximation can be done using [approx_mvn_at_time()]. If the
+#' design priors in the vector indicated by `design_prior` differ across
+#' iterations within a given scenario (e.g., using the IPW power prior as the
+#' iteration-specific design prior), then the average distribution will be
+#' plotted (i.e., a distribution of the same family with the hyperparameters
+#' averaged across iterations).
+#'
+#' @references
+#' Best, N., Ajimi, M., Neuenschwander, B., Saint-Hilary, G., & Wandel, S.
+#' (2024). Beyond the Classical Type I Error: Bayesian Metrics for Bayesian
+#' Designs Using Informative Priors. \emph{Statistics in Biopharmaceutical Research},
+#' 17(2), 183–196. \doi{10.1080/19466315.2024.2342817}
 #'
 #'
 #' @examples
 #' library(dplyr)
-#' # Assuming binary_sim_df is a data frame with simulation results in the shape of binary template code
+#' # Assuming binary_sim_df is a data frame with simulation results in the shape
+#' # of binary template code
 #' plots <- sweet_spot_plot(
 #'   .data = binary_sim_df,
 #'   scenario_vars = c("population", "marg_trt_eff"),
 #'   trt_diff = marg_trt_eff,
 #'   control_marg_param = true_control_RR,
-#'   prior = pwr_prior,
 #'   h0_prob = reject_H0_yes,
-#'   h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+#'   h0_prob_no_borrowing = no_borrowing_reject_H0_yes,
+#'   design_prior = pwr_prior
 #' )
 #'
 #' # Display the first plot
@@ -83,9 +101,9 @@
 #'    scenario_vars = c("population", "marg_trt_eff"),
 #'    trt_diff = marg_trt_eff,
 #'    control_marg_param = true_control_surv_prob,
-#'    prior = beta_appox,
 #'    h0_prob = reject_H0_yes,
-#'    h0_prob_no_borrowing = no_borrowing_reject_H0_yes
+#'    h0_prob_no_borrowing = no_borrowing_reject_H0_yes,
+#'    design_prior = beta_appox
 #'  )
 #'
 #' tte_plots[[1]]
@@ -93,19 +111,11 @@
 #' @export
 sweet_spot_plot <- function(.data, scenario_vars,
                             trt_diff, control_marg_param,
-                            prior,
                             h0_prob, h0_prob_no_borrowing,
+                            design_prior = NULL,
                             highlight = TRUE
 ){
 
-  prior_col <- .data |> pull({{prior}})
-  if(!distributional::is_distribution(prior_col)){
-    cli_abort("`prior` must be a column of distributional objects")
-  }
-  all_fam <- unique(family(prior_col))
-  if(all_fam %in% c("mvnorm")){
-    cli_abort("Multivariate `prior` need to be approximated as a beta, see `approx_mvn_at_time()`")
-  }
   if(nrow(dplyr::filter(.data, {{trt_diff}} == 0)) == 0){
     cli_abort("Unable to calculate Type 1 Error without a scenario where `trt_diff` equals 0")
   }
@@ -121,11 +131,11 @@ sweet_spot_plot <- function(.data, scenario_vars,
     dplyr::summarise(type1_borrowing = mean({{h0_prob}}),
                      type1_no_borrowing = mean({{h0_prob_no_borrowing}}),
                      .groups = "drop") |>
-    dplyr::select({{scenario_vars}}, {{control_marg_param}}, .data$type1_borrowing,
-                  .data$type1_no_borrowing, -{{trt_diff}}) |>
-    tidyr::pivot_longer(c(.data$type1_borrowing, .data$type1_no_borrowing),
+    dplyr::select({{scenario_vars}}, {{control_marg_param}}, "type1_borrowing",
+                  "type1_no_borrowing", -{{trt_diff}}) |>
+    tidyr::pivot_longer(c("type1_borrowing", "type1_no_borrowing"),
                         names_prefix = "type1_",
-                        names_to = "borrowing_status", values_to = "Type 1 Error")
+                        names_to = "borrowing_status", values_to = "Type I Error")
 
   # Calculate power for all scenarios
   power <- data_grouped |>
@@ -133,8 +143,8 @@ sweet_spot_plot <- function(.data, scenario_vars,
                      h0_prob_no_borrowing = mean({{h0_prob_no_borrowing}}),
                      .groups = "drop") |>
     dplyr::select({{scenario_vars}}, {{control_marg_param}}, {{trt_diff}},
-                  .data$h0_prob_borrowing, .data$h0_prob_no_borrowing) |>
-    tidyr::pivot_longer(c(.data$h0_prob_borrowing, .data$h0_prob_no_borrowing),
+                  "h0_prob_borrowing", "h0_prob_no_borrowing") |>
+    tidyr::pivot_longer(c("h0_prob_borrowing", "h0_prob_no_borrowing"),
                         names_prefix = "h0_prob_",
                         names_to = "borrowing_status", values_to = "Power")
 
@@ -150,27 +160,42 @@ sweet_spot_plot <- function(.data, scenario_vars,
   plot_df <- power |>
     dplyr::left_join(type1_df, by = dplyr::join_by({{control_marg_param}}, !!!sc_vars_no_trt_diff, "borrowing_status")) |>
     dplyr::filter({{trt_diff}} != 0) |>
-    tidyr::pivot_longer(c("Power", .data$`Type 1 Error`)) |>
+    tidyr::pivot_longer(c("Power", "Type I Error")) |>
     dplyr::group_by(dplyr::across({{scenario_vars}})) |>
     tidyr::nest()
 
-  # Get the average power prior for each scenario,
-  # dropping where the trt difference is 0
-  prior <- .data |>
-    dplyr::group_by(dplyr::across({{scenario_vars}})) |>
-    dplyr::filter({{trt_diff}} != 0) |>
-    dplyr::summarise(pwr_prior = avg_dist({{prior}}), .groups = "drop_last") |>
-    dplyr::select({{scenario_vars}}, .data$pwr_prior)
+  design_prior_test <- !rlang::quo_is_null(rlang::enquo(design_prior))
 
-  # Create a plot for each scenario
-  quite_join <- purrr::quietly(dplyr::left_join)
-  plot_ls<- plot_df |>
-    quite_join(prior) |>
-    _$result |>
+  if(design_prior_test){
+    prior_col <- .data |> dplyr::pull({{design_prior}})
+    if(!distributional::is_distribution(prior_col)){
+      cli_abort("`design_prior` must be a column of distributional objects")
+    }
+    all_fam <- unique(family(prior_col))
+    if(all_fam %in% c("mvnorm")){
+      cli_abort("Multivariate `design_prior` need to be approximated as a beta, see `approx_mvn_at_time()`")
+    }
+
+    # Get the average design prior for each scenario,
+    # dropping where the trt difference is 0
+    prior <- .data |>
+      dplyr::group_by(dplyr::across({{scenario_vars}})) |>
+      dplyr::filter({{trt_diff}} != 0) |>
+      dplyr::summarise(des_prior = avg_dist({{design_prior}}), .groups = "drop_last") |>
+      dplyr::select({{scenario_vars}}, "des_prior")
+
+    # Create a plot for each scenario
+    quite_join <- purrr::quietly(dplyr::left_join)
+    plot_df_combo<- plot_df |>
+      quite_join(prior)
+    plot_df <- plot_df_combo$result
+  }
+
+  plot_ls<-  plot_df |>
     purrr::pmap(\(...){
       inputs <- list(...)
 
-      scenarios_cols <- inputs[!names(inputs) %in% c("data", "pwr_prior")]
+      scenarios_cols <- inputs[!names(inputs) %in% c("data", "des_prior")]
       title = purrr::map2_chr(names(scenarios_cols), scenarios_cols,
                               \(x, y) {
                                 y_one <- stringr::str_c(y, collapse = ", ")
@@ -183,7 +208,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
       colors <- c("#5398BE", "#FFA21F")
 
       type1_range <- inputs$data |>
-        dplyr::filter(.data$name == "Type 1 Error") |>
+        dplyr::filter(.data$name == "Type I Error") |>
         dplyr::pull() |>
         range()
 
@@ -199,15 +224,22 @@ sweet_spot_plot <- function(.data, scenario_vars,
       scaled_df <- inputs$data |>
         dplyr::mutate(
           value = dplyr::case_when(
-            .data$name == "Type 1 Error" ~  .data$value*inflate_fct,
+            .data$name == "Type I Error" ~  .data$value*inflate_fct,
             TRUE ~ .data$value
           )
         )
-      plot <- ggplot() +
-        ggdist::stat_slab(aes(xdist = inputs$pwr_prior, fill = "Prior"),
-                          alpha = 0.5,
-                          color = "grey80", linewidth = 0.25
-        ) +
+
+      if(design_prior_test){
+        plot <- ggplot() +
+          ggdist::stat_slab(aes(xdist = inputs$des_prior, fill = "Design Prior"),
+                            alpha = 0.5,
+                            color = "grey80", linewidth = 0.25
+          )
+      } else {
+        plot <- ggplot()
+      }
+
+      plot <- plot +
         ggplot2::geom_line(data = scaled_df,
                            aes(x = {{control_marg_param}}, y = .data$value,
                                linetype = .data$borrowing_status, color = .data$name),
@@ -229,40 +261,54 @@ sweet_spot_plot <- function(.data, scenario_vars,
         ggplot2::theme(legend.position = "bottom")
 
       if(highlight){
-        # Reshape to make borrowing and no-borrowing seperate columns
+        # Reshape to make borrowing and no-borrowing separate columns
         reshaped_df <- scaled_df |>
-          tidyr::pivot_wider(id_cols = c({{control_marg_param}}, name),
-                      names_from = borrowing_status)
+          tidyr::pivot_wider(id_cols = c({{control_marg_param}}, "name"),
+                      names_from = "borrowing_status")
 
         # For each point, calculate the slope from the previous point to that one
         # Then calculate the intercept to determine when the borrowing and no borrowing line would cross
         line_cross_df <- reshaped_df |>
-          dplyr::group_by(name) |>
+          dplyr::group_by(.data$name) |>
           dplyr::mutate(
-            dplyr::across(c(borrowing, no_borrowing), \(x){
+            dplyr::across(c("borrowing", "no_borrowing"), \(x){
               slope = (x - dplyr::lag(x)) / ({{control_marg_param}} - dplyr::lag({{control_marg_param}}))
             }, .names = "{.col}_slope"),
-            int_borrowing = borrowing - borrowing_slope*{{control_marg_param}},
-            int_no_borrowing = no_borrowing - no_borrowing_slope*{{control_marg_param}},
-            line_cross = (int_borrowing - int_no_borrowing) / (no_borrowing_slope - borrowing_slope))
+            int_borrowing = .data$borrowing - .data$borrowing_slope*{{control_marg_param}},
+            int_no_borrowing = .data$no_borrowing - .data$no_borrowing_slope*{{control_marg_param}},
+            line_cross = (.data$int_borrowing - .data$int_no_borrowing) / (.data$no_borrowing_slope - .data$borrowing_slope))
 
         # Get the minimum point when borrowing is greater than no borrowing for type 1 and power
         # These values represent the min and max value
-        highlight_range <- line_cross_df |>
-          dplyr::group_by(name) |>
-          dplyr::filter(borrowing > no_borrowing) |>
-          dplyr::filter({{control_marg_param}} == min({{control_marg_param}})) |>
-          dplyr::select(name, line_cross) |>
-          tidyr::pivot_wider(names_from = name, values_from = line_cross)
+        edge_vec <- line_cross_df |>
+          dplyr::filter(.data$name == "Power",
+                        {{control_marg_param}} %in% c(min({{control_marg_param}}), max({{control_marg_param}}))
+                        ) |>
+          dplyr::pull("borrowing")
+        dirction_test <- ifelse(edge_vec[1] < edge_vec[2], "positive", "negative")
 
-        if(
-          (is.na(highlight_range$Power) | is.na(highlight_range$`Type 1 Error`)) ||
-          highlight_range$Power > highlight_range$`Type 1 Error`) {
+        check_fx <- switch(dirction_test,
+                           "positive" = min,
+                           "negative" = max)
+        highlight_range <- line_cross_df |>
+          dplyr::group_by(.data$name) |>
+          dplyr::filter(.data$borrowing > .data$no_borrowing) |>
+          dplyr::filter({{control_marg_param}} == check_fx({{control_marg_param}})) |>
+          dplyr::select("name", "line_cross") |>
+          tidyr::pivot_wider(names_from = "name", values_from = "line_cross")
+
+        sweet_spot_check <- ifelse(dirction_test == "positive",
+                      highlight_range$Power > highlight_range$`Type I Error`,
+                      highlight_range$Power < highlight_range$`Type I Error`)
+
+        if((is.na(highlight_range$Power) | is.na(highlight_range$`Type I Error`)) ||
+          sweet_spot_check
+          ) {
           cli::cli_warn("No sweet spot avaliable to highlight")
         } else {
           plot <- plot +
             ggplot2::geom_rect(aes(xmin = highlight_range$Power,
-                               xmax = highlight_range$`Type 1 Error`,
+                               xmax = highlight_range$`Type I Error`,
                                ymin = 0, ymax = 1),
                                alpha = 0.25, fill = "#93A646"
                                )
@@ -280,24 +326,27 @@ sweet_spot_plot <- function(.data, scenario_vars,
 #' Calculate Average Distribution from Multiple Distributional Objects
 #'
 #' Compute a single "average" distribution from a vector of distributional
-#' objects. This function calculates the mean of each parameter across all input
-#' distributions and returns a new distributional object with these averaged
-#' parameters.
+#' objects. This function calculates the mean of each hyperparameter across all
+#' input distributions and returns a new distributional object of the same
+#' family with these averaged hyperparameters.
 #'
-#' @param x A vector of distributional objects of the same family (beta, normal,
-#'   multivariate normal, or mixtures of these).
+#' @param x A vector of distributional objects of the same family (beta,
+#'   normal, multivariate normal, or mixture).
 #'
-#' @return A single distributional object of the same family as the input, with
-#'   parameters set to the average of all input distribution parameters.
+#' @return A single distributional object of the same family as the input,
+#'   with hyperparameters set equal to the average of all input distribution
+#'   hyperparameters.
 #'
-#' @details The function supports three distribution families:
+#' @details
+#' The function supports four distribution families:
 #' \itemize{
-#'   \item Beta distributions: Averages the shape1 and shape2 parameters
-#'   \item Normal distributions: Averages the mean and sd parameters
+#'   \item Beta distributions: Averages the shape1 and shape2 hyperparameters
+#'   \item Normal distributions: Averages the mean and standard deviation
+#'     hyperparameters
 #'   \item Multivariate normal distributions: Averages the location vectors
 #'     and covariance matrices
-#'   \item Mixture distributions: Same as above for each distribution type, just
-#'   by component. As well as the average weight.
+#'   \item Mixture distributions: Same as above for each distribution type,
+#'     where averaging is done by component. Also averages the mixture weight.
 #' }
 #'
 #'   For multivariate normal distributions, both the location vector and
@@ -313,7 +362,7 @@ sweet_spot_plot <- function(.data, scenario_vars,
 #'   dist_beta(shape1 = 3, shape2 = 3),
 #'   dist_beta(shape1 = 4, shape2 = 2)
 #' )
-#' avg_dist(beta_dists)
+#' avg_dist(beta_dists) |> parameters()
 #'
 #' # Normal distributions
 #' norm_dists <- c(
@@ -328,8 +377,8 @@ sweet_spot_plot <- function(.data, scenario_vars,
 #'   dist_multivariate_normal(mu = list(c(0, 0)), sigma = list(matrix(c(1, 0, 0, 1), nrow = 2))),
 #'   dist_multivariate_normal(mu = list(c(1, 1)), sigma = list(matrix(c(2, 0, 0, 2), nrow = 2)))
 #' )
-#'
 #' avg_dist(mvn_dists) |> parameters()
+#'
 #' @export
 avg_dist <- function(x){
   if(!distributional::is_distribution(x)){
@@ -446,7 +495,7 @@ approx_mvn_at_time <- function(x, time){
       # Approximate the IPW power prior for the control survival probability at time
       # t with a beta distribution
       IPW_pp_mean <- mean(surv_prob_pp)
-      IPW_pp_var <- var(surv_prob_pp)
+      IPW_pp_var <- stats::var(surv_prob_pp)
       IPW_pp_shape1 <- ((1 - IPW_pp_mean) / IPW_pp_var - 1 / IPW_pp_mean) * IPW_pp_mean^2
       IPW_pp_shape2 <- IPW_pp_shape1 * (1 / IPW_pp_mean - 1)
       dist_beta(shape1 = IPW_pp_shape1, shape2 = IPW_pp_shape2)

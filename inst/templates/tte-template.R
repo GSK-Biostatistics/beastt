@@ -341,7 +341,8 @@ combined_output <- all_sims |>
   left_join(sim_output, by = c("scenario", "iter_id"))
 
 # Save results for all iterations
-# save(combined_output, "Location where results should be saved.rda")
+# save(combined_output, file = "Location where results should be saved.rda")
+
 
 # Get the column names of everything that we want to summaries by (i.e.,
 # everything but the iterations)

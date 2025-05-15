@@ -2,7 +2,7 @@
 % Please edit documentation in R/tte-sim.R
 \name{sim_accrual}
 \alias{sim_accrual}
-\title{Simulate participant accrual times}
+\title{Simulate Participant Accrual Times}
 \usage{
 sim_accrual(n, accrual_periods, accrual_props)
 }
@@ -13,15 +13,24 @@ sim_accrual(n, accrual_periods, accrual_props)
 accrual, e.g., c(6,8) defines 0<=x<6, 6<=x<8.}
 
 \item{accrual_props}{Vector indicating the proportion of participants that are
-expected to be enrolled during each of the defined accrual periods. Must sum
-to 1.}
+expected to be enrolled during each of the defined accrual periods. Should
+sum to 1, otherwise these proportions will be normalized.}
 }
 \value{
 Vector of accrual times corresponding to when each participant enters
 the study
 }
 \description{
-Simulate participant accrual times
+Simulate Participant Accrual Times
+}
+\details{
+Simulate the accrual times for each participant, where
+\code{accrual_periods} defines the right time points for each accrual period
+(with the last element corresponding to the end of accrual), and
+\code{accrual_props} defines the proportion of study participants who are
+enrolled during each of these periods. The simulated accrual times for
+participants within a given accrual period are assumed to be uniformly
+distributed.
 }
 \examples{
 at <- sim_accrual(n = 100000, accrual_periods = c(6, 8), accrual_props = c(.5, .5))

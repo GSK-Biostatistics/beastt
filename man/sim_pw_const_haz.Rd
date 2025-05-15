@@ -2,7 +2,7 @@
 % Please edit documentation in R/tte-sim.R
 \name{sim_pw_const_haz}
 \alias{sim_pw_const_haz}
-\title{Simulate event times for each individual from a piecewise constant hazard model}
+\title{Simulate Event Times for Each Individual from a Piecewise Constant Hazard Model}
 \usage{
 sim_pw_const_haz(n, hazard_periods = NULL, hazard_values)
 }
@@ -19,7 +19,15 @@ defining only one hazard period.}
 Vector of simulated times from the time-to-event distribution
 }
 \description{
-Simulate event times for each individual from a piecewise constant hazard model
+Simulate Event Times for Each Individual from a Piecewise Constant Hazard Model
+}
+\details{
+Simulate the event or censoring times for each participant using a
+piecewise constant hazard model where each time period is defined to have
+a different constant hazard. Here, \code{hazard_periods} defines the right
+time points for each time period (with the exception of the last time
+period which extends to infinity), and \code{hazard_values} defines the constant
+hazards for each time period.
 }
 \examples{
 tte_dat <- sim_pw_const_haz(n = 100000, hazard_periods = c(6, 8), hazard_values = c(0.1, 0.1, 0.1))

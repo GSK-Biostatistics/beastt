@@ -3,18 +3,18 @@
 \docType{data}
 \name{tte_sim_df}
 \alias{tte_sim_df}
-\title{Time to Event Simulation Data}
+\title{Time-to-Event Simulation Data}
 \format{
 \subsection{\code{tte_sim_df} A data frame with 18 rows and 7 columns:}{
 
 \describe{
 \item{population}{Populations defined by different covariate imbalances}
 \item{marg_trt_eff}{Marginal treatment effect}
-\item{true_control_surv_prop}{True control survival probability on the marginal scale}
+\item{true_control_surv_prop}{True control survival probability at time t=12 months on the marginal scale}
 \item{reject_H0_yes}{Probability of rejecting the null hypothesis in the case with borrowing}
 \item{no_borrowing_reject_H0_yes}{Probability of rejecting the null hypothesis without borrowing}
 \item{pwr_prior}{Vector of IPW power priors as distributional objects}
-\item{mix_prior}{Vector of mixture priors, the robustified IPW power priors, as distributional objects}
+\item{mix_prior}{Vector of mixture priors (i.e., the robustified IPW power priors) as distributional objects}
 }
 }
 }

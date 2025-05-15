@@ -2,7 +2,8 @@
 % Please edit documentation in R/tte-sim.R
 \name{calc_study_duration}
 \alias{calc_study_duration}
-\title{Calculate the analysis time based on a target number of events}
+\title{Calculate the Analysis Time Based on a Target Number of Events and/or Target
+Follow-up Time}
 \usage{
 calc_study_duration(
   study_time,
@@ -13,38 +14,59 @@ calc_study_duration(
 )
 }
 \arguments{
-\item{study_time}{Vector of study (accrual + observed) times}
+\item{study_time}{Vector of study times (accrual time + observed time)}
 
-\item{observed_time}{Vector of observed times}
+\item{observed_time}{Vector of observed times (event time or censoring time)}
 
-\item{event_indicator}{Vector of boolean values (True/False or 1/0) indicating if the observed time value is an event or censoring}
+\item{event_indicator}{Vector of boolean values (TRUE/FALSE or 1/0)
+indicating if the observed time value is an event or censoring time}
 
-\item{target_events}{Number of target events, if only using target follow-up time leave NULL}
+\item{target_events}{Target number of events, where the analysis time is
+determined once this number of events is reached. Default is \code{NULL}, in
+which case \code{target_follow_up} must be specified.}
 
-\item{target_follow_up}{Target follow-up for each subject, if only using target events leave NULL}
+\item{target_follow_up}{Target follow-up for each participant, where the
+analysis time is determined once each participant in the risk set is
+followed up for this amount of time (i.e., minimum follow-up time). Default
+is \code{NULL}, in which case \code{target_events} must be specified.}
 }
 \value{
 Time of analysis
 }
 \description{
-Calculate the analysis time based on a target number of events
+Calculate the Analysis Time Based on a Target Number of Events and/or Target
+Follow-up Time
+}
+\details{
+This function calculates the analysis time for a study with a
+time-to-event endpoint for which the target number of events
+(\code{target_events}) and/or target follow-up time (\code{target_follow_up}) are
+specified. If only \code{target_events} is specified, the analysis will occur
+at the time when the target number of events has been reached. If only
+\code{target_follow_up} is specified, the analysis will occur once the
+last-enrolled participant who is still in the risk set has been followed up
+for this amount of time. If both \code{target_events} and \code{target_follow_up} are
+specified, the analysis time will be based on whichever occurs first.
 }
 \examples{
 library(dplyr)
-# Determining analysis time by reaching a number of events
+
+# Determining analysis time by reaching a target number of events
 ex_tte_df |> mutate(
   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
-                                     event_indicator = event, target_events = 30)
+                                      event_indicator = event, target_events = 30)
 )
-# Determining analysis time by minimum follow-up time
+
+# Determining analysis time by a target follow-up time
 ex_tte_df |> mutate(
   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
-                                     event_indicator = event, target_follow_up = 12)
+                                      event_indicator = event, target_follow_up = 12)
 )
-# Or use both and whichever happens first
+
+# Or use both (whichever happens first)
 ex_tte_df |> mutate(
   analysis_time = calc_study_duration(study_time = total_time, observed_time = y,
-                                     event_indicator = event,
-                                     target_events = 30, target_follow_up = 12)
+                                      event_indicator = event,
+                                      target_events = 30, target_follow_up = 12)
 )
 }
