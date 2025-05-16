@@ -76,7 +76,7 @@ plot_dist_mvnorm <- function(dist_list){
   for (i in 1:length(dist_list)){
     dist <- dist_list[[i]]
     mus <- mean(dist)
-    vars <- diag(matrix(unlist(variance(dist)), ncol = length(mus)))
+    vars <- variance(dist)
     sigmas <- map_dbl(vars, sqrt)
     if(length(mus) == 1 & length(vars) == 1){
       cli_abort("Cannot plot multivariate normals with an index of 1")
@@ -152,6 +152,12 @@ correct_weights <- function(x){
 #' library(distributional)
 #' robustify_norm(dist_normal(0,1), n = 15)
 robustify_norm <- function(prior, n, weights = c(0.5, 0.5)){
+  if(!(n > 0  & round(n))){
+    cli_abort("{.agr n} must be a positive integer")
+  }
+  if(!(all(weights >= 0) & all(weights <= 1) & sum(weights) == 1)){
+    cli_abort("{.agr weights} must be between 0 and 1 and sum to 1")
+  }
   prior_fam <- family(prior)
   if(prior_fam == "normal"){
     prior_param <- parameters(prior)
