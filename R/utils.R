@@ -76,11 +76,11 @@ plot_dist_mvnorm <- function(dist_list){
   for (i in 1:length(dist_list)){
     dist <- dist_list[[i]]
     mus <- mean(dist)
-    vars <- variance(dist)
+    vars <- diag(matrix(unlist(variance(dist)), ncol = length(mus)))
+    sigmas <- map_dbl(vars, sqrt)
     if(length(mus) == 1 & length(vars) == 1){
       cli_abort("Cannot plot multivariate normals with an index of 1")
     }
-    sigmas <- map_dbl(vars, sqrt)
     x1 <- seq(from=mus[1]-2.5*sigmas[1], to=mus[1]+2.5*sigmas[1], length.out=100)
     x2 <- seq(from=mus[2]-2.5*sigmas[2], to=mus[2]+2.5*sigmas[2], length.out=100)
     temp <- crossing(x1, x2) |>
