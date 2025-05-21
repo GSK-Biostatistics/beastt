@@ -477,12 +477,11 @@ calc_study_duration <- function(study_time, observed_time, event_indicator,
                           missing = analy_time)
   }
   if(!is.null(target_follow_up)){
-    # Filter out any censored
-    event_st <- study_time[event_indicator]
-    event_ot <- observed_time[event_indicator]
-    subj_to_make_fu <- which(event_ot >= target_follow_up) #Get all individuals who have observed times at least to the minimum follow-up
-    accrual_time = event_st-event_ot
-    min_fu_time <- max(accrual_time[subj_to_make_fu])+target_follow_up
+    # Identify time when last enrolled participant still in risk set (individuals without
+    # event/censoring times) reaches min follow-up
+    subj_to_make_fu <- which(observed_time >= target_follow_up) #Get all individuals who have observed times at least to the minimum follow-up
+    accrual_time <- study_time - observed_time
+    min_fu_time <- max(accrual_time[subj_to_make_fu]) + target_follow_up  # time when final participant in risk set reaches min follow-up
     analy_time <- if_else(min_fu_time < analy_time, min_fu_time, analy_time,
                           missing = analy_time)
   }
