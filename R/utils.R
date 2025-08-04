@@ -124,7 +124,7 @@ is_mvnorm <- function(dist){
 correct_weights <- function(x){
   n <- length(x)
   x[n] <- 1 - sum(x[1:(n-1)])
-  x
+  x/sum(x)
 }
 
 #' Robustify Normal Distributions
