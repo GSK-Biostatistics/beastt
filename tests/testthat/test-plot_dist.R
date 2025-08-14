@@ -15,3 +15,10 @@ test_that("plot_dist handles invalid inputs", {
   expect_error(plot_dist("a"))
   expect_error(plot_dist(5))
 })
+
+test_that("plot_dist multivariate normal", {
+  plot_dist_result <- plot_dist(
+    distributional::dist_multivariate_normal(mu = list(c(1,2)),
+                                             sigma = list(matrix(c(4,2,2,3), ncol=2))))
+  expect_s3_class(plot_dist_result, "ggplot")
+})
