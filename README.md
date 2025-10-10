@@ -21,8 +21,8 @@ package! This R package is designed to assist users in performing
 Bayesian dynamic borrowing with covariate adjustment via inverse
 probability weighted robust mixture priors for simulations and data
 analyses in clinical trials. For the sake of this package, we use the
-term IPW BMB to refer to this inverse probability weighted robust
-mixture methodology.
+term IPW BDB to refer to this inverse probability weighted robust
+mixture prior methodology.
 
 ## What is IPW BDB?
 
@@ -83,9 +83,9 @@ devtools::install_github("GSK-Biostatistics/beastt")
 
 ## Usage
 
-At the moment {beastt} covers borrowing from external control data for
-normal, binary, and time to event endpoints. For more information, see
-the vignettes.
+At the moment, {beastt} covers borrowing from external control data for
+normal, binary, and time-to-event endpoints. Please see
+the vignettes for more information.
 
 ## Contributing
 
