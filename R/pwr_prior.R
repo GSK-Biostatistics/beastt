@@ -27,8 +27,10 @@
 #'     \sum_{i=1}^{N_{EC}} \hat{a}_{0i} (1 - y_i) + \phi_0 \right)}}
 #'   }
 #'
-#'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
-#'   conventional beta power prior.
+#'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to be a single value between
+#'   0 and 1 results in a conventional beta power prior, and setting all weights
+#'   equal to 1 corresponds to the posterior distribution for \eqn{\theta_C}
+#'   using only the external data with the initial prior.
 #'
 #' @return Beta power prior object
 #' @export
@@ -140,9 +142,10 @@ calc_power_prior_beta <- function(external_data, response, prior){
 #'   a non-standardized \eqn{t} distribution.}
 #'   }
 #'
-#'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to equal 1 results in a
-#'   conventional normal (or \eqn{t}) power prior if the external standard
-#'   deviation is known (unknown).
+#'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to be a single value between
+#'   0 and 1 results in a conventional normal (or \eqn{t}) power prior, and setting
+#'   all weights equal to 1 corresponds to the posterior distribution for
+#'   \eqn{\theta} using only the external data with the initial prior.
 #'
 #' @return Normal power prior object
 #' @export
