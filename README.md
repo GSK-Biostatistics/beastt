@@ -85,7 +85,7 @@ devtools::install_github("GSK-Biostatistics/beastt")
 
 At the moment {beastt} covers borrowing from external control data for
 normal, binary, and time to event endpoints. For more information, see
-the vignettes.
+the [vignettes](https://gsk-biostatistics.github.io/beastt/articles/).
 
 ## Contributing
 
