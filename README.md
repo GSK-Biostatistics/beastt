@@ -21,7 +21,7 @@ package! This R package is designed to assist users in performing
 Bayesian dynamic borrowing with covariate adjustment via inverse
 probability weighted robust mixture priors for simulations and data
 analyses in clinical trials. For the sake of this package, we use the
-term IPW BMB to refer to this inverse probability weighted robust
+term IPW BDB to refer to this inverse probability weighted robust
 mixture methodology.
 
 ## What is IPW BDB?
