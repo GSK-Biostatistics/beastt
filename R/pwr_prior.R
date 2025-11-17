@@ -6,8 +6,10 @@
 #'
 #' @param external_data This can either be a `prop_scr_obj` created by calling
 #'   `create_prop_scr()` or a tibble of the external data. If it is just a
-#'   tibble the weights will be assumed to be 1.
-#' @param response Name of response variable
+#'   tibble, the weights are assumed to be 1 (see "Details" below).
+#' @param response Name of the response variable contained in `external_data`.
+#'   The corresponding response variable must be binary with values of
+#'   1 (response) and 0 (no response).
 #' @param prior A beta distributional object that is the initial prior for the
 #'   control response rate before the external control data are observed
 #'
@@ -30,7 +32,7 @@
 #'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to be a single value between
 #'   0 and 1 results in a conventional beta power prior, and setting all weights
 #'   equal to 1 corresponds to the posterior distribution for \eqn{\theta_C}
-#'   using only the external data with the initial prior.
+#'   constructed using only the external data and the initial prior.
 #'
 #' @return Beta power prior object
 #' @export
@@ -76,6 +78,10 @@ calc_power_prior_beta <- function(external_data, response, prior){
   } else if(all(is.na(check$result))){
     cli_abort("{.agr response} is all NA")
   }
+  y <- pull(data, !!response)
+  if(!(sort(unique(y))[1] == 0 & sort(unique(y))[2] == 1 & length(unique(y)) == 2)){
+    cli_abort("{.agr response} must be binary (1: response; 0: no response)")
+  }
 
   prior_checks(prior, "beta")
 
@@ -99,10 +105,12 @@ calc_power_prior_beta <- function(external_data, response, prior){
 #'
 #' @param external_data This can either be a `prop_scr_obj` created by calling
 #'   `create_prop_scr()` or a tibble of the external data. If it is just a
-#'   tibble the weights will be assumed to be 1. Only the external data for the
-#'   arm(s) of interest should be included in this object (e.g., external
-#'   control data if creating a power prior for the control mean)
-#' @param response Name of response variable
+#'   tibble, the weights are assumed to be 1 (see "Details" below). Only the
+#'   external data for the arm(s) of interest should be included in this object
+#'   (e.g., external control data if creating a power prior for the control mean)
+#' @param response Name of the response variable contained in `external_data`.
+#'   The corresponding response variable must be assumed to be normally
+#'   distributed.
 #' @param prior Either `NULL` or a normal distributional object that is the
 #'   initial prior for the parameter of interest (e.g., control mean) before the
 #'   external data are observed
@@ -134,10 +142,10 @@ calc_power_prior_beta <- function(external_data, response, prior){
 #'   case are as follows:
 #'   \describe{
 #'   \item{`external_sd = positive value` (\eqn{\sigma_E^2} known):}{With
-#'   either a proper normal or an improper uniform initial prior, the IPW
-#'   weighted power prior for \eqn{\theta} is a normal distribution.}
+#'   either a proper normal or an improper uniform initial prior for \eqn{\theta},
+#'   the IPW power prior for \eqn{\theta} is a normal distribution.}
 #'   \item{`external_sd = NULL` (\eqn{\sigma_E^2} unknown):}{With improper
-#'   priors for both \eqn{\theta} and \eqn{\sigma_E^2}, the marginal IPW weighted
+#'   priors for both \eqn{\theta} and \eqn{\sigma_E^2}, the marginal IPW
 #'   power prior for \eqn{\theta} after integrating over \eqn{\sigma_E^2} is
 #'   a non-standardized \eqn{t} distribution.}
 #'   }
@@ -145,7 +153,7 @@ calc_power_prior_beta <- function(external_data, response, prior){
 #'   Defining the weights \eqn{\hat{\boldsymbol{a}}_0} to be a single value between
 #'   0 and 1 results in a conventional normal (or \eqn{t}) power prior, and setting
 #'   all weights equal to 1 corresponds to the posterior distribution for
-#'   \eqn{\theta} using only the external data with the initial prior.
+#'   \eqn{\theta} constructed using only the external data and the initial prior.
 #'
 #' @return Normal power prior object
 #' @export
@@ -191,6 +199,9 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
   } else if(all(is.na(check$result))){
     cli_abort("{.agr response} is all NA")
   }
+  if(!is.double(pull(data, !!response))){
+    cli_abort("{.agr response} must be a double variable")
+  }
 
   # mean of IP-weighted power prior
   vars <- data |>
@@ -210,6 +221,9 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
       mean_hat <- weight_resp/tot_ipw # mean of IP-weighted power prior
       out_dist <- dist_normal(mu = mean_hat, sigma = sqrt(sd2_hat))
     } else {
+      if(!is.null(external_sd)){
+        cli_abort("{.agr external_sd} must be a positive number or NULL if a prior is not supplied")
+      }
       out_dist <- calc_t(pull(data, !!response),
                          n= nrow(data),
                          W = weights)
@@ -240,12 +254,16 @@ calc_power_prior_norm <- function(external_data, response, prior = NULL, externa
 #'
 #' @param external_data This can either be a `prop_scr_obj` created by calling
 #'   `create_prop_scr()` or a tibble of the external data. If it is just a
-#'   tibble the weights will be assumed to be 1. Only the external data for the
+#'   tibble, the weights are assumed to be 1. Only the external data for the
 #'   arm(s) of interest should be included in this object (e.g., external
 #'   control data if creating a power prior for the control Weibull shape and
 #'   intercept parameters)
-#' @param response Name of response variable
-#' @param event Name of event indicator variable (1: event; 0: censored)
+#' @param response Name of the response variable contained in `external_data`.
+#'   The corresponding response variable must be a continuous time-to-event
+#'   variable that is assumed to come from a Weibull proportional hazards
+#'   regression model (see "Details" below).
+#' @param event Name of the event indicator variable contained in `external_data`
+#'   (1: event; 0: censored)
 #' @param intercept Normal distributional object that is the initial prior for the
 #'   intercept (i.e., log-inverse-scale) parameter
 #' @param shape Integer value that is the scale of the half-normal prior
@@ -347,6 +365,9 @@ calc_power_prior_weibull <- function(external_data,
   } else if(all(is.na(check_response$result))){
     cli_abort("{.agr response} is all NA")
   }
+  if(!is.numeric(pull(data, !!response)) | any(pull(data, !!response) <= 0)){
+    cli_abort("{.agr response} must be numeric and positive")
+  }
 
   event <- enquo(event)
   check_event <- safely(select)(data, !!event)
@@ -354,6 +375,11 @@ calc_power_prior_weibull <- function(external_data,
     cli_abort("{.agr event} was not found in {.agr external_data}")
   } else if(all(is.na(check_event$result))){
     cli_abort("{.agr event} is all NA")
+  }
+  event_var <- pull(data, !!event)
+  if(!(sort(unique(event_var))[1] == 0 & sort(unique(event_var))[2] == 1 &
+       length(unique(event_var)) == 2)){
+    cli_abort("{.agr event} must be binary (1: event; 0: censored)")
   }
   # Check beta
   prior_checks(intercept, "normal")
