@@ -444,16 +444,16 @@ prop_scr_love <- function(x, reference_line = NULL, ...){
 #' Trim a `prop_scr` object
 #'
 #' @param x A `prop_scr` object
-#' @param low Low cut-off such that all participants with propensity scores less
-#'   than this value (or quantile if `quantile = TRUE`) are removed.  If left
-#'   `NULL` no lower bound will be used
-#' @param high High cut-off such that all participants with propensity scores
-#'   greater than this value (or quantile if `quantile = TRUE`) are removed. If
-#'   left `NULL` no upper bound will be used
+#' @param low Low cut-off value (or quantile if `quantile = TRUE`) such that all
+#'   participants with propensity scores less than this value (or quantile) are
+#'   removed.  If left `NULL`, no lower bound is applied.
+#' @param high High cut-off value (or quantile if `quantile = TRUE`) such that
+#'   all participants with propensity scores greater than this value (or
+#'   quantile) are removed. If left `NULL`, no upper bound is applied.
 #' @param quantile True/False value to determine if the cut-off values are based
-#'   directly on the propensity scores (false) or their quantiles (true). By default this is
-#'   false.
-#' @return a `prop_scr` object with a trimmed propensity score distribution
+#'   directly on the propensity scores (false) or their quantiles (true). By
+#'   default this is false.
+#' @return A `prop_scr` object with a trimmed propensity score distribution
 #'
 #' @details This function uses R's default method of quantile calculation (type
 #' 7)
@@ -503,26 +503,44 @@ trim_ps <- function(x, low = NULL, high = NULL, quantile = FALSE){
 
 #' Rescale a `prop_scr` object
 #'
-#' @param x a `prop_scr` obj
+#' @param x A `prop_scr` object
 #' @param n Desired sample size that the external data should effectively
-#'   contribute to the analysis of the internal trial data. This will be used to
-#'   scale the external weights if `scale_factor` is not specified
+#'   contribute to the analysis of the internal trial data (i.e., sum of the
+#'   weights). This will be used to scale the external weights by a constant
+#'   value if `scale_factor` is not specified.
 #' @param scale_factor Value to multiple all weights by. This will be used to
-#'   scale the external weights if `n` is not specified
-#' @return a `prop_scr` object with rescaled weights
+#'   scale the external weights if `n` is not specified.
+#'
+#' @details Let \eqn{N_E} denote the number of participants in the external
+#'   data, and let \eqn{\hat{a}_{0i}} denote the weight of the \eqn{i^{th}}
+#'   external participant, \eqn{i=1,\ldots,N_E}. We can scale the weights for
+#'   all external participants by some constant factor \eqn{c_0} such that the
+#'   effective sample size of the external data (defined here simply to be the
+#'   sum of the weights) is calculated as
+#'
+#'   \deqn{n_{ESS} = \sum_{i=1}^{N_E} c_0 \cdot \hat{a}_{0i}.}
+#'
+#'   Either \eqn{c_0} can be specified directly using the `scale_factor`
+#'   argument or \eqn{n_{ESS}} can be specified using the `n` argument. If
+#'   `n` is supplied, then the scale factor \eqn{c_0} is calculated as
+#'
+#'   \deqn{c_0 = \frac{n_{ESS}}{\sum_{i=1}^{N_E} \hat{a}_{0i}}.}
+#'
+#' @return A `prop_scr` object with rescaled weights
 #'
 #' @export
 #' @examples
 #' library(dplyr)
 #' ps_obj <- calc_prop_scr(internal_df = filter(int_binary_df, trt == 0),
-#'                        external_df = ex_binary_df,
-#'                        id_col = subjid,
-#'                        model = ~ cov1 + cov2 + cov3 + cov4)
-#' # weights in a propensity score object can be rescaled to achieve a desired
-#' # effective sample size (i.e., sum of weights)
+#'                         external_df = ex_binary_df,
+#'                         id_col = subjid,
+#'                         model = ~ cov1 + cov2 + cov3 + cov4)
+#'
+#' # Weights in a propensity score object can be rescaled to achieve a desired
+#' # effective sample size (i.e., the sum of the weights)
 #' rescale_ps(ps_obj, n = 75)
 #'
-#' # Or by a predetermined factor
+#' # Or by a predetermined constant factor
 #' rescale_ps(ps_obj, scale_factor = 1.5)
 #'
 rescale_ps <- function(x, n = NULL, scale_factor = NULL){
@@ -592,7 +610,18 @@ refit_ps_obj <- function (x){
 #' Propensity Score Cloud Plot
 #'
 #' @param x A `prop_scr` object
-#' @param trimmed_prop_scr A trimmed `prop_scr` object
+#' @param trimmed_prop_scr A trimmed `prop_scr` object (optional)
+#'
+#' @details The propensity score cloud plot can be used to compare the
+#'   distributions of propensity scores between the internal control and
+#'   external control participants, as contained in a `prop_scr` object that
+#'   is supplied via the argument `x`.
+#'
+#'   If trimming is applied to the propensity scores, then a second `prop_scr`
+#'   object containing these trimmed values can be supplied via the optional
+#'   argument `trimmed_prop_scr`. In this case, the trimmed propensity scores
+#'   are indicated in the cloud plot using a different symbol and color,
+#'   highlighting the differences in the distributions pre- and post-trimming.
 #'
 #' @returns ggplot object
 #' @export
@@ -604,7 +633,8 @@ refit_ps_obj <- function (x){
 #'                         id_col = subjid,
 #'                         model = ~ cov1 + cov2 + cov3 + cov4)
 #' ps_obj_trimmed <- trim_ps(ps_obj, low = 0.1, high = 0.6)
-#' # Plotting the Propensity Scores
+#'
+#' # Plotting the propensity scores both pre- and post-trimming
 #' prop_scr_cloud(ps_obj, trimmed_prop_scr = ps_obj_trimmed)
 #'
 #' @importFrom dplyr if_else anti_join
