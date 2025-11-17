@@ -227,6 +227,16 @@ test_that("calc_power_prior_norm handles invalid external data", {
                                      external_sd = 0.15))
 })
 
+# Test for invalid response data types
+test_that("calc_power_prior_norm handles invalid response data types", {
+  ex_norm_df2 <- ex_norm_df
+  ex_norm_df2$y <- as.integer(1:nrow(ex_norm_df))
+  expect_error(calc_power_prior_norm(ex_norm_df2,
+                                     response=y,
+                                     prior=dist_normal(50, 10),
+                                     external_sd = 0.15))
+})
+
 # Test for invalid prior
 test_that("calc_power_prior_norm handles invalid prior", {
   expect_error(calc_power_prior_norm(ex_norm_df,
@@ -261,6 +271,18 @@ test_that("calc_power_prior_norm handles invalid external sd", {
                                      response=y,
                                      prior=dist_normal(50, 10),
                                      external_sd = "a"))
+  expect_error(calc_power_prior_norm(ex_norm_df,
+                                     response=y,
+                                     prior=NULL,
+                                     external_sd = -5))
+  expect_error(calc_power_prior_norm(ex_norm_df,
+                                     response=y,
+                                     prior=NULL,
+                                     external_sd = "a"))
+  expect_error(calc_power_prior_norm(ex_norm_df,   # external_sd must be supplied if prior is supplied
+                                     response=y,
+                                     prior=dist_normal(50, 10),
+                                     external_sd = NULL))
 })
 
 # Test for internal and external data with different response variable names
@@ -534,11 +556,21 @@ test_that("calc_post_norm returns the correct values for sixth case", {
 test_that("calc_post_norm handles invalid internal data", {
   expect_error(calc_post_norm(c(5, 6),
                               response = y,
-                              prior = pwr_prior <- dist_normal(0.71, 0.00035),
+                              prior = dist_normal(0.71, 0.00035),
                               internal_sd = 0.15))
   expect_error(calc_post_norm("z",
                               response = y,
-                              prior = pwr_prior <- dist_normal(0.71, 0.00035),
+                              prior = dist_normal(0.71, 0.00035),
+                              internal_sd = 0.15))
+})
+
+# Test for invalid response data types
+test_that("calc_post_norm handles invalid response data types", {
+  int_norm_df2 <- filter(int_norm_df, trt == 0)
+  int_norm_df2$y <- as.integer(1:nrow(int_norm_df2))
+  expect_error(calc_post_norm(int_norm_df2,
+                              response = y,
+                              prior = dist_normal(0.71, 0.00035),
                               internal_sd = 0.15))
 })
 

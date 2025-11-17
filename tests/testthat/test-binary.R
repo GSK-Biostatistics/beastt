@@ -64,6 +64,15 @@ test_that("calc_power_prior_beta handles invalid external data", {
   expect_error(calc_power_prior_beta("abc", response=y, prior=dist_beta(0.5, 0.5)))
 })
 
+# Test for invalid response data types
+test_that("calc_power_prior_beta handles invalid response data types", {
+  ex_binary_df2 <- ex_binary_df
+  ex_binary_df2$y[1:5] <- 2       # not binary (unique values of 0, 1, 2)
+  expect_error(calc_power_prior_beta(ex_binary_df2, response=y, prior=dist_beta(0.5, 0.5)))
+  ex_binary_df2$y <- ifelse(ex_binary_df$y == 0, 1, 2)   # binary (2/1, not 1/0)
+  expect_error(calc_power_prior_beta(ex_binary_df2, response=y, prior=dist_beta(0.5, 0.5)))
+})
+
 # Test for invalid prior
 test_that("calc_power_prior_beta handles invalid prior", {
   expect_error(calc_power_prior_beta(ex_binary_df, response=y, prior=5))
@@ -177,6 +186,15 @@ test_that("calc_posterior_beta returns correct values with mixture prior with tw
 test_that("calc_post_beta handles invalid internal data", {
   expect_error(calc_post_beta(c(4, 8, 12), response = y, prior = dist_beta(38, 44)))
   expect_error(calc_post_beta("abc", response = y, prior = dist_beta(38, 44)))
+})
+
+# Test for invalid response data types
+test_that("calc_post_beta handles invalid response data types", {
+  int_binary_df2 <- filter(int_binary_df, trt==0)
+  int_binary_df2$y[1:5] <- 2       # not binary (unique values of 0, 1, 2)
+  expect_error(calc_post_beta(int_binary_df2, response = y, prior = dist_beta(38, 44)))
+  int_binary_df2$y <- ifelse(filter(int_binary_df, trt==0)$y == 0, 1, 2)   # binary (2/1, not 1/0)
+  expect_error(calc_post_beta(int_binary_df2, response = y, prior = dist_beta(38, 44)))
 })
 
 # Test for invalid prior
