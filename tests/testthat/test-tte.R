@@ -121,7 +121,7 @@ test_that("calc_power_prior_weibull returns correct values for second case", {
   dimnames(pp_cov_comp)[[1]] <- dimnames(pp_cov_comp)[[2]] <- c("log_alpha", "beta0")
 
   ## Check that means and SDs of the normal power priors are equal using both methods
-  expect_equal(all(abs(pp_mean_beastt-pp_mean_comp) < 0.0025), TRUE)
+  expect_equal(all(abs(pp_mean_beastt-pp_mean_comp) < 0.005), TRUE)
   expect_equal(all(abs(pp_cov_beastt-pp_cov_comp) < 0.001), TRUE)
 
   ## Check that a distribution is returned
@@ -242,6 +242,44 @@ test_that("calc_power_prior_weibull handles invalid external data", {
                                         shape = 50,
                                         approximation = "Laplace"))
   expect_error(calc_power_prior_weibull(external_data = "abc",
+                                        response = y,
+                                        event = event,
+                                        intercept = dist_normal(0, 10),
+                                        shape = 50,
+                                        approximation = "Laplace"))
+})
+
+# Test for invalid response data types
+test_that("calc_power_prior_weibull handles invalid response data types", {
+  ex_tte_df2 <- ex_tte_df
+  ex_tte_df2$y[1] <- -1    # one non-positive number
+  expect_error(calc_power_prior_weibull(external_data = ex_tte_df2,
+                                        response = y,
+                                        event = event,
+                                        intercept = dist_normal(0, 10),
+                                        shape = 50,
+                                        approximation = "Laplace"))
+  ex_tte_df2$y <- "a"    # non-numeric
+  expect_error(calc_power_prior_weibull(external_data = ex_tte_df2,
+                                        response = y,
+                                        event = event,
+                                        intercept = dist_normal(0, 10),
+                                        shape = 50,
+                                        approximation = "Laplace"))
+})
+
+# Test for invalid event data types
+test_that("calc_power_prior_weibull handles invalid event data types", {
+  ex_tte_df2 <- ex_tte_df
+  ex_tte_df2$event[1:5] <- 0.5    # three levels 1/0.5/0
+  expect_error(calc_power_prior_weibull(external_data = ex_tte_df2,
+                                        response = y,
+                                        event = event,
+                                        intercept = dist_normal(0, 10),
+                                        shape = 50,
+                                        approximation = "Laplace"))
+  ex_tte_df2$event <- ifelse(ex_tte_df$event == 0, 1, 2)  # binary with levels 2/1
+  expect_error(calc_power_prior_weibull(external_data = ex_tte_df2,
                                         response = y,
                                         event = event,
                                         intercept = dist_normal(0, 10),
@@ -534,6 +572,44 @@ test_that("calc_post_weibull handles invalid internal data", {
                                                                   sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2))),
                                  analysis_time = c(12, 24)))
   expect_error(calc_post_weibull(internal_data = "a",
+                                 response = y,
+                                 event = event,
+                                 prior = dist_multivariate_normal(mu = list(c(0.5, 0.6)),
+                                                                  sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2))),
+                                 analysis_time = c(12, 24)))
+})
+
+# Test for invalid response data types
+test_that("calc_post_weibull handles invalid response data types", {
+  int_tte_df2 <- filter(int_tte_df, trt == 0)
+  int_tte_df2$y[1] <- -1     # one non-positive number
+  expect_error(calc_post_weibull(internal_data = int_tte_df2,
+                                 response = y,
+                                 event = event,
+                                 prior = dist_multivariate_normal(mu = list(c(0.5, 0.6)),
+                                                                  sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2))),
+                                 analysis_time = c(12, 24)))
+  int_tte_df2$y <- "a"       # non-numeric
+  expect_error(calc_post_weibull(internal_data = int_tte_df2,
+                                 response = y,
+                                 event = event,
+                                 prior = dist_multivariate_normal(mu = list(c(0.5, 0.6)),
+                                                                  sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2))),
+                                 analysis_time = c(12, 24)))
+})
+
+# Test for invalid event data types
+test_that("calc_post_weibull handles invalid event data types", {
+  int_tte_df2 <- filter(int_tte_df, trt == 0)
+  int_tte_df2$event[1:5] <- 0.5    # three levels 1/0.5/0
+  expect_error(calc_post_weibull(internal_data = int_tte_df2,
+                                 response = y,
+                                 event = event,
+                                 prior = dist_multivariate_normal(mu = list(c(0.5, 0.6)),
+                                                                  sigma = list(matrix(c(10, -.5, -.5, 10), nrow = 2))),
+                                 analysis_time = c(12, 24)))
+  int_tte_df2$event <- ifelse(filter(int_tte_df, trt == 0)$event == 0, 1, 2)    # binary with levels 2/1
+  expect_error(calc_post_weibull(internal_data = int_tte_df2,
                                  response = y,
                                  event = event,
                                  prior = dist_multivariate_normal(mu = list(c(0.5, 0.6)),

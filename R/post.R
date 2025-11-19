@@ -6,7 +6,9 @@
 #'   posterior distribution for the control mean).
 #'
 #' @param internal_data A tibble of the internal data.
-#' @param response Name of response variable
+#' @param response Name of the response variable contained in `internal_data`.
+#'   The corresponding response variable must be assumed to be normally
+#'   distributed.
 #' @param prior A distributional object corresponding to a normal distribution,
 #'   a t distribution, or a mixture distribution of normal and/or t components
 #' @param internal_sd Standard deviation of internal response data if
@@ -71,11 +73,14 @@ calc_post_norm<- function(
     cli_abort("{.agr internal_data} a dataset")
   }
 
-  # Check response exists in the data and calculate the sum
+  # Check response exists in the data and is a double variable
   response <- enquo(response)
   check <- safely(select)(data, !!response)
   if(!is.null(check$error)){
     cli_abort("{.agr response} was not found in {.agr internal_data}")
+  }
+  if(!is.double(pull(data, !!response))){
+    cli_abort("{.agr response} must be a double variable")
   }
 
   # Checking the distribution and getting the family
@@ -102,7 +107,7 @@ calc_post_norm<- function(
         cli_abort("{.agr prior} must be either normal, t, or a mixture of normals and t")
       }
     } else {
-      cli_abort("{.agr internal_sd} must be a positive number if a prior is being supplied")
+      cli_abort("{.agr internal_sd} must be a positive number or NULL")
     }
 
   } else {
@@ -132,7 +137,9 @@ calc_post_norm<- function(
 #'   posterior distribution for the control response rate).
 #'
 #' @param internal_data A tibble of the internal data.
-#' @param response Name of response variable
+#' @param response Name of the response variable contained in `response`.
+#'   The corresponding response variable must be binary with values of
+#'   1 (response) and 0 (no response).
 #' @param prior A distributional object corresponding to a beta distribution
 #'   or a mixture distribution of beta components
 #'
@@ -171,11 +178,15 @@ calc_post_beta<- function(internal_data, response, prior){
     cli_abort("{.agr internal_data} a dataset")
   }
 
-  # Check response exists in the data and calculate the sum
+  # Check response exists in the data and that it's binary (1/0)
   response <- enquo(response)
   check <- safely(select)(data, !!response)
   if(!is.null(check$error)){
     cli_abort("{.agr response} was not found in {.agr internal_data}")
+  }
+  y <- pull(data, !!response)
+  if(!(sort(unique(y))[1] == 0 & sort(unique(y))[2] == 1 & length(unique(y)) == 2)){
+    cli_abort("{.agr response} must be binary (1: response; 0: no response)")
   }
 
   # Checking the distribution and getting the family
@@ -186,7 +197,7 @@ calc_post_beta<- function(internal_data, response, prior){
   all_fam <- get_base_families(prior) |> unlist()
   if(all(all_fam == "beta")){
     # Sum of responses in internal control arm
-    sum_resp <- pull(data, !!response) |>
+    sum_resp <- y |>
       sum()
     if(prior_fam == "beta"){
       shape1_new <- parameters(prior)$shape1 + sum_resp
@@ -229,8 +240,12 @@ calc_post_beta<- function(internal_data, response, prior){
 #'
 #' @param internal_data This can either be a propensity score object or a tibble
 #'   of the internal data.
-#' @param response Name of response variable
-#' @param event Name of event indicator variable (1: event; 0: censored)
+#' @param response Name of the response variable contained in `internal_data`.
+#'   The corresponding response variable must be a continuous time-to-event
+#'   variable that is assumed to come from a Weibull proportional hazards
+#'   regression model (see "Details" below).
+#' @param event Name of the event indicator variable contained in `internal_data`
+#'   (1: event; 0: censored)
 #' @param prior A distributional object corresponding to a multivariate normal
 #'   distribution or a mixture of 2 multivariate normals. The first element
 #'   of the mean vector and the first row/column of covariance matrix correspond
@@ -316,18 +331,26 @@ calc_post_weibull <- function(internal_data,
     cli_abort("{.agr internal_data} either a dataset or `prop_scr` object type")
   }
 
-  # Check response exists in the data
+  # Check response exists in the data and is numeric and positive
   response <- enquo(response)
   check <- safely(select)(data, !!response)
   if(!is.null(check$error)){
     cli_abort("{.agr response} was not found in {.agr internal_data}")
   }
+  if(!is.numeric(pull(data, !!response)) | any(pull(data, !!response) <= 0)){
+    cli_abort("{.agr response} must be numeric and positive")
+  }
 
-  # Check event indicator exists in the data
+  # Check event indicator exists in the data and is binary (1/0)
   event <- enquo(event)
   check <- safely(select)(data, !!event)
   if(!is.null(check$error)){
     cli_abort("{.agr event} was not found in {.agr internal_data}")
+  }
+  event_var <- pull(data, !!event)
+  if(!(sort(unique(event_var))[1] == 0 & sort(unique(event_var))[2] == 1 &
+       length(unique(event_var)) == 2)){
+    cli_abort("{.agr event} must be binary (1: event; 0: censored)")
   }
 
   # Check analysis time is valid
