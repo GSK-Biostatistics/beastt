@@ -81,9 +81,9 @@
 <rect x='648.51' y='253.52' width='66.01' height='60.85' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <text x='653.99' y='267.71' style='font-size: 11.00px; font-family: sans;' textLength='37.92px' lengthAdjust='spacingAndGlyphs'>Dataset</text>
 <rect x='653.99' y='274.33' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<rect x='654.70' y='275.04' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: #FFA21F; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFA21F; fill-opacity: 0.50;' />
+<rect x='654.70' y='275.04' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: #FFA21F; stroke-linecap: butt; fill: #FFA21F; fill-opacity: 0.50;' />
 <rect x='653.99' y='291.61' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<rect x='654.70' y='292.32' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: #5398BE; stroke-linecap: butt; stroke-linejoin: miter; fill: #5398BE; fill-opacity: 0.50;' />
+<rect x='654.70' y='292.32' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: #5398BE; stroke-linecap: butt; fill: #5398BE; fill-opacity: 0.50;' />
 <text x='676.75' y='286.00' style='font-size: 8.80px; font-family: sans;' textLength='32.29px' lengthAdjust='spacingAndGlyphs'>External</text>
 <text x='676.75' y='303.28' style='font-size: 8.80px; font-family: sans;' textLength='29.35px' lengthAdjust='spacingAndGlyphs'>Internal</text>
 <text x='35.24' y='14.56' style='font-size: 13.20px; font-family: sans;' textLength='169.51px' lengthAdjust='spacingAndGlyphs'>Density of Propensity Scores</text>
