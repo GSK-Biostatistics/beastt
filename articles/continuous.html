@@ -257,10 +257,10 @@ participants will be shown because the ATT IPWs for all internal control
 participants are equal to 1.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_hist.html">prop_scr_hist</a></span><span class="op">(</span><span class="va">ps_obj</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="700"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_dens.html">prop_scr_dens</a></span><span class="op">(</span><span class="va">ps_obj</span>, variable <span class="op">=</span> <span class="st">"ipw"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" width="700"></p>
 <p>The final plot we might want to look at is a love plot to visualize
 the absolute standardized mean differences (both unadjusted and adjusted
 by the IPWs) of the covariates between the internal and external data.
@@ -270,7 +270,7 @@ propensity score object, but we can also provide a location along the
 x-axis for a vertical reference line.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/prop_scr_love.html">prop_scr_love</a></span><span class="op">(</span><span class="va">ps_obj</span>, reference_line <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="inverse-probability-weighted-power-prior">Inverse Probability Weighted Power Prior<a class="anchor" aria-label="anchor" href="#inverse-probability-weighted-power-prior"></a>
@@ -310,7 +310,7 @@ use the <code>plot_dist</code> function.</p>
 <span>                                   prior <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">10</span><span class="op">)</span>, </span>
 <span>                                   external_sd <span class="op">=</span> <span class="va">sd_external_control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">pwr_prior</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="inverse-probability-weighted-robust-mixture-prior">Inverse Probability Weighted Robust Mixture Prior<a class="anchor" aria-label="anchor" href="#inverse-probability-weighted-robust-mixture-prior"></a>
@@ -342,7 +342,7 @@ normal distributions.</p>
 <span>          <span class="st">"Vague Prior"</span> <span class="op">=</span> <span class="fu"><a href="https://pkg.mitchelloharawild.com/distributional/reference/dist_normal.html" class="external-link">dist_normal</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="../reference/mix_means.html">mix_means</a></span><span class="op">(</span><span class="va">mix_prior</span><span class="op">)</span><span class="op">[</span><span class="st">"vague"</span><span class="op">]</span>,</span>
 <span>                                      sd <span class="op">=</span> <span class="fu"><a href="../reference/mix_sigmas.html">mix_sigmas</a></span><span class="op">(</span><span class="va">mix_prior</span><span class="op">)</span><span class="op">[</span><span class="st">"vague"</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>          <span class="st">"Robust Mixture Prior"</span> <span class="op">=</span> <span class="va">mix_prior</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="posterior-distributions">Posterior Distributions<a class="anchor" aria-label="anchor" href="#posterior-distributions"></a>
@@ -364,7 +364,7 @@ vignette).</p>
 <span>                               prior <span class="op">=</span> <span class="va">mix_prior</span>,</span>
 <span>                               internal_sd <span class="op">=</span> <span class="va">sd_internal_control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="va">post_control</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="700"></p>
 <p>Next, we create a posterior distribution for the mean of the active
 treatment arm
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>T</mi></msub><annotation encoding="application/x-tex">\theta_T</annotation></semantics></math>
@@ -383,7 +383,7 @@ data.</strong></p>
 <span>                               internal_sd <span class="op">=</span> <span class="va">sd_internal_treated</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_dist.html">plot_dist</a></span><span class="op">(</span><span class="st">"Control Posterior"</span> <span class="op">=</span> <span class="va">post_control</span>,</span>
 <span>          <span class="st">"Treatment Posterior"</span> <span class="op">=</span> <span class="va">post_treated</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="posterior-summary-statistics-and-samples">Posterior Summary Statistics and Samples<a class="anchor" aria-label="anchor" href="#posterior-summary-statistics-and-samples"></a>
@@ -462,7 +462,7 @@ and plot a histogram of the sample.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_density.html" class="external-link">geom_density</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" width="700"></p>
 <p>Similarly, we sample from the posterior distribution for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>T</mi></msub><annotation encoding="application/x-tex">\theta_T</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -475,7 +475,7 @@ and plot a histogram of the sample.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_density.html" class="external-link">geom_density</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" width="700"></p>
 <p>We define our marginal treatment effect to be the difference between
 the active treatment mean and the control mean (i.e.,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub></mrow><annotation encoding="application/x-tex">\theta_T - \theta_C</annotation></semantics></math>).
@@ -495,7 +495,7 @@ from the posterior sample of
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_density.html" class="external-link">geom_density</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="continuous_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<p><img src="continuous_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" width="700"></p>
 <p>Suppose we want to test the hypotheses
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>0</mn></msub><mo>:</mo><msub><mi>θ</mi><mi>T</mi></msub><mo>−</mo><msub><mi>θ</mi><mi>C</mi></msub><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">H_0: \theta_T - \theta_C \le 0</annotation></semantics></math>
 versus
@@ -591,7 +591,7 @@ Statistics</em>, 1–23. DOI: <a href="https://doi.org/10.1080/10543406.2025.248
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>
