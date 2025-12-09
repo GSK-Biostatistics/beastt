@@ -29,7 +29,7 @@ external_dat <- beastt::ex_tte_df
 # external_dat <- read_csv("Location of the external data")
 
 # Model "true" regression coefficients corresponding to intercept and covariate
-# effects using a Weibull proportional (PH) hazards regression model with the
+# effects using a Weibull proportional hazards (PH) regression model with the
 # external data
 weibull_ph_mod <- survreg(Surv(y, event) ~ cov1 + cov2 + cov3 + cov4, data = external_dat, dist = "weibull")
 # weibull_ph_mod <- survreg(YOUR MODEL HERE, data = external_dat, dist = "weibull")
@@ -139,17 +139,22 @@ all_sims <- pop_var |>
     mix_weight = 0.5
   ) |>
   mutate(scenario = row_number()) |>    # add a scenario ID
-  crossing(iter_id = c(1:1000))         # add an iteration ID (within scenario)
+  crossing(iter_id = c(1:10000))        # add an iteration ID (within scenario)
 
 # Simulations ------------------------------------------------------------------
 
 # We now iterate over all rows in the simulation data frame and calculate
-# operating characteristics for each scenario. The pmap and list functions make
-# it possible to refer to each column of the data frame by its name. To step
-# through this code, add browser().
+# operating characteristics for each scenario. The future_pmap/pmap and list
+# functions make it possible to refer to each column of the data frame by its
+# name, and future_pmap allows us to parallelize over iterations. To step
+# through this code line by line, comment out the line beginning with
+# future_pmap and uncomment the lines with pmap and browser(); then run the
+# entire chunk of code below.
 sim_output <- all_sims |>
-  future_pmap(function(...){
+  future_pmap(function(...){       # COMMENT OUT this line to step through the code line by line
+  #pmap(function(...){             # UNCOMMENT this line to step through the code line by line
     output <- with(list(...), {
+      #browser()                   # UNCOMMENT this line to step through the code line by line
 
       # Simulate data ----------------------------------------------------------
       # Sample covariates from the scenario-specific population for the internal arms
