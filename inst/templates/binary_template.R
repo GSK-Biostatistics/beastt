@@ -111,12 +111,17 @@ all_sims <- pop_var |>
 # Simulations ------------------------------------------------------------------
 
 # We now iterate over all rows in the simulation data frame and calculate
-# operating characteristics for each scenario. The pmap and list functions make
-# it possible to refer to each column of the data frame by its name. To step
-# through this code, add browser().
+# operating characteristics for each scenario. The future_pmap/pmap and list
+# functions make it possible to refer to each column of the data frame by its
+# name, and future_pmap allows us to parallelize over iterations. To step
+# through this code line by line, comment out the line beginning with
+# future_pmap and uncomment the lines with pmap and browser(); then run the
+# entire chunk of code below.
 sim_output <- all_sims |>
-  future_pmap(function(...){
+  future_pmap(function(...){       # COMMENT OUT this line to step through the code line by line
+  #pmap(function(...){             # UNCOMMENT this line to step through the code line by line
     output <- with(list(...), {
+      #browser()                   # UNCOMMENT this line to step through the code line by line
       
       # Simulate data ----------------------------------------------------------
       # Sample covariates from the scenario-specific population for the internal arms
@@ -253,5 +258,6 @@ output <- combined_output |>
 
 # Save aggregate results for each scenario
 # save(output, file = "Location where results should be saved.rda")
+
 
 
