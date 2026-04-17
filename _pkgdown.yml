@@ -67,4 +67,6 @@ reference:
   - binary_sim_df
   - tte_sim_df
 
-
+navbar:
+  structure:
+    right: [search, github]
