@@ -1,5 +1,8 @@
 url: https://gsk-biostatistics.github.io/beastt/
 
+template:
+  bootstrap: 5
+
 reference:
 - title: "Propensity Scores"
 - contents:
@@ -70,3 +73,4 @@ reference:
 navbar:
   structure:
     right: [search, github]
+
