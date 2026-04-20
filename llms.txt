@@ -1,0 +1,220 @@
+# beastt [![beastt logo](reference/figures/beastt_hex.png)](https://gsk-biostatistics.github.io/beastt/)
+
+## Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (beastt)
+
+## Overview
+
+Welcome to the {[beastt](https://gsk-biostatistics.github.io/beastt/)}
+package! This R package is designed to assist users in performing
+Bayesian dynamic borrowing with covariate adjustment via inverse
+probability weighted robust mixture priors for simulations and data
+analyses in clinical trials. For the sake of this package, we use the
+term IPW BDB to refer to this inverse probability weighted robust
+mixture methodology.
+
+## What is IPW BDB?
+
+Inverse Probability Weighted Bayesian Dynamic Borrowing (IPW BDB) is a
+statistical approach designed to enhance the estimation of marginal
+(i.e., population-averaged or unconditional) treatment effects in
+clinical trials. This method employs inverse probability weighted robust
+mixture priors to adjust for covariate differences between a new
+internal study and external (i.e., historical) control data.
+
+## Why use IPW BDB?
+
+By using propensity score-based inverse probability weighting, IPW BDB
+effectively balances prognostic variables between trial participants and
+historical controls, improving inference accuracy and reducing biases
+due to differences in covariate distributions. This technique increases
+the statistical power and reduces potential biases in estimating average
+treatment effects, which are critical for health policy decisions and
+drug approval processes.
+
+IPW BDB has two mechanisms by which it can account for drift from
+different sources: 1. The use of a robust mixture prior alleviates
+prior-data conflict by dynamically down weighting external data when
+there is a significant level of drift between studies. 2. Inverse
+probability weighting can account for explainable causes of drift by
+balancing covariate distributions between external and internal control
+participants.
+
+*Augmenting the standard robust mixture prior (RMP) approach to
+incorporate IPWs does not add substantial computational burden
+associated with other Bayesian approaches*; e.g., in cases where
+conjugate priors exist for the standard RMP approach, they will still
+exist for the IPW BDB approach.
+
+## When can IPW BDB be used?
+
+IPW BDB should be considered in clinical trial settings where individual
+level external control data is available and you want to integrate this
+data with your current trial. This method is particularly useful when
+there are differences in distributions of key prognostic factors between
+the current study population and the external controls, which could
+otherwise introduce bias. It is especially relevant in oncology and rare
+disease trials, where using external data can help overcome challenges
+such as slow patient enrollment due to reluctance to join control
+groups. IPW BDB is well-suited for contexts where Bayesian dynamic
+borrowing is already applicable but could benefit from additional
+adjustments for confounding.
+
+## Installation
+
+You can install the development version of {beastt} from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("GSK-Biostatistics/beastt")
+```
+
+## Usage
+
+At the moment {beastt} covers borrowing from external control data for
+normal, binary, and time to event endpoints. For more information, see
+the [vignettes](https://gsk-biostatistics.github.io/beastt/articles/).
+If you are looking to conduct a simulation study for a binary or
+time-to-event endpoint, you can use the template code available
+[here](https://github.com/GSK-Biostatistics/beastt/tree/main/inst/templates).
+
+## Contributing
+
+Feel free to contribute to the {beastt} package by reporting issues or
+submitting pull requests on the GitHub repository.
+
+## License
+
+This package is released under GLP-3.
+
+# Package index
+
+## Propensity Scores
+
+- [`calc_prop_scr()`](https://gsk-biostatistics.github.io/beastt/reference/calc_prop_scr.md)
+  : Create a Propensity Score Object
+
+- [`trim_ps()`](https://gsk-biostatistics.github.io/beastt/reference/trim_ps.md)
+  :
+
+  Trim a `prop_scr` object
+
+- [`rescale_ps()`](https://gsk-biostatistics.github.io/beastt/reference/rescale_ps.md)
+  :
+
+  Rescale a `prop_scr` object
+
+- [`tidy(`*`<prop_scr>`*`)`](https://gsk-biostatistics.github.io/beastt/reference/tidy.prop_scr.md)
+  : Tidy a(n) prop_scr object
+
+- [`is_prop_scr()`](https://gsk-biostatistics.github.io/beastt/reference/is_prop_scr.md)
+  : Test If Propensity Score Object
+
+## Power Prior
+
+- [`calc_power_prior_beta()`](https://gsk-biostatistics.github.io/beastt/reference/calc_power_prior_beta.md)
+  : Calculate Power Prior Beta
+- [`calc_power_prior_norm()`](https://gsk-biostatistics.github.io/beastt/reference/calc_power_prior_norm.md)
+  : Calculate Power Prior Normal
+- [`calc_power_prior_weibull()`](https://gsk-biostatistics.github.io/beastt/reference/calc_power_prior_weibull.md)
+  : Calculate Power Prior Weibull
+
+## Robustify
+
+- [`robustify_mvnorm()`](https://gsk-biostatistics.github.io/beastt/reference/robustify_mvnorm.md)
+  : Robustify Multivariate Normal Distributions
+- [`robustify_norm()`](https://gsk-biostatistics.github.io/beastt/reference/robustify_norm.md)
+  : Robustify Normal Distributions
+
+## Posterior
+
+- [`calc_post_beta()`](https://gsk-biostatistics.github.io/beastt/reference/calc_post_beta.md)
+  : Calculate Posterior Beta
+- [`calc_post_norm()`](https://gsk-biostatistics.github.io/beastt/reference/calc_post_norm.md)
+  : Calculate Posterior Normal
+- [`calc_post_weibull()`](https://gsk-biostatistics.github.io/beastt/reference/calc_post_weibull.md)
+  : Calculate Posterior Weibull
+
+## Simulation
+
+- [`bootstrap_cov()`](https://gsk-biostatistics.github.io/beastt/reference/bootstrap_cov.md)
+  : Bootstrap Covariate Data
+- [`calc_cond_binary()`](https://gsk-biostatistics.github.io/beastt/reference/calc_cond_binary.md)
+  : Calculate Conditional Drift and Treatment Effect for Binary Outcome
+  Models
+- [`inv_logit()`](https://gsk-biostatistics.github.io/beastt/reference/inv_logit.md)
+  : Inverse Logit Function
+- [`sim_accrual()`](https://gsk-biostatistics.github.io/beastt/reference/sim_accrual.md)
+  : Simulate Participant Accrual Times
+- [`sim_weib_ph()`](https://gsk-biostatistics.github.io/beastt/reference/sim_weib_ph.md)
+  : Simulate Event Times for Each Participant from a Weibull
+  Proportional Hazards Regression Model
+- [`sim_pw_const_haz()`](https://gsk-biostatistics.github.io/beastt/reference/sim_pw_const_haz.md)
+  : Simulate Event Times for Each Individual from a Piecewise Constant
+  Hazard Model
+- [`calc_cond_weibull()`](https://gsk-biostatistics.github.io/beastt/reference/calc_cond_weibull.md)
+  : Calculate Conditional Drift and Treatment Effect for Time-to-Event
+  Outcome Models
+- [`calc_study_duration()`](https://gsk-biostatistics.github.io/beastt/reference/calc_study_duration.md)
+  : Calculate the Analysis Time Based on a Target Number of Events
+  and/or Target Follow-up Time
+
+## Visualisation
+
+- [`prop_scr_cloud()`](https://gsk-biostatistics.github.io/beastt/reference/prop_scr_cloud.md)
+  : Propensity Score Cloud Plot
+- [`prop_scr_dens()`](https://gsk-biostatistics.github.io/beastt/reference/prop_scr_dens.md)
+  : Density of the Propensity Score Object
+- [`prop_scr_hist()`](https://gsk-biostatistics.github.io/beastt/reference/prop_scr_hist.md)
+  : Histogram of the Propensity Score Object
+- [`prop_scr_love()`](https://gsk-biostatistics.github.io/beastt/reference/prop_scr_love.md)
+  : Love Plot of the Absolute Standardized Mean Differences
+- [`plot_dist()`](https://gsk-biostatistics.github.io/beastt/reference/plot_dist.md)
+  : Plot Distribution
+- [`sweet_spot_plot()`](https://gsk-biostatistics.github.io/beastt/reference/sweet_spot_plot.md)
+  : Create Sweet Spot Plots for Multiple Simulation Scenarios
+
+## Utility
+
+- [`mix_means()`](https://gsk-biostatistics.github.io/beastt/reference/mix_means.md)
+  : Extract Means of Mixture Components
+- [`mix_sigmas()`](https://gsk-biostatistics.github.io/beastt/reference/mix_sigmas.md)
+  : Extract Standard Deviations of Mixture Components
+- [`avg_dist()`](https://gsk-biostatistics.github.io/beastt/reference/avg_dist.md)
+  : Calculate Average Distribution from Multiple Distributional Objects
+- [`approx_mvn_at_time()`](https://gsk-biostatistics.github.io/beastt/reference/approx_mvn_at_time.md)
+  : Approximate Multivariate Normal Distribution as Beta at a Specific
+  Time
+- [`beastt-package`](https://gsk-biostatistics.github.io/beastt/reference/beastt-package.md)
+  [`beastt`](https://gsk-biostatistics.github.io/beastt/reference/beastt-package.md)
+  : The 'beastt' package.
+
+## Data
+
+- [`ex_binary_df`](https://gsk-biostatistics.github.io/beastt/reference/ex_binary_df.md)
+  : External Binary Control Data for Propensity Score Balancing
+- [`ex_norm_df`](https://gsk-biostatistics.github.io/beastt/reference/ex_norm_df.md)
+  : External Normal Control Data for Propensity Score Balancing
+- [`ex_tte_df`](https://gsk-biostatistics.github.io/beastt/reference/ex_tte_df.md)
+  : External Time-to-Event Control Data for Propensity Score Balancing
+- [`int_binary_df`](https://gsk-biostatistics.github.io/beastt/reference/int_binary_df.md)
+  : Internal Binary Data for Propensity Score Balancing
+- [`int_norm_df`](https://gsk-biostatistics.github.io/beastt/reference/int_norm_df.md)
+  : Internal Normal Data for Propensity Score Balancing
+- [`int_tte_df`](https://gsk-biostatistics.github.io/beastt/reference/int_tte_df.md)
+  : Internal Time-to-Event Control Data for Propensity Score Balancing
+- [`binary_sim_df`](https://gsk-biostatistics.github.io/beastt/reference/binary_sim_df.md)
+  : Binary Simulation Data
+- [`tte_sim_df`](https://gsk-biostatistics.github.io/beastt/reference/tte_sim_df.md)
+  : Time-to-Event Simulation Data
+
+# Articles
+
+### All vignettes
+
+- [Binary
+  Outcome](https://gsk-biostatistics.github.io/beastt/articles/binary.md):
+- [Normal Outcome (Known
+  SD)](https://gsk-biostatistics.github.io/beastt/articles/continuous.md):
+- [Time-to-Event
+  Outcome](https://gsk-biostatistics.github.io/beastt/articles/tte.md):

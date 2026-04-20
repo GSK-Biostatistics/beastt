@@ -1,0 +1,78 @@
+# Calculate Average Distribution from Multiple Distributional Objects
+
+Compute a single "average" distribution from a vector of distributional
+objects. This function calculates the mean of each hyperparameter across
+all input distributions and returns a new distributional object of the
+same family with these averaged hyperparameters.
+
+## Usage
+
+``` r
+avg_dist(x)
+```
+
+## Arguments
+
+- x:
+
+  A vector of distributional objects of the same family (beta, normal,
+  multivariate normal, or mixture).
+
+## Value
+
+A single distributional object of the same family as the input, with
+hyperparameters set equal to the average of all input distribution
+hyperparameters.
+
+## Details
+
+The function supports four distribution families:
+
+- Beta distributions: Averages the shape1 and shape2 hyperparameters
+
+- Normal distributions: Averages the mean and standard deviation
+  hyperparameters
+
+- Multivariate normal distributions: Averages the location vectors and
+  covariance matrices
+
+- Mixture distributions: Same as above for each distribution type, where
+  averaging is done by component. Also averages the mixture weight.
+
+For multivariate normal distributions, both the location vector and
+covariance matrix are averaged element-wise.
+
+## Examples
+
+``` r
+library(distributional)
+
+# Beta distributions
+beta_dists <- c(
+  dist_beta(shape1 = 2, shape2 = 5),
+  dist_beta(shape1 = 3, shape2 = 3),
+  dist_beta(shape1 = 4, shape2 = 2)
+)
+avg_dist(beta_dists) |> parameters()
+#>   shape1   shape2
+#> 1      3 3.333333
+
+# Normal distributions
+norm_dists <- c(
+  dist_normal(mu = 0, sigma = 1),
+  dist_normal(mu = 2, sigma = 2),
+  dist_normal(mu = 4, sigma = 3)
+)
+avg_dist(norm_dists) |> parameters()
+#>   mu sigma
+#> 1  2     2
+
+# Multivariate normal distributions
+mvn_dists <- c(
+  dist_multivariate_normal(mu = list(c(0, 0)), sigma = list(matrix(c(1, 0, 0, 1), nrow = 2))),
+  dist_multivariate_normal(mu = list(c(1, 1)), sigma = list(matrix(c(2, 0, 0, 2), nrow = 2)))
+)
+avg_dist(mvn_dists) |> parameters()
+#>         mu              sigma
+#> 1 0.5, 0.5 1.5, 0.0, 0.0, 1.5
+```
