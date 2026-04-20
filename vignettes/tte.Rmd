@@ -252,6 +252,8 @@ var_brrw <- var(surv_prob_control)                # post variance of S_C(t) with
 ess <- n_int_ctrl * var_no_brrw / var_brrw        # effective sample size
 ess
 ```
+## Simulation Studies
+If you would like to run a simulation study for a time-to-event endpoint, you can use the template code available [here](https://github.com/GSK-Biostatistics/beastt/blob/main/inst/templates/tte-template.R). This template code assumes an external dataset is avaliable. It contains a step-by-step guide of how you can modify the code in the template to fit your specific simulation needs as well as how to parallelize the code to run more efficiently.
 
 ## References
 

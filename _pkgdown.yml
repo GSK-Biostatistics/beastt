@@ -1,5 +1,8 @@
 url: https://gsk-biostatistics.github.io/beastt/
 
+template:
+  bootstrap: 5
+
 reference:
 - title: "Propensity Scores"
 - contents:
@@ -67,4 +70,7 @@ reference:
   - binary_sim_df
   - tte_sim_df
 
+navbar:
+  structure:
+    right: [search, github]
 
