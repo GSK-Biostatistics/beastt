@@ -87,7 +87,7 @@ At the moment {beastt} covers borrowing from external control data for
 normal, binary, and time to event endpoints. For more information, see
 the [vignettes](https://gsk-biostatistics.github.io/beastt/articles/).
 If you are looking to do a simulation for a binary or time to event
-endpoint, you can use the template cade avaliable
+endpoint, you can use the template code available
 [here](https://github.com/GSK-Biostatistics/beastt/tree/main/inst/templates).
 
 ## Contributing
