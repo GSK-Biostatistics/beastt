@@ -1,5 +1,5 @@
 
-# beastt <a href='https://gsk-biostatistics.github.io/beastt/'><img src="man/figures/beastt-logo.png" align="right" alt = "beastt logo" style="height:139px;"/></a>
+# beastt <a href='https://gsk-biostatistics.github.io/beastt/'><img src="man/figures/beastt_hex.png" align="right" alt = "beastt logo" style="height:139px;"/></a>
 
 ## Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (beastt)
 
@@ -86,7 +86,7 @@ devtools::install_github("GSK-Biostatistics/beastt")
 At the moment {beastt} covers borrowing from external control data for
 normal, binary, and time to event endpoints. For more information, see
 the [vignettes](https://gsk-biostatistics.github.io/beastt/articles/).
-If you are looking to do a simulation for a binary or time to event
+If you are looking to conduct a simulation study for a binary or time-to-event
 endpoint, you can use the template code available
 [here](https://github.com/GSK-Biostatistics/beastt/tree/main/inst/templates).
 

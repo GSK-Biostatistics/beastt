@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# beastt <a href='https://gsk-biostatistics.github.io/beastt/'><img src="man/figures/beastt-logo.png" align="right" alt = "beastt logo" style="height:139px;"/></a>
+# beastt <a href='https://gsk-biostatistics.github.io/beastt/'><img src="man/figures/beastt_hex.png" align="right" alt = "beastt logo" style="height:139px;"/></a>
 
 
 ## Bayesian Evaluation, Analysis, and Simulation Software Tools for Trials (beastt)
